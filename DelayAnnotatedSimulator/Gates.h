@@ -25,8 +25,8 @@
 #ifndef DelayAnnotatedSimulator_Gates_h
 #define DelayAnnotatedSimulator_Gates_h
 
-//forward declarations
-
+//forward declarations
+#include <cstdlib>
 #include "Type.h"
 #include <vector>
 
@@ -70,7 +70,7 @@ public:
     Gate(GateType type, unsigned int level) : m_type (type), output(LogicValue::X), levelnum(level), delay(1)  { }
     Gate(GateType type, unsigned int level, unsigned int delay) : m_type (type), output(LogicValue::X), levelnum(level), delay(delay) {}
     Gate(std::vector<Gate *> fin, std::vector<Gate *> fout, GateType type)
-    : fanin(fin), fanout(fout), output(LogicValue::X), m_type(type) { }
+    : m_type(type), output(LogicValue::X),  fanin(fin), fanout(fout) { }
     virtual ~Gate() { }
     virtual void evaluate(); //eval and schedule if transition
     bool isDirty() { return dirty; }

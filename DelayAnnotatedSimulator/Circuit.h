@@ -25,7 +25,7 @@
 #ifndef __DelayAnnotatedSimulator__Circuit__
 #define __DelayAnnotatedSimulator__Circuit__
 
-#include <stdio.h>
+#include <cstdlib>
 #include <vector>
 #include <map>
 #include <string>
@@ -35,6 +35,7 @@
 #include <regex>
 
 #include "Gates.h"
+#include "Type.h"
 
 class Circuit{
 private:

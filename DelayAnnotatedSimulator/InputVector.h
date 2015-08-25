@@ -25,6 +25,7 @@
 #ifndef __DelayAnnotatedSimulator__InputVector__
 #define __DelayAnnotatedSimulator__InputVector__
 
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 #include <sstream>

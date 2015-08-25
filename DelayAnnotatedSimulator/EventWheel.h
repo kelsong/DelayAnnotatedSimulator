@@ -25,10 +25,12 @@
 #ifndef DelayAnnotatedSimulator_EventWheel_h
 #define DelayAnnotatedSimulator_EventWheel_h
 
+#include <cstdlib>
 #include <vector>
 #include <queue>
 #include <set>
 #include "Gates.h"
+#include "Type.h"
 
 //base zero delay eventwheel, uses levels.
 //TODO: Inherit to make delay
@@ -43,6 +45,7 @@ protected:
 public:
     EventWheel() : current_event_queue(0) {}
     EventWheel(unsigned int num_levels) : current_event_queue(0) { scheduled_events.resize(num_levels); }
+    virtual ~EventWheel() {}
     virtual void insertEvent(Gate *);
     virtual Gate * getNextScheduled();
     void clearWheel();
@@ -54,6 +57,7 @@ private:
     unsigned int current_time_ns; //used to track the time taken this cycle, so each gates completion time can be annotated.
 public:
     GateDelayWheel(unsigned int max_delay) : current_time_ns(0) { scheduled_events.resize(max_delay);}
+    ~GateDelayWheel() {}
     void insertEvent(Gate *);
     Gate * getNextScheduled();
 };

@@ -27,7 +27,7 @@
 std::vector<LogicValue> Simulator::getOutputs(){
     std::vector<Gate*> outs = circuit->getOutputs();
     std::vector<LogicValue> ret;
-    for(int i = 0; i < outs.size(); i++) {
+    for(unsigned int i = 0; i < outs.size(); i++) {
         ret.push_back(outs[i]->getOut());
     }
     return ret;
@@ -38,14 +38,14 @@ void Simulator::simCycle(const std::vector<char>& input){
 }
 
 void Simulator::dumpPO(std::ostream& out_stream){
-    for(int i = 0; i < circuit->getNumOutput(); i++){
+    for(unsigned int i = 0; i < circuit->getNumOutput(); i++){
         out_stream << circuit->getOutput(i)->getOut().ascii();
     }
     out_stream << std::endl;
 }
 //dumps the circuit state to output stream
 void Simulator::dumpState(std::ostream& out_stream) {
-    for(int i = 0; i < circuit->getNumStateVar(); i++){
+    for(unsigned int i = 0; i < circuit->getNumStateVar(); i++){
         out_stream << circuit->getStateVar(i)->getOut().ascii();
     }
     out_stream << std::endl;
@@ -56,7 +56,7 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
     if(input.size() != circuit->getNumInput()) {
         std::cerr << "INVALID INPUT AT: " << cycle_id << std::endl;
     }
-    for(int i = 0; i < input.size(); i++) { //insert all inputs as events
+    for(unsigned int i = 0; i < input.size(); i++) { //insert all inputs as events
         InputGate * in = circuit->getInput(i);
         if(in) {
             in->setInput(LogicValue::fromChar(input[i]));
@@ -68,7 +68,7 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
     }
     
     //always schedule all state vars (there are some optimizations possible, but this is easiest for now)
-    for(int i = 0; i<circuit->getNumStateVar(); i++) {
+    for(unsigned int i = 0; i<circuit->getNumStateVar(); i++) {
         eventwheel->insertEvent(circuit->getStateVar(i));
     }
     
@@ -80,7 +80,7 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
             continue;
         }
         
-        for(int i = 0; i<gate_to_eval->getNumFanout(); i++) {
+        for(unsigned int i = 0; i<gate_to_eval->getNumFanout(); i++) {
             if(gate_to_eval->getFanout(i)->type() != Gate::D_FF){
                 eventwheel->insertEvent(gate_to_eval->getFanout(i));
             }
@@ -99,7 +99,7 @@ void LogicDelaySimulator::simCycle(const std::vector<char> & input){
     if(input.size() != circuit->getNumInput()) {
         std::cerr << "INVALID INPUT AT: " << cycle_id << std::endl;
     }
-    for(int i = 0; i < input.size(); i++) { //insert all inputs as events
+    for(unsigned int i = 0; i < input.size(); i++) { //insert all inputs as events
         InputGate * in = circuit->getInput(i);
         if(in) {
             in->setInput(LogicValue::fromChar(input[i]));
@@ -111,7 +111,7 @@ void LogicDelaySimulator::simCycle(const std::vector<char> & input){
     }
     
     //always schedule all state vars (there are some optimizations possible, but this is easiest for now)
-    for(int i = 0; i<circuit->getNumStateVar(); i++) {
+    for(unsigned int i = 0; i<circuit->getNumStateVar(); i++) {
         eventwheel->insertEvent(circuit->getStateVar(i));
     }
     
@@ -123,7 +123,7 @@ void LogicDelaySimulator::simCycle(const std::vector<char> & input){
             continue;
         }
         
-        for(int i = 0; i<gate_to_eval->getNumFanout(); i++) {
+        for(unsigned int i = 0; i<gate_to_eval->getNumFanout(); i++) {
             if(gate_to_eval->getFanout(i)->type() != Gate::D_FF){
                 eventwheel->insertEvent(gate_to_eval->getFanout(i));
             }

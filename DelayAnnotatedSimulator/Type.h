@@ -25,7 +25,7 @@
 #ifndef DelayAnnotatedSimulator_Type_h
 #define DelayAnnotatedSimulator_Type_h
 
-//want logic to be analogous
+//want logic to be analogous 
 
 class LogicValue{
 public:

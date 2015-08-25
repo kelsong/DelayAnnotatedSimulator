@@ -36,7 +36,7 @@ void Circuit::readLev(std::string filename, bool delay){
         ss >> num_gates;
         num_gates--;
         std::getline(circuit_desc, line); //throw away line
-        for(int i = 0; i < num_gates; i++){
+        for(unsigned int i = 0; i < num_gates; i++){
             std::getline(circuit_desc, line);
             std::stringstream gate_info(line);
         
@@ -57,7 +57,7 @@ void Circuit::readLev(std::string filename, bool delay){
                 num_levels = max_level+1;
             }
             gate_info >> num_fanin;
-            for(int j = 0; j < num_fanin; j++){
+            for(unsigned int j = 0; j < num_fanin; j++){
                 unsigned int tmp;
                 gate_info >> tmp;
                 fanin_ids.push_back(tmp);
@@ -161,7 +161,7 @@ void Circuit::readLev(std::string filename, bool delay){
                     break;
             }
             if(created_gate->type() != Gate::D_FF){
-                for(int j = 0; j < num_fanin; j++){
+                for(unsigned int j = 0; j < num_fanin; j++){
                     Gate * fanin = allGates[fanin_ids[j]-1];
                     created_gate->addFanin(fanin);
                     fanin->addFanout(created_gate);
@@ -323,7 +323,7 @@ std::vector<Gate*> Circuit::getOutputs(){
 }
 
 Circuit::~Circuit(){
-    for(int i = 0; i<allGates.size(); i++){
+    for(size_t i = 0; i<allGates.size(); i++){
         delete allGates[i];
     }
 }

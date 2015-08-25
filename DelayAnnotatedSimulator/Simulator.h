@@ -25,6 +25,7 @@
 #ifndef __DelayAnnotatedSimulator__Simulator__
 #define __DelayAnnotatedSimulator__Simulator__
 
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -32,6 +33,7 @@
 #include "Circuit.h"
 #include "Gates.h"
 #include "Args.h"
+#include "Type.h"
 
 //Base class for simulators. Will be used for LogicSimulator, FaultSimulator, DelaySimulator.
 class Simulator {
