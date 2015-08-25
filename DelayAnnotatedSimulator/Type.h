@@ -22,40 +22,39 @@
  THE SOFTWARE.
  */
 
-#include <iostream>
-#include <cstdlib>
-#include "Circuit.h"
-#include "Type.h"
-#include "Gates.h"
-#include "Simulator.h"
-#include "Args.h"
-#include "InputVector.h"
+#ifndef DelayAnnotatedSimulator_Type_h
+#define DelayAnnotatedSimulator_Type_h
 
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    Args args;
-    args.readArgs(argc, argv);
-    Circuit * circuit = new Circuit(args.getCircuitName(), true);
-    //std::cerr << circuit->getMaxDelay() << std::endl;
-    LogicDelaySimulator * simulator = new LogicDelaySimulator(circuit);
-    InputVector test_vector(args.getInputSource());
+//want logic to be analogous
+
+class LogicValue{
+public:
+    enum VALUES{
+        ZERO = 0,
+        X,
+        Z,
+        ONE
+    };
     
-    while(!test_vector.isDone()){
-        std::vector<char> vec = test_vector.getNext();
-        if(test_vector.isDone())
-            break;
-        
-        simulator->simCycle(vec);
-        
-        if (args.isOutputState()){
-            simulator->dumpState(args.getOutputSource());
-        }
-        if(args.isOutputPO()){
-            simulator->dumpPO(args.getOutputSource());
-        }
+    const char* ascii() const {
+        static const char* names[] = {"0", "X", "Z", "1"};
+        return names[val];
     }
     
-    std::cout << "DONE" << std::endl;
-    //delete circuit;
-    delete simulator;
-}
+    enum VALUES val;
+    
+    LogicValue(VALUES val): val(val) {}
+    operator VALUES () { return val; }
+    LogicValue operator= (LogicValue::VALUES rhs) { this->val = rhs; return *this; }
+    bool operator== (LogicValue::VALUES rhs) {return (val == rhs);}
+    bool operator== (LogicValue rhs) {return val == rhs.val;}
+    
+    static LogicValue fromChar(char c) {
+        if (c == '0')  return LogicValue(ZERO);
+        if (c == '1')  return LogicValue(ONE);
+        if (c == 'x' || c == 'X') return LogicValue(X);
+        if (c == 'z' || c == 'Z') return LogicValue(X);
+        return LogicValue(X); }
+};
+
+#endif

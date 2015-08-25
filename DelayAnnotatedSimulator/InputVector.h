@@ -22,40 +22,35 @@
  THE SOFTWARE.
  */
 
-#include <iostream>
-#include <cstdlib>
-#include "Circuit.h"
-#include "Type.h"
-#include "Gates.h"
-#include "Simulator.h"
-#include "Args.h"
-#include "InputVector.h"
+#ifndef __DelayAnnotatedSimulator__InputVector__
+#define __DelayAnnotatedSimulator__InputVector__
 
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    Args args;
-    args.readArgs(argc, argv);
-    Circuit * circuit = new Circuit(args.getCircuitName(), true);
-    //std::cerr << circuit->getMaxDelay() << std::endl;
-    LogicDelaySimulator * simulator = new LogicDelaySimulator(circuit);
-    InputVector test_vector(args.getInputSource());
-    
-    while(!test_vector.isDone()){
-        std::vector<char> vec = test_vector.getNext();
-        if(test_vector.isDone())
-            break;
-        
-        simulator->simCycle(vec);
-        
-        if (args.isOutputState()){
-            simulator->dumpState(args.getOutputSource());
+#include <iostream>
+#include <vector>
+#include <sstream>
+//handles the input vector either from user input or from a file.
+// eventually this will do more complex file buffering. For now, it's simple.
+class InputVector{
+    std::istream& source;
+    std::string current_buffer;
+    unsigned long int line_no;
+    unsigned int pi_length;
+    bool found_end;
+public:
+    InputVector(std::istream& source): source(source), line_no(0), found_end(false) {
+        if(isStdIn()){
+            std::cout << "Enter ckt input (END to quit): " << std::endl;
+        } else {
+            std::string line;
+            std::getline(source, line);
+            std::stringstream ss(line);
+            ss >> pi_length;
+            std::getline(source, current_buffer);
         }
-        if(args.isOutputPO()){
-            simulator->dumpPO(args.getOutputSource());
-        }
+        line_no++;
     }
-    
-    std::cout << "DONE" << std::endl;
-    //delete circuit;
-    delete simulator;
-}
+    std::vector<char> getNext();
+    inline bool isDone() { return found_end; }
+    inline bool isStdIn() {return &source == &std::cin;}
+};
+#endif /* defined(__DelayAnnotatedSimulator__InputVector__) */

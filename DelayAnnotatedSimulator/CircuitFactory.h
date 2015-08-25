@@ -22,40 +22,11 @@
  THE SOFTWARE.
  */
 
-#include <iostream>
-#include <cstdlib>
-#include "Circuit.h"
-#include "Type.h"
-#include "Gates.h"
-#include "Simulator.h"
-#include "Args.h"
-#include "InputVector.h"
+#ifndef DelayAnnotatedSimulator_CircuitFactory_h
+#define DelayAnnotatedSimulator_CircuitFactory_h
 
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    Args args;
-    args.readArgs(argc, argv);
-    Circuit * circuit = new Circuit(args.getCircuitName(), true);
-    //std::cerr << circuit->getMaxDelay() << std::endl;
-    LogicDelaySimulator * simulator = new LogicDelaySimulator(circuit);
-    InputVector test_vector(args.getInputSource());
+class CircuitFactory{
     
-    while(!test_vector.isDone()){
-        std::vector<char> vec = test_vector.getNext();
-        if(test_vector.isDone())
-            break;
-        
-        simulator->simCycle(vec);
-        
-        if (args.isOutputState()){
-            simulator->dumpState(args.getOutputSource());
-        }
-        if(args.isOutputPO()){
-            simulator->dumpPO(args.getOutputSource());
-        }
-    }
-    
-    std::cout << "DONE" << std::endl;
-    //delete circuit;
-    delete simulator;
-}
+};
+
+#endif

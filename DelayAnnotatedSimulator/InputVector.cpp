@@ -22,40 +22,40 @@
  THE SOFTWARE.
  */
 
-#include <iostream>
-#include <cstdlib>
-#include "Circuit.h"
-#include "Type.h"
-#include "Gates.h"
-#include "Simulator.h"
-#include "Args.h"
 #include "InputVector.h"
 
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    Args args;
-    args.readArgs(argc, argv);
-    Circuit * circuit = new Circuit(args.getCircuitName(), true);
-    //std::cerr << circuit->getMaxDelay() << std::endl;
-    LogicDelaySimulator * simulator = new LogicDelaySimulator(circuit);
-    InputVector test_vector(args.getInputSource());
+std::vector<char> InputVector::getNext() {
+    if(isDone()) {
+        std::cerr << "No more vectors for getNext" << std::endl;
+        exit(-5);
+    }
+    std::vector<char> ret;
     
-    while(!test_vector.isDone()){
-        std::vector<char> vec = test_vector.getNext();
-        if(test_vector.isDone())
-            break;
-        
-        simulator->simCycle(vec);
-        
-        if (args.isOutputState()){
-            simulator->dumpState(args.getOutputSource());
-        }
-        if(args.isOutputPO()){
-            simulator->dumpPO(args.getOutputSource());
+    if(isStdIn()){
+        std::getline(source, current_buffer);
+        if(current_buffer.compare("END") == 0){
+            found_end = true;
+            return ret;
         }
     }
     
-    std::cout << "DONE" << std::endl;
-    //delete circuit;
-    delete simulator;
+    for(int i = 0; i<current_buffer.size(); i++){
+        if(current_buffer[i] == '0' || current_buffer[i] == '1' || current_buffer[i] == 'X' || current_buffer[i] == 'x'){
+            ret.push_back(current_buffer[i]);
+        } else {
+            std::cerr << "Input Error on input " << line_no << ": "
+                      << "Inputs must be a '0', '1', X or 'END' " << std::endl;
+            exit(-5);
+        }
+        line_no++;
+    }
+    
+    if(!isStdIn()){
+        std::getline(source,current_buffer);
+        if(current_buffer.compare("END") == 0) {
+            found_end = true;
+        }
+    }
+    
+    return ret;
 }

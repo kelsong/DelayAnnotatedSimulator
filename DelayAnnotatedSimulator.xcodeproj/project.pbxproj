@@ -8,6 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		9B1EE5401AF3129200D4C053 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B1EE53F1AF3129200D4C053 /* main.cpp */; };
+		9B52F8621AFC967500D6230E /* Gates.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B52F8611AFC967500D6230E /* Gates.cpp */; };
+		9B52F8651AFD4FAB00D6230E /* Circuit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B52F8631AFD4FAB00D6230E /* Circuit.cpp */; };
+		9BA906331B4D6AD400B67D29 /* Args.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BA906321B4D6AD400B67D29 /* Args.cpp */; };
+		9BA906361B4D6FFA00B67D29 /* Simulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BA906341B4D6FFA00B67D29 /* Simulator.cpp */; };
+		9BA906381B4D7AAF00B67D29 /* EventWheel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BA906371B4D7AAF00B67D29 /* EventWheel.cpp */; };
+		9BC55DB71B5D841600A080FF /* InputVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BC55DB51B5D841600A080FF /* InputVector.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +31,20 @@
 /* Begin PBXFileReference section */
 		9B1EE53C1AF3129100D4C053 /* DelayAnnotatedSimulator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DelayAnnotatedSimulator; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B1EE53F1AF3129200D4C053 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		9B1EE5461AF312AA00D4C053 /* Type.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Type.h; sourceTree = "<group>"; };
+		9B1EE5471AF312BE00D4C053 /* EventWheel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EventWheel.h; sourceTree = "<group>"; };
+		9B1EE5481AF312D900D4C053 /* Gates.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Gates.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		9B52F8611AFC967500D6230E /* Gates.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gates.cpp; sourceTree = "<group>"; };
+		9B52F8631AFD4FAB00D6230E /* Circuit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Circuit.cpp; sourceTree = "<group>"; };
+		9B52F8641AFD4FAB00D6230E /* Circuit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Circuit.h; sourceTree = "<group>"; };
+		9BA906311B4C9D1D00B67D29 /* Args.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Args.h; sourceTree = "<group>"; };
+		9BA906321B4D6AD400B67D29 /* Args.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Args.cpp; sourceTree = "<group>"; };
+		9BA906341B4D6FFA00B67D29 /* Simulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Simulator.cpp; sourceTree = "<group>"; };
+		9BA906351B4D6FFA00B67D29 /* Simulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Simulator.h; sourceTree = "<group>"; };
+		9BA906371B4D7AAF00B67D29 /* EventWheel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventWheel.cpp; sourceTree = "<group>"; };
+		9BA9063A1B4DE22F00B67D29 /* b01rst.lev */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = b01rst.lev; path = "../../../Library/Developer/Xcode/DerivedData/DelayAnnotatedSimulator-hdrljdurbvvwitbbyqljnjazhsim/Build/Products/Debug/b01rst.lev"; sourceTree = "<group>"; };
+		9BC55DB51B5D841600A080FF /* InputVector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputVector.cpp; sourceTree = "<group>"; };
+		9BC55DB61B5D841600A080FF /* InputVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputVector.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +63,7 @@
 			children = (
 				9B1EE53E1AF3129100D4C053 /* DelayAnnotatedSimulator */,
 				9B1EE53D1AF3129100D4C053 /* Products */,
+				9BA9063A1B4DE22F00B67D29 /* b01rst.lev */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,7 +78,20 @@
 		9B1EE53E1AF3129100D4C053 /* DelayAnnotatedSimulator */ = {
 			isa = PBXGroup;
 			children = (
+				9BA906341B4D6FFA00B67D29 /* Simulator.cpp */,
+				9BA906351B4D6FFA00B67D29 /* Simulator.h */,
+				9BC55DB51B5D841600A080FF /* InputVector.cpp */,
+				9BC55DB61B5D841600A080FF /* InputVector.h */,
 				9B1EE53F1AF3129200D4C053 /* main.cpp */,
+				9B1EE5461AF312AA00D4C053 /* Type.h */,
+				9B1EE5471AF312BE00D4C053 /* EventWheel.h */,
+				9BA906371B4D7AAF00B67D29 /* EventWheel.cpp */,
+				9B1EE5481AF312D900D4C053 /* Gates.h */,
+				9B52F8611AFC967500D6230E /* Gates.cpp */,
+				9B52F8631AFD4FAB00D6230E /* Circuit.cpp */,
+				9B52F8641AFD4FAB00D6230E /* Circuit.h */,
+				9BA906311B4C9D1D00B67D29 /* Args.h */,
+				9BA906321B4D6AD400B67D29 /* Args.cpp */,
 			);
 			path = DelayAnnotatedSimulator;
 			sourceTree = "<group>";
@@ -118,7 +152,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9B52F8621AFC967500D6230E /* Gates.cpp in Sources */,
 				9B1EE5401AF3129200D4C053 /* main.cpp in Sources */,
+				9BA906381B4D7AAF00B67D29 /* EventWheel.cpp in Sources */,
+				9BC55DB71B5D841600A080FF /* InputVector.cpp in Sources */,
+				9BA906331B4D6AD400B67D29 /* Args.cpp in Sources */,
+				9BA906361B4D6FFA00B67D29 /* Simulator.cpp in Sources */,
+				9B52F8651AFD4FAB00D6230E /* Circuit.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -205,6 +245,7 @@
 		9B1EE5441AF3129200D4C053 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				OTHER_LDFLAGS = "-v";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -212,6 +253,8 @@
 		9B1EE5451AF3129200D4C053 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-v";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -235,6 +278,7 @@
 				9B1EE5451AF3129200D4C053 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

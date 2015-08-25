@@ -22,40 +22,36 @@
  THE SOFTWARE.
  */
 
-#include <iostream>
-#include <cstdlib>
-#include "Circuit.h"
-#include "Type.h"
-#include "Gates.h"
-#include "Simulator.h"
-#include "Args.h"
-#include "InputVector.h"
 
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    Args args;
-    args.readArgs(argc, argv);
-    Circuit * circuit = new Circuit(args.getCircuitName(), true);
-    //std::cerr << circuit->getMaxDelay() << std::endl;
-    LogicDelaySimulator * simulator = new LogicDelaySimulator(circuit);
-    InputVector test_vector(args.getInputSource());
+#ifndef DelayAnnotatedSimulator_Args_h
+#define DelayAnnotatedSimulator_Args_h
+
+#include <string>
+#include <iostream>
+#include <fstream>
+
+class Args{
+private:
+    //all flags and global properties
+    std::string circuit;
+    std::istream* input_source;
+    std::ostream* output_source;
+    unsigned int simulator_type;
+    bool outputState;
+    bool outputPO;
+public:
+    //getter/setters
+    inline void setCircuitName(std::string name) { circuit = name; }
+    inline std::string getCircuitName() const { return circuit; }
+    inline void setInputSource(std::istream* isource) { input_source = isource; }
+    inline std::istream& getInputSource() const { return *input_source; }
+    inline std::ostream& getOutputSource() const {return *output_source; }
+    inline void setSimulatorType(unsigned int type) { simulator_type = type; }
+    inline unsigned int getSimulatorType() const { return simulator_type; }
+    inline bool isOutputState() const { return outputState; }
+    inline bool isOutputPO() const { return outputPO; }
     
-    while(!test_vector.isDone()){
-        std::vector<char> vec = test_vector.getNext();
-        if(test_vector.isDone())
-            break;
-        
-        simulator->simCycle(vec);
-        
-        if (args.isOutputState()){
-            simulator->dumpState(args.getOutputSource());
-        }
-        if(args.isOutputPO()){
-            simulator->dumpPO(args.getOutputSource());
-        }
-    }
-    
-    std::cout << "DONE" << std::endl;
-    //delete circuit;
-    delete simulator;
-}
+    void readArgs(int argc, const char* argv[]);
+};
+
+#endif

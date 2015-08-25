@@ -22,40 +22,39 @@
  THE SOFTWARE.
  */
 
-#include <iostream>
-#include <cstdlib>
-#include "Circuit.h"
-#include "Type.h"
-#include "Gates.h"
-#include "Simulator.h"
-#include "Args.h"
-#include "InputVector.h"
+#ifndef DelayAnnotatedSimulator_EventWheel_h
+#define DelayAnnotatedSimulator_EventWheel_h
 
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    Args args;
-    args.readArgs(argc, argv);
-    Circuit * circuit = new Circuit(args.getCircuitName(), true);
-    //std::cerr << circuit->getMaxDelay() << std::endl;
-    LogicDelaySimulator * simulator = new LogicDelaySimulator(circuit);
-    InputVector test_vector(args.getInputSource());
+#include <vector>
+#include <queue>
+#include <set>
+#include "Gates.h"
+
+//base zero delay eventwheel, uses levels.
+//TODO: Inherit to make delay
+class EventWheel {
+protected:
+    //for now no delay annotation, just logic simulator
+    //list of scheduled events
+    std::vector< std::queue<Gate *> > scheduled_events;
+    std::set<Gate *> scheduled_set;
+    unsigned int current_event_queue;
     
-    while(!test_vector.isDone()){
-        std::vector<char> vec = test_vector.getNext();
-        if(test_vector.isDone())
-            break;
-        
-        simulator->simCycle(vec);
-        
-        if (args.isOutputState()){
-            simulator->dumpState(args.getOutputSource());
-        }
-        if(args.isOutputPO()){
-            simulator->dumpPO(args.getOutputSource());
-        }
-    }
-    
-    std::cout << "DONE" << std::endl;
-    //delete circuit;
-    delete simulator;
-}
+public:
+    EventWheel() : current_event_queue(0) {}
+    EventWheel(unsigned int num_levels) : current_event_queue(0) { scheduled_events.resize(num_levels); }
+    virtual void insertEvent(Gate *);
+    virtual Gate * getNextScheduled();
+    void clearWheel();
+};
+
+
+class GateDelayWheel : EventWheel {
+private:
+    unsigned int current_time_ns; //used to track the time taken this cycle, so each gates completion time can be annotated.
+public:
+    GateDelayWheel(unsigned int max_delay) : current_time_ns(0) { scheduled_events.resize(max_delay);}
+    void insertEvent(Gate *);
+    Gate * getNextScheduled();
+};
+#endif
