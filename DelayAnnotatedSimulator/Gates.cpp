@@ -48,7 +48,7 @@ void AndGate::evaluate(){
     LogicValue previous = output;
     
     LogicValue val = fanin[0]->getOut();
-    for(int i = 1; i<fanin.size(); i++) {
+    for(unsigned int i = 1; i<fanin.size(); i++) {
         if(fanin[i]->getOut() != LogicValue::Z)
             val = LogicValue::VALUES(val & fanin[i]->getOut());
     }
@@ -68,7 +68,7 @@ void NandGate::evaluate(){
     LogicValue previous = output;
     
     LogicValue val = fanin[0]->getOut();
-    for(int i = 1; i<fanin.size(); i++) {
+    for(unsigned int i = 1; i<fanin.size(); i++) {
         if(fanin[i]->getOut() != LogicValue::Z)
             val = LogicValue::VALUES(val & fanin[i]->getOut());
     }
@@ -88,7 +88,7 @@ void OrGate::evaluate(){
     LogicValue previous = output;
     
     LogicValue val = fanin[0]->getOut();
-    for(int i = 1; i<fanin.size(); i++) {
+    for(unsigned int i = 1; i<fanin.size(); i++) {
         if(fanin[i]->getOut() != LogicValue::Z)
             val = LogicValue::VALUES(val | fanin[i]->getOut());
     }
@@ -107,7 +107,7 @@ void NorGate::evaluate(){
     LogicValue previous = output;
     
     LogicValue val = fanin[0]->getOut();
-    for(int i = 1; i<fanin.size(); i++) {
+    for(unsigned int i = 1; i<fanin.size(); i++) {
         if(fanin[i]->getOut() != LogicValue::Z)
             val = LogicValue::VALUES(val | fanin[i]->getOut());
     }
