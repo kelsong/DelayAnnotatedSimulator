@@ -177,7 +177,7 @@ void Circuit::readLev(std::string filename, bool delay){
                 }
             }
         }        
-        for(int i = 0; i<dff_inputs.size(); i++){
+        for(unsigned int i = 0; i<dff_inputs.size(); i++){
             stateVars[i]->addFanin(allGates[dff_inputs[i]-1]);
             allGates[dff_inputs[i]-1]->addFanout(stateVars[i]);
         }

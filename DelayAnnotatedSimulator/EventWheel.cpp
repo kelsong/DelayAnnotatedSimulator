@@ -52,7 +52,7 @@ Gate * EventWheel::getNextScheduled() {
 }
 
 void EventWheel::clearWheel(){
-    for(int i = 0; i < scheduled_events.size(); i++){
+    for(unsigned int i = 0; i < scheduled_events.size(); i++){
         scheduled_events.at(i).empty();
     }
     scheduled_set.clear();

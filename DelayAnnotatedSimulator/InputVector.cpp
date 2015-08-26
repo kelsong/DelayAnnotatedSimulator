@@ -39,7 +39,7 @@ std::vector<char> InputVector::getNext() {
         }
     }
     
-    for(int i = 0; i<current_buffer.size(); i++){
+    for(unsigned int i = 0; i<current_buffer.size(); i++){
         if(current_buffer[i] == '0' || current_buffer[i] == '1' || current_buffer[i] == 'X' || current_buffer[i] == 'x'){
             ret.push_back(current_buffer[i]);
         } else {
