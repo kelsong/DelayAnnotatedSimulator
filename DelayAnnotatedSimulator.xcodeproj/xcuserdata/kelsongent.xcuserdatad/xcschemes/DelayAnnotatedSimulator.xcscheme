@@ -65,11 +65,15 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "b01rst"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "c17"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-wpo"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>

@@ -33,9 +33,13 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
+#include <set>
 
 #include "Gates.h"
 #include "Type.h"
+
+//Circuit Class
+//For Project 0 create the circuit using false for the delay (there is no dly file for the circuit)
 
 class Circuit{
 private:
@@ -67,10 +71,13 @@ public:
     inline size_t getNumOutput() { return outputs.size(); }
     inline size_t getNumStateVar() { return stateVars.size(); }
     inline size_t getNumGates() { return allGates.size(); }
-    inline Gate* getStateVar(unsigned int idx) { return stateVars[idx]; }
-    inline Gate* getOutput(unsigned int idx) { return outputs[idx]; }
-    inline Gate* getGate(unsigned int idx) { return allGates[idx]; }
+    inline Gate* getStateVar(unsigned int idx) { return ((idx < allGates.size()) ? stateVars[idx] : NULL); }
+    inline Gate* getOutput(unsigned int idx) { return ((idx < allGates.size()) ? outputs[idx] : NULL); }
+    inline Gate* getGate(unsigned int idx) { return ((idx < allGates.size()) ?  allGates[idx] : NULL); }
     inline unsigned int getMaxDelay() { return max_delay; }
+    
+    void PrintPIFanoutCone(unsigned int idx);
+    void DFSFanoutRecurse(Gate* gate, std::set<unsigned int>&);
 };
 
 

@@ -66,27 +66,27 @@ void Circuit::readLev(std::string filename, bool delay){
             Gate * created_gate;
             switch (type){
                 case 1: //INPUT
-                    created_gate = new InputGate(level);
+                    created_gate = new InputGate(id, level);
                     allGates.push_back(created_gate);
                     inputs.push_back(created_gate);
                     break;
                 case 2: //OUTPUT
-                    created_gate = new OutputGate(level);
+                    created_gate = new OutputGate(id, level);
                     allGates.push_back(created_gate);
                     outputs.push_back(created_gate);
                     break;
                 case 3: //XOR
-                    created_gate = new XorGate(level);
+                    created_gate = new XorGate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
                 case 4: //XNOR
-                    created_gate = new XnorGate(level);
+                    created_gate = new XnorGate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
                 case 5: //DFF
-                    created_gate = new DffGate(level);
+                    created_gate = new DffGate(id, level);
                     allGates.push_back(created_gate);
                     stateVars.push_back(created_gate);
                     if(num_fanin == 1){
@@ -97,62 +97,62 @@ void Circuit::readLev(std::string filename, bool delay){
                     }
                     break;
                 case 6: //AND
-                    created_gate = new AndGate(level);
+                    created_gate = new AndGate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
                 case 7: //NAND
-                    created_gate = new NandGate(level);
+                    created_gate = new NandGate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
                 case 8: //OR
-                    created_gate = new OrGate(level);
+                    created_gate = new OrGate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
                 case 9: //NOR
-                    created_gate = new NorGate(level);
+                    created_gate = new NorGate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
                 case 10: //NOT
-                    created_gate = new NotGate(level);
+                    created_gate = new NotGate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
                 case 11: //BUF
-                    created_gate = new BufGate(level);
+                    created_gate = new BufGate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
                 case 12: //TIE1
-                    created_gate = new TieOneGate(level);
+                    created_gate = new TieOneGate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
                 case 13: //TIE0
-                    created_gate = new TieZeroGate(level);
+                    created_gate = new TieZeroGate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
                 case 14: //TIEX
-                    created_gate = new TieXGate(level);
+                    created_gate = new TieXGate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
                 case 15: //TIEZ
-                    created_gate = new TieZGate(level);
+                    created_gate = new TieZGate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
                 case 16: //MUX2
-                    created_gate = new Mux2Gate(level);
+                    created_gate = new Mux2Gate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
                 case 21: //TRISTATE
-                    created_gate = new TristateGate(level);
+                    created_gate = new TristateGate(id, level);
                     allGates.push_back(created_gate);
                     logicGates.push_back(created_gate);
                     break;
@@ -181,6 +181,9 @@ void Circuit::readLev(std::string filename, bool delay){
             stateVars[i]->addFanin(allGates[dff_inputs[i]-1]);
             allGates[dff_inputs[i]-1]->addFanout(stateVars[i]);
         }
+    } else {
+        std::cerr << "FILE DOES NOT EXIST" << std::endl;
+        exit(-5);
     }
 }
 
@@ -325,6 +328,29 @@ std::vector<Gate*> Circuit::getOutputs(){
 Circuit::~Circuit(){
     for(size_t i = 0; i<allGates.size(); i++){
         delete allGates[i];
+    }
+}
+
+void Circuit::PrintPIFanoutCone(unsigned int gate_id){
+    if(gate_id <= inputs.size() && gate_id > 0){
+        std::set<unsigned int> visited;
+        DFSFanoutRecurse(getInput(gate_id-1), visited);
+    } else {
+        std::cerr << "ERROR: NOT VALID INPUT GATE ID" << std::endl;
+    }
+}
+
+void Circuit::DFSFanoutRecurse(Gate * gate, std::set<unsigned int>& visited){
+    if((gate->type() == Gate::D_FF) || (gate->type() == Gate::OUTPUT)){
+        //base case
+        std::cerr << gate->getId() << " ";
+    } else if (visited.find(gate->getId()) == visited.end()){
+        //recurse
+        std::cerr << gate->getId() << " ";
+        for(unsigned int i = 0; i < gate->getNumFanout(); i++){
+            visited.insert(gate->getId());
+            DFSFanoutRecurse(gate->getFanout(i), visited);
+        }
     }
 }
 

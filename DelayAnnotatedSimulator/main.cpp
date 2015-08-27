@@ -35,12 +35,15 @@ int main(int argc, const char * argv[]) {
     // insert code here...
     Args args;
     args.readArgs(argc, argv);
+    //std::cerr << args.getCircuitName();
     Circuit * circuit = new Circuit(args.getCircuitName(), true);
     //std::cerr << circuit->getMaxDelay() << std::endl;
     LogicDelaySimulator * simulator = new LogicDelaySimulator(circuit);
-    InputVector test_vector(args.getInputSource());
+    //InputVector test_vector(args.getInputSource());
     
-    while(!test_vector.isDone()){
+    circuit->PrintPIFanoutCone(3);
+    
+    /*while(!test_vector.isDone()){
         std::vector<char> vec = test_vector.getNext();
         if(test_vector.isDone())
             break;
@@ -53,9 +56,9 @@ int main(int argc, const char * argv[]) {
         if(args.isOutputPO()){
             simulator->dumpPO(args.getOutputSource());
         }
-    }
+    }*/
     
-    std::cout << "DONE" << std::endl;
+    //std::cout << "DONE" << std::endl;
     //delete circuit;
     delete simulator;
 }
