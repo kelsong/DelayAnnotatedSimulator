@@ -331,6 +331,7 @@ Circuit::~Circuit(){
     }
 }
 
+//Proj0 reference solution
 void Circuit::PrintPIFanoutCone(unsigned int gate_id){
     if(gate_id <= inputs.size() && gate_id > 0){
         std::set<unsigned int> visited;
