@@ -62,19 +62,18 @@ public:
     void readDelay(std::string filename);
     void levelize();
     
-    std::vector<Gate*> getInputs();
-    InputGate * getInput(unsigned int idx) {return inputs[idx]->castInput();}
-    std::vector<Gate*> getStateVars();
-    std::vector<Gate*> getOutputs();
+    std::vector<Gate*> getInputs() {return inputs;}
+    InputGate * getInput(unsigned int idx) {return inputs[idx]->castInput();} //in lev format gate id starts at 1
+    std::vector<Gate*> getStateVars() {return stateVars;}
+    std::vector<Gate*> getOutputs() {return outputs;}
     inline unsigned int getNumLevels() { return num_levels; }
     inline size_t getNumInput() { return inputs.size(); }
     inline size_t getNumOutput() { return outputs.size(); }
     inline size_t getNumStateVar() { return stateVars.size(); }
     inline size_t getNumGates() { return allGates.size(); }
-    inline Gate* getStateVar(unsigned int idx) { return ((idx < allGates.size()) ? stateVars[idx] : NULL); }
-    inline Gate* getOutput(unsigned int idx) { return ((idx < allGates.size()) ? outputs[idx] : NULL); }
-    inline Gate* getGate(unsigned int idx) { return ((idx < allGates.size()) ?  allGates[idx] : NULL); }
-    inline unsigned int getMaxDelay() { return max_delay; }
+    inline Gate* getStateVar(unsigned int idx) { return ((idx < stateVars.size()) ? stateVars[idx] : NULL); }
+    inline Gate* getOutput(unsigned int idx) { return ((idx < outputs.size()) ? outputs[idx] : NULL); }
+    inline Gate* getGateById(unsigned int gate_id) { return ((gate_id < allGates.size()) ?  allGates[gate_id-1] : NULL); }
     
     void PrintPIFanoutCone(unsigned int idx);
     void DFSFanoutRecurse(Gate* gate, std::set<unsigned int>&);
