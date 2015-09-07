@@ -319,27 +319,3 @@ Circuit::~Circuit(){
     }
 }
 
-//Proj0 reference solution
-void Circuit::PrintPIFanoutCone(unsigned int gate_id){
-    if(gate_id <= inputs.size() && gate_id > 0){
-        std::set<unsigned int> visited;
-        DFSFanoutRecurse(getInput(gate_id-1), visited);
-    } else {
-        std::cerr << "ERROR: NOT VALID INPUT GATE ID" << std::endl;
-    }
-}
-
-void Circuit::DFSFanoutRecurse(Gate * gate, std::set<unsigned int>& visited){
-    if((gate->type() == Gate::D_FF) || (gate->type() == Gate::OUTPUT)){
-        //base case
-        std::cerr << gate->getId() << " ";
-    } else if (visited.find(gate->getId()) == visited.end()){
-        //recurse
-        std::cerr << gate->getId() << " ";
-        for(unsigned int i = 0; i < gate->getNumFanout(); i++){
-            visited.insert(gate->getId());
-            DFSFanoutRecurse(gate->getFanout(i), visited);
-        }
-    }
-}
-
