@@ -48,6 +48,12 @@ public:
     LogicValue operator= (LogicValue::VALUES rhs) { this->val = rhs; return *this; }
     bool operator== (LogicValue::VALUES rhs) {return (val == rhs);}
     bool operator== (LogicValue rhs) {return val == rhs.val;}
+    bool operator!= (LogicValue::VALUES rhs) {return (val != rhs);}
+
+    //friend LogicValue operator& (LogicValue lhs, LogicValue::VALUES) {}
+    //friend LogicValue operator& (LogicValue lhs, LogicValue rhs) {}
+    //friend LogicValue operator| (LogicValue lhs, LogicValue::VALUES) {}
+    //friend LogicValue operator| (LogicValue lhs, LogicValue rhs) {}
     
     static LogicValue fromChar(char c) {
         if (c == '0')  return LogicValue(ZERO);

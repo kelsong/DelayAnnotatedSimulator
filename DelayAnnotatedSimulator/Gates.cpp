@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "Gates.h"
+#include <iostream>
 
 /********************************************************/
 // GATE
@@ -49,8 +50,9 @@ void AndGate::evaluate(){
     
     LogicValue val = fanin[0]->getOut();
     for(unsigned int i = 1; i<fanin.size(); i++) {
-        if(fanin[i]->getOut() != LogicValue::Z)
-            val = LogicValue::VALUES(val & fanin[i]->getOut());
+      if(fanin[i]->getOut() != LogicValue::Z){
+	val = LogicValue::VALUES(val & fanin[i]->getOut());    
+      }
     }
     
     output = val;
@@ -70,7 +72,7 @@ void NandGate::evaluate(){
     LogicValue val = fanin[0]->getOut();
     for(unsigned int i = 1; i<fanin.size(); i++) {
         if(fanin[i]->getOut() != LogicValue::Z)
-            val = LogicValue::VALUES(val & fanin[i]->getOut());
+	  val = LogicValue::VALUES(val & fanin[i]->getOut());
     }
     
     output = (val == LogicValue::X) ? val : LogicValue(LogicValue::VALUES(LogicValue::ONE - val));
@@ -89,8 +91,9 @@ void OrGate::evaluate(){
     
     LogicValue val = fanin[0]->getOut();
     for(unsigned int i = 1; i<fanin.size(); i++) {
-        if(fanin[i]->getOut() != LogicValue::Z)
-            val = LogicValue::VALUES(val | fanin[i]->getOut());
+      if(fanin[i]->getOut() != LogicValue::Z){
+	val = LogicValue::VALUES(val | fanin[i]->getOut());
+      }
     }
     
     output = val;
@@ -130,7 +133,7 @@ void XorGate::evaluate(){
     for(int i = 1; i<2; i++) {
         if(fanin[i]->getOut() != LogicValue::Z) {
             val = (val == LogicValue::X || fanin[i]->getOut() == LogicValue::X)
-            ? LogicValue::VALUES(val ^ fanin[i]->getOut()) : LogicValue::X;
+	      ? LogicValue::X : LogicValue::VALUES(val ^ fanin[i]->getOut());
         }
     }
     output = val;
@@ -151,7 +154,7 @@ void XnorGate::evaluate(){
     for(int i = 1; i<2; i++) {
         if(fanin[i]->getOut() != LogicValue::Z) {
             val = (val == LogicValue::X || fanin[i]->getOut() == LogicValue::X)
-            ? LogicValue::VALUES(val ^ fanin[i]->getOut()) : LogicValue::X;
+	      ? LogicValue::X : LogicValue::VALUES(val ^ fanin[i]->getOut());
         }
     }
     output = (val == LogicValue::X) ? val : LogicValue(LogicValue::VALUES(LogicValue::ONE - val));
