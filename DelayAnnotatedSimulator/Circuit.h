@@ -74,6 +74,7 @@ public:
     inline Gate* getStateVar(unsigned int idx) { return ((idx < stateVars.size()) ? stateVars[idx] : NULL); }
     inline Gate* getOutput(unsigned int idx) { return ((idx < outputs.size()) ? outputs[idx] : NULL); }
     inline Gate* getGateById(unsigned int gate_id) { return ((gate_id < allGates.size()) ?  allGates[gate_id-1] : NULL); }
+    inline unsigned int getMaxDelay() {return max_delay;}
     
     void PrintPIFanoutCone(unsigned int idx);
     void DFSFanoutRecurse(Gate* gate, std::set<unsigned int>&);

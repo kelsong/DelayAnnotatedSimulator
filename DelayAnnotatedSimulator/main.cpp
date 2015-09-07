@@ -39,11 +39,11 @@ int main(int argc, const char * argv[]) {
     Circuit * circuit = new Circuit(args.getCircuitName(), true);
     //std::cerr << circuit->getMaxDelay() << std::endl;
     LogicDelaySimulator * simulator = new LogicDelaySimulator(circuit);
-    //InputVector test_vector(args.getInputSource());
+    InputVector test_vector(args.getInputSource());
     
-    circuit->PrintPIFanoutCone(3);
+    //circuit->PrintPIFanoutCone(3);
     
-    /*while(!test_vector.isDone()){
+    while(!test_vector.isDone()){
         std::vector<char> vec = test_vector.getNext();
         if(test_vector.isDone())
             break;
@@ -56,9 +56,9 @@ int main(int argc, const char * argv[]) {
         if(args.isOutputPO()){
             simulator->dumpPO(args.getOutputSource());
         }
-    }*/
+    }
     
     //std::cout << "DONE" << std::endl;
-    //delete circuit;
+    delete circuit;
     delete simulator;
 }

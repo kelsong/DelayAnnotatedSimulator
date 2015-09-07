@@ -329,7 +329,7 @@ unsigned int TestDFF(){
   return TEST_PASS;
 }
 
-int main(){
+/*int main(){
   std::cerr << TestAnd() << std::endl;
   std::cerr << TestNand() << std::endl;
   std::cerr << TestOr() << std::endl;
@@ -341,4 +341,4 @@ int main(){
   std::cerr << TestDFF() << std::endl;
   std::cerr << TestInput() << std::endl;
   std::cerr << TestOutput() << std::endl;
-}
+}*/

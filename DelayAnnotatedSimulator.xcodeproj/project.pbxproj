@@ -14,6 +14,7 @@
 		9BA906361B4D6FFA00B67D29 /* Simulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BA906341B4D6FFA00B67D29 /* Simulator.cpp */; };
 		9BA906381B4D7AAF00B67D29 /* EventWheel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BA906371B4D7AAF00B67D29 /* EventWheel.cpp */; };
 		9BC55DB71B5D841600A080FF /* InputVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BC55DB51B5D841600A080FF /* InputVector.cpp */; };
+		9BD2C3371B9E2FB0007C9A3C /* UnitTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2C3361B9E2FB0007C9A3C /* UnitTests.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -44,6 +45,7 @@
 		9BA906371B4D7AAF00B67D29 /* EventWheel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventWheel.cpp; sourceTree = "<group>"; };
 		9BC55DB51B5D841600A080FF /* InputVector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputVector.cpp; sourceTree = "<group>"; };
 		9BC55DB61B5D841600A080FF /* InputVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputVector.h; sourceTree = "<group>"; };
+		9BD2C3361B9E2FB0007C9A3C /* UnitTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UnitTests.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +90,7 @@
 				9B52F8611AFC967500D6230E /* Gates.cpp */,
 				9B52F8631AFD4FAB00D6230E /* Circuit.cpp */,
 				9B52F8641AFD4FAB00D6230E /* Circuit.h */,
+				9BD2C3361B9E2FB0007C9A3C /* UnitTests.cpp */,
 				9BA906311B4C9D1D00B67D29 /* Args.h */,
 				9BA906321B4D6AD400B67D29 /* Args.cpp */,
 			);
@@ -151,6 +154,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9B52F8621AFC967500D6230E /* Gates.cpp in Sources */,
+				9BD2C3371B9E2FB0007C9A3C /* UnitTests.cpp in Sources */,
 				9B1EE5401AF3129200D4C053 /* main.cpp in Sources */,
 				9BA906381B4D7AAF00B67D29 /* EventWheel.cpp in Sources */,
 				9BC55DB71B5D841600A080FF /* InputVector.cpp in Sources */,

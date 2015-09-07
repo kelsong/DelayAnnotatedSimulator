@@ -313,18 +313,6 @@ void Circuit::readDelay(std::string filename){
     }
 }
 
-std::vector<Gate*> Circuit::getInputs(){
-    return inputs;
-}
-
-std::vector<Gate*> Circuit::getStateVars(){
-    return stateVars;
-}
-
-std::vector<Gate*> Circuit::getOutputs(){
-    return outputs;
-}
-
 Circuit::~Circuit(){
     for(size_t i = 0; i<allGates.size(); i++){
         delete allGates[i];
