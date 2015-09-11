@@ -96,6 +96,7 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
  * LogicDelaySimulator
  ****************************************************************************/
 void LogicDelaySimulator::simCycle(const std::vector<char> & input){
+    LogicIDGenerator::reset();
     if(input.size() != circuit->getNumInput()) {
         std::cerr << "INVALID INPUT AT: " << cycle_id << std::endl;
     }
@@ -112,6 +113,8 @@ void LogicDelaySimulator::simCycle(const std::vector<char> & input){
     
     //always schedule all state vars (there are some optimizations possible, but this is easiest for now)
     for(unsigned int i = 0; i<circuit->getNumStateVar(); i++) {
+        //inject X_ids
+        
         eventwheel->insertEvent(circuit->getStateVar(i));
     }
     

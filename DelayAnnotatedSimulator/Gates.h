@@ -31,6 +31,7 @@
 #include <vector>
 
 class InputGate;
+class DffGate;
 
 //Polymorphic "gate" type. Evaluate is a hot function.
 class Gate {
@@ -96,8 +97,11 @@ public:
     inline unsigned int getDelay() {return delay;}
     inline void setDelay(unsigned int dly) { delay = dly;}
     inline unsigned int getId() {return gate_id;}
+    
+    inline void idX() {if(output==LogicValue::X) output.newID();}
     //dynamic cast methods for inputs (don't care at all about logic gates)
     InputGate* castInput();
+    DffGate* castDff();
 };
 
 class AndGate : public Gate{
@@ -241,6 +245,7 @@ class DffGate : public Gate{
         : Gate(gid, fin, fout, Gate::D_FF) {}
     ~DffGate() {}
     void evaluate();
+    void setDff(LogicValue::VALUES);
     
 };
 
@@ -263,4 +268,5 @@ public:
 };
 
 inline InputGate* Gate::castInput() { return dynamic_cast<InputGate* >(this); }
+inline DffGate* Gate::castDff() { return dynamic_cast<DffGate*>(this); }
 #endif

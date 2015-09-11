@@ -50,11 +50,8 @@ void AndGate::evaluate(){
     
     LogicValue val = fanin[0]->getOut();
     for(unsigned int i = 1; i<fanin.size(); i++) {
-      if(fanin[i]->getOut() != LogicValue::Z){
-	val = LogicValue::VALUES(val & fanin[i]->getOut());    
-      }
+        val = val & fanin[i]->getOut();
     }
-    
     output = val;
     if(previous != output){
         dirty=true;
@@ -71,11 +68,10 @@ void NandGate::evaluate(){
     
     LogicValue val = fanin[0]->getOut();
     for(unsigned int i = 1; i<fanin.size(); i++) {
-        if(fanin[i]->getOut() != LogicValue::Z)
-	  val = LogicValue::VALUES(val & fanin[i]->getOut());
+        val = val & fanin[i]->getOut();
     }
     
-    output = (val == LogicValue::X) ? val : LogicValue(LogicValue::VALUES(LogicValue::ONE - val));
+    output = ~val;
     
     if(previous != output){
         dirty=true;
@@ -91,9 +87,7 @@ void OrGate::evaluate(){
     
     LogicValue val = fanin[0]->getOut();
     for(unsigned int i = 1; i<fanin.size(); i++) {
-      if(fanin[i]->getOut() != LogicValue::Z){
-	val = LogicValue::VALUES(val | fanin[i]->getOut());
-      }
+        val = val | fanin[i]->getOut();
     }
     
     output = val;
@@ -111,11 +105,10 @@ void NorGate::evaluate(){
     
     LogicValue val = fanin[0]->getOut();
     for(unsigned int i = 1; i<fanin.size(); i++) {
-        if(fanin[i]->getOut() != LogicValue::Z)
-            val = LogicValue::VALUES(val | fanin[i]->getOut());
+        val = val | fanin[i]->getOut();
     }
     
-    output = (val == LogicValue::X) ? val : LogicValue(LogicValue::VALUES(LogicValue::ONE - val));
+    output = ~val;
     if(previous != output){
         dirty=true;
     }
@@ -131,10 +124,7 @@ void XorGate::evaluate(){
     
     LogicValue val = fanin[0]->getOut();
     for(int i = 1; i<2; i++) {
-        if(fanin[i]->getOut() != LogicValue::Z) {
-            val = (val == LogicValue::X || fanin[i]->getOut() == LogicValue::X)
-	      ? LogicValue::X : LogicValue::VALUES(val ^ fanin[i]->getOut());
-        }
+        val = val ^ fanin[i]->getOut();
     }
     output = val;
     if(previous != output){
@@ -152,12 +142,9 @@ void XnorGate::evaluate(){
     
     LogicValue val = fanin[0]->getOut();
     for(int i = 1; i<2; i++) {
-        if(fanin[i]->getOut() != LogicValue::Z) {
-            val = (val == LogicValue::X || fanin[i]->getOut() == LogicValue::X)
-	      ? LogicValue::X : LogicValue::VALUES(val ^ fanin[i]->getOut());
-        }
+        val = val ^ fanin[i]->getOut();
     }
-    output = (val == LogicValue::X) ? val : LogicValue(LogicValue::VALUES(LogicValue::ONE - val));
+    output = ~val;
     if(previous != output){
         dirty=true;
     }
@@ -169,9 +156,7 @@ void XnorGate::evaluate(){
 void NotGate::evaluate(){
     LogicValue previous = output;
     
-    LogicValue val = fanin[0]->getOut();
-    
-    output = (val == LogicValue::X) ? val : LogicValue(LogicValue::VALUES(LogicValue::ONE - val));
+    output = ~fanin[0]->getOut();
     
     if(previous != output){
         dirty=true;
@@ -184,9 +169,9 @@ void NotGate::evaluate(){
 void BufGate::evaluate(){
     LogicValue previous = output;
     
-    LogicValue val = fanin[0]->getOut();
+    fanin[0]->getOut();
     
-    output = val;
+    output = fanin[0]->getOut();
     
     if(previous != output){
         dirty=true;
@@ -256,24 +241,27 @@ void TieZGate::evaluate(){
 void DffGate::evaluate(){
     LogicValue previous = output;
     
-    LogicValue val = fanin[0]->getOut();
-    
-    output = val;
+    output = fanin[0]->getOut();
     
     if(previous != output){
         dirty=true;
     }
 }
 
+void DffGate::setDff(LogicValue::VALUES in){
+    output = in;
+}
+
+
 /********************************************************/
 // MUX2
 /********************************************************/
 
-void Mux2Gate::evaluate(){ //DFFS are a bit weird.
+void Mux2Gate::evaluate(){
     LogicValue previous = output;
     
     if(fanin[0]->getOut() == LogicValue::Z || fanin[0]->getOut() == LogicValue::X){
-        output = LogicValue::X;
+        output = LogicValue::X; 
     } else {
         output = (fanin[0]->getOut() == LogicValue::ONE) ? fanin[2]->getOut() : fanin[1]->getOut();
     }
@@ -295,7 +283,6 @@ void TristateGate::evaluate(){
     } else {
         output = LogicValue::Z;
     }
-    
     if (previous != output) {
         dirty = true;
     }

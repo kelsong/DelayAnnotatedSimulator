@@ -31,6 +31,8 @@
 #include "Args.h"
 #include "InputVector.h"
 
+unsigned int LogicIDGenerator::ids = 0;
+
 int main(int argc, const char * argv[]) {
     // insert code here...
     Args args;

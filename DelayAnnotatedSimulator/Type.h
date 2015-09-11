@@ -25,7 +25,14 @@
 #ifndef DelayAnnotatedSimulator_Type_h
 #define DelayAnnotatedSimulator_Type_h
 
-//want logic to be analogous 
+
+class LogicIDGenerator {
+private:
+    static unsigned int ids;
+public:
+    static unsigned int getNewID() {int ret = ids; ids += 2; return ret;}
+    static void reset() {ids = 0;}
+};
 
 class LogicValue{
 public:
@@ -42,19 +49,22 @@ public:
     }
     
     enum VALUES val;
+    unsigned int x_id;
     
-    LogicValue(VALUES val): val(val) {}
+    LogicValue(VALUES val): val(val) {} //don't need IDs until scheduled;
     operator VALUES () { return val; }
     LogicValue operator= (LogicValue::VALUES rhs) { this->val = rhs; return *this; }
     bool operator== (LogicValue::VALUES rhs) {return (val == rhs);}
     bool operator== (LogicValue rhs) {return val == rhs.val;}
     bool operator!= (LogicValue::VALUES rhs) {return (val != rhs);}
 
-    //friend LogicValue operator& (LogicValue lhs, LogicValue::VALUES) {}
-    //friend LogicValue operator& (LogicValue lhs, LogicValue rhs) {}
-    //friend LogicValue operator| (LogicValue lhs, LogicValue::VALUES) {}
-    //friend LogicValue operator| (LogicValue lhs, LogicValue rhs) {}
+    inline unsigned int getID(){ return ( val == X ) ? x_id : -1; }
+    inline void setID(int ident) { x_id = ident; }
+    inline void newID() { x_id = LogicIDGenerator::getNewID(); }
+    inline void invertID() { x_id = ((x_id % 2) == 0) ? x_id + 1  : x_id - 1; }
     
+    
+
     static LogicValue fromChar(char c) {
         if (c == '0')  return LogicValue(ZERO);
         if (c == '1')  return LogicValue(ONE);
@@ -62,5 +72,43 @@ public:
         if (c == 'z' || c == 'Z') return LogicValue(X);
         return LogicValue(X); }
 };
+
+inline LogicValue operator& (LogicValue lhs, LogicValue rhs) {
+    bool rhs_z = (rhs.val == LogicValue::Z);
+    bool lhs_z = (lhs.val == LogicValue::Z);
+    
+    if(rhs_z && lhs_z) return LogicValue(LogicValue::X);
+    if(rhs_z) return lhs;
+    if(lhs_z) return rhs;
+    
+    return LogicValue(LogicValue::VALUES(lhs.val & rhs.val));
+}
+
+inline LogicValue operator| (LogicValue lhs, LogicValue rhs) {
+    bool rhs_z = (rhs.val == LogicValue::Z);
+    bool lhs_z = (lhs.val == LogicValue::Z);
+    
+    if(rhs_z && lhs_z) return LogicValue(LogicValue::X);
+    if(rhs_z) return lhs;
+    if(lhs_z) return rhs;
+    
+    return LogicValue(LogicValue::VALUES(lhs.val | rhs.val));
+}
+
+inline LogicValue operator^ (LogicValue lhs, LogicValue rhs) {
+    bool rhs_z = (rhs.val == LogicValue::Z);
+    bool lhs_z = (lhs.val == LogicValue::Z);
+    
+    if(rhs_z && lhs_z) return LogicValue(LogicValue::X);
+    if(rhs_z) return lhs;
+    if(lhs_z) return rhs;
+    
+    return LogicValue(LogicValue::VALUES((lhs.val == LogicValue::X || rhs.val == LogicValue::X) ? LogicValue::X : lhs.val ^ rhs.val));
+}
+
+inline LogicValue operator~ (LogicValue lhs) {
+    if(lhs.val == LogicValue::Z) return LogicValue(LogicValue::Z);
+    return LogicValue((lhs.val == LogicValue::X) ? LogicValue::X : LogicValue::VALUES(LogicValue::ONE - lhs.val));
+}
 
 #endif
