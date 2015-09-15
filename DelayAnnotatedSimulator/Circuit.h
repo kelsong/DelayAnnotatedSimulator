@@ -36,6 +36,7 @@
 #include <set>
 
 #include "Gates.h"
+#include "Fault.h"
 #include "Type.h"
 
 //Circuit Class
@@ -52,6 +53,9 @@ private:
     unsigned int num_levels;
     std::map<unsigned int, unsigned int> gate_delays;
     unsigned int max_delay;
+    
+    //fault info
+    std::vector<Fault> faultlist;
     
 public:
     Circuit(std::string filename, bool delay) { if(delay) readDelay(filename + ".dly"); readLev(filename + ".lev", delay); };

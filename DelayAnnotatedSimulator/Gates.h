@@ -28,6 +28,7 @@
 //forward declarations
 #include <cstdlib>
 #include "Type.h"
+#include "Fault.h"
 #include <vector>
 
 class InputGate;
@@ -67,6 +68,13 @@ protected:
     unsigned int levelnum;
     unsigned int delay; //nanoseconds
     
+    //faulty gate information
+    bool faulty;
+    bool propagates;
+    Fault& fault;
+    std::vector<Gate*> faulty_clones;
+    Gate* good_gate;
+    
 public:
     Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) {}
     Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(1)  { }
@@ -102,6 +110,10 @@ public:
     //dynamic cast methods for inputs (don't care at all about logic gates)
     InputGate* castInput();
     DffGate* castDff();
+    
+    Gate* diverge();
+    void converge();
+    
 };
 
 class AndGate : public Gate{

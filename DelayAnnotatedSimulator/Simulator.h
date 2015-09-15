@@ -67,7 +67,6 @@ public:
     LogicDelaySimulator(Circuit * ckt): Simulator(ckt) {eventwheel = new GateDelayWheel(ckt->getMaxDelay());}
     ~LogicDelaySimulator() {delete eventwheel;}
     void simCycle(const std::vector<char>&);
-    
 };
 
 class SimulatorFactory{
