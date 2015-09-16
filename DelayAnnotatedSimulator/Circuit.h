@@ -39,6 +39,9 @@
 #include "Fault.h"
 #include "Type.h"
 
+
+#define NUM_FAULT_INJECT 64
+
 //Circuit Class
 //For Project 0 create the circuit using false for the delay (there is no dly file for the circuit)
 
@@ -56,10 +59,17 @@ private:
     
     //fault info
     std::vector<Fault> faultlist;
+    std::vector<Gate*> injected_faulty_gates;
     unsigned int injected_fault_idx;
     
 public:
-    Circuit(std::string filename, bool delay) { if(delay) readDelay(filename + ".dly"); readLev(filename + ".lev", delay); };
+    Circuit(std::string filename, bool delay, bool fault) {
+        if(delay) readDelay(filename + ".dly");
+        if(fault) readFaultList(filename + ".eqf");
+        readLev(filename + ".lev", delay);
+        injected_fault_idx = 0;
+    };
+    
     ~Circuit();
     
     void readLev(std::string filename, bool delay);
@@ -83,7 +93,7 @@ public:
     inline unsigned int getMaxDelay() {return max_delay;}
     
     //this can be used to aid in limiting memory footprint
-    void injectFaults();
+    std::vector<Gate*> injectFaults();
     void cleanupInjectedFaults();
     inline size_t numFaults() {return faultlist.size();}
     void printFaults();

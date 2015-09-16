@@ -340,7 +340,15 @@ void Circuit::printFaults(){
     }
 }
 
-void Circuit::cleanupInjectedFaults(){}
+void Circuit::cleanupInjectedFaults(){
+    for(int i = 0; i<allGates.size(); i++){
+        allGates[i]->deleteFaulty();
+    }
+}
+
+std::vector<Gate*> Circuit::injectFaults(){
+    return injected_faulty_gates;
+}
 
 Circuit::~Circuit(){
     for(size_t i = 0; i<allGates.size(); i++){

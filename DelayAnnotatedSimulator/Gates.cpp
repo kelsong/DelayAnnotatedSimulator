@@ -41,6 +41,37 @@ const std::vector<Gate*>& Gate::getFanout(){
     return fanout;
 }
 
+//converges faulty and good circuit in FFR after non-propagation
+void Gate::converge(){
+    //to ensure the correct operation and minimize memory footprint, we converge each gate when it matches the output of the good gate.
+    
+    //pseudo-code:
+    // A) remove from fanouts of fanin gates
+    // B) converge prior gates if they have no fanouts
+    // C) delete gate
+    
+}
+
+Gate* Gate::createFaultyGate(Fault * fault_create, Gate * gate_create){
+    
+}
+
+//diverges and creates faulty copies for all fanouts.
+void Gate::diverge(){
+    fanout.clear();
+    for(int i=0; i < good_gate->getNumFanout(); i++){
+        fanout.push_back(good_gate->getFanout(i)->createFaultyGate(fault, this));
+    }
+}
+
+//cleanup method for faulty gates
+void Gate::deleteFaulty(){
+    for(int i = 0; i<faulty_clones.size(); i++){
+        delete faulty_clones[i];
+    }
+    faulty_clones.clear();
+}
+
 /********************************************************/
 // AND
 /********************************************************/

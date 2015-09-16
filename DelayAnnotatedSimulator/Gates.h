@@ -105,16 +105,16 @@ public:
     inline unsigned int getDelay() {return delay;}
     inline void setDelay(unsigned int dly) { delay = dly;}
     inline unsigned int getId() {return gate_id;}
+    inline size_t numFaultyCopies() {return faulty_clones.size();}
+    inline void deleteFaulty();
     
-    inline void idX() {if(output==LogicValue::X) output.newID();}
     //dynamic cast methods for inputs (don't care at all about logic gates)
     InputGate* castInput();
     DffGate* castDff();
     
-    Gate* diverge();
-    Gate* createFaultyGate(Fault*);
+    void diverge();
+    Gate* createFaultyGate(Fault*, Gate*);
     void converge();
-    void endOfCycleConverge();
 };
 
 class AndGate : public Gate{
