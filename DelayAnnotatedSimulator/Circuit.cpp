@@ -352,6 +352,7 @@ std::vector<Gate*> Circuit::injectFaults(){
 
 Circuit::~Circuit(){
     for(size_t i = 0; i<allGates.size(); i++){
+        allGates[i]->deleteFaulty();
         delete allGates[i];
     }
 }

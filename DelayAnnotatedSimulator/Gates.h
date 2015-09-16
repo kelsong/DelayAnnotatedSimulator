@@ -86,35 +86,45 @@ public:
     bool isDirty() { return dirty; }
     void resetDirty() { dirty = false; }
     GateType type() { return m_type; }
+    virtual Gate* clone() { return new Gate(*this);}
     
     
     LogicValue getOut() { return output; }
     const std::vector<Gate *>& getFanout();
     const std::vector<Gate *>& getFanin();
     
+    //fanin/out methods
     inline void addFanin(Gate * gate) { fanin.push_back(gate); }
     inline void addFanout(Gate * gate) { fanout.push_back(gate); }
     inline void setFanin(std::vector<Gate *>& set_fanin) { fanin = set_fanin; }
     inline void setFanout(std::vector<Gate *>& set_fanout) { fanout = set_fanout; }
-    inline size_t getNumFanout() { return fanout.size(); }
     inline size_t getNumFanin() { return fanin.size(); }
-    inline Gate* getFanout(unsigned int idx) { return fanout[idx]; }
+    inline size_t getNumFanout() { return fanout.size(); }
     inline Gate* getFanin(unsigned int idx) { return fanin[idx]; }
+    inline Gate* getFanout(unsigned int idx) { return fanout[idx]; }
+    inline void clearFanin() { fanin.clear(); }
+    inline void clearFanout() { fanout.clear(); }
+    void removeFanin(Gate * gate);
+    void removeFanout(Gate * gate);
+    
+    //Gate info methods
     inline unsigned int getLevel() { return levelnum; }
     inline void setLevel(unsigned int level) { levelnum = level; }
     inline unsigned int getDelay() {return delay;}
     inline void setDelay(unsigned int dly) { delay = dly;}
     inline unsigned int getId() {return gate_id;}
     inline size_t numFaultyCopies() {return faulty_clones.size();}
-    inline void deleteFaulty();
+    
+    //faulty gate methods
+    void diverge();
+    Gate* createFaultyGate(Fault*, Gate*);
+    void converge();
+    void deleteFaulty();
     
     //dynamic cast methods for inputs (don't care at all about logic gates)
     InputGate* castInput();
     DffGate* castDff();
     
-    void diverge();
-    Gate* createFaultyGate(Fault*, Gate*);
-    void converge();
 };
 
 class AndGate : public Gate{
@@ -124,6 +134,7 @@ class AndGate : public Gate{
         : Gate(gid, fin, fout, Gate::AND) {}
     ~AndGate() {};
     void evaluate();
+    virtual AndGate* clone() { return new AndGate(*this);}
 };
 
 class NandGate : public Gate{
@@ -133,6 +144,7 @@ class NandGate : public Gate{
         : Gate(gid, fin, fout, Gate::NAND) {}
     ~NandGate() {}
     void evaluate();
+    virtual NandGate* clone() { return new NandGate(*this);}
     
 };
 
@@ -143,6 +155,7 @@ class OrGate : public Gate{
         : Gate(gid, fin, fout, Gate::OR) {}
     ~OrGate() {}
     void evaluate();
+    virtual OrGate* clone() { return new OrGate(*this);}
 };
 
 class NorGate : public Gate{
@@ -152,6 +165,7 @@ class NorGate : public Gate{
         : Gate(gid, fin, fout, Gate::NOR) {}
     ~NorGate() {}
     void evaluate();
+    virtual NorGate* clone() { return new NorGate(*this);}
 };
 
 class XorGate : public Gate {
@@ -161,6 +175,7 @@ public:
         : Gate(gid, fin, fout, Gate::XOR) {}
     ~XorGate() {}
     void evaluate();
+    virtual XorGate* clone() { return new XorGate(*this);}
 };
     
 class XnorGate : public Gate{
@@ -170,6 +185,7 @@ class XnorGate : public Gate{
         : Gate(gid, fin, fout, Gate::XNOR) {}
     ~XnorGate () {}
     void evaluate();
+    virtual XnorGate* clone() { return new XnorGate(*this);}
 };
 
 class NotGate : public Gate{
@@ -179,6 +195,7 @@ class NotGate : public Gate{
         : Gate(gid, fin, fout, Gate::NOT) {}
     ~NotGate() {}
     void evaluate();
+    virtual NotGate* clone() { return new NotGate(*this);}
 };
 
 class InputGate : public Gate{
@@ -189,6 +206,8 @@ class InputGate : public Gate{
     ~InputGate() {}
     void evaluate();
     void setInput(LogicValue::VALUES);
+    
+    virtual InputGate* clone() { return new InputGate(*this);}
 };
 
 class OutputGate : public Gate{
@@ -198,6 +217,7 @@ class OutputGate : public Gate{
         : Gate(gid, fin, fout, Gate::OUTPUT) {}
     ~OutputGate() {}
     void evaluate();
+    virtual OutputGate* clone() { return new OutputGate(*this);}
 };
 
 
@@ -208,7 +228,7 @@ class TieZeroGate : public Gate{
     : Gate(gid, fin, fout, Gate::TIE_ZERO) {}
     ~TieZeroGate(){}
     void evaluate();
-    
+    virtual TieZeroGate* clone() { return new TieZeroGate(*this);}
 };
 
 class TieOneGate : public Gate{
@@ -218,7 +238,7 @@ class TieOneGate : public Gate{
     : Gate(gid, fin, fout, Gate::TIE_ONE) {}
     ~TieOneGate() {}
     void evaluate();
-    
+    virtual TieOneGate* clone() { return new TieOneGate(*this);}
 };
 
 class TieXGate : public Gate{
@@ -228,7 +248,7 @@ class TieXGate : public Gate{
         : Gate(gid, fin, fout, Gate::TIE_X) {}
     ~TieXGate() {}
     void evaluate();
-    
+    virtual TieXGate* clone() { return new TieXGate(*this);}
 };
 
 class TieZGate : public Gate{
@@ -238,7 +258,7 @@ class TieZGate : public Gate{
         : Gate(gid, fin, fout, Gate::TIE_Z) {}
     ~TieZGate() {}
     void evaluate();
-    
+    virtual TieZGate* clone() { return new TieZGate(*this);}
 };
 
 class BufGate : public Gate{
@@ -248,7 +268,7 @@ class BufGate : public Gate{
         : Gate(gid, fin, fout, Gate::BUF) {}
     ~BufGate() {}
     void evaluate();
-    
+    virtual BufGate* clone() { return new BufGate(*this);}
 };
 
 class DffGate : public Gate{
@@ -259,7 +279,7 @@ class DffGate : public Gate{
     ~DffGate() {}
     void evaluate();
     void setDff(LogicValue::VALUES);
-    
+    virtual DffGate* clone() { return new DffGate(*this);}
 };
 
 class Mux2Gate : public Gate{
@@ -269,6 +289,7 @@ class Mux2Gate : public Gate{
     : Gate(gid, fin, fout, Gate::MUX_2) {}
     ~Mux2Gate() {}
     void evaluate();
+    virtual Mux2Gate* clone() { return new Mux2Gate(*this);}
 };
 
 class TristateGate : public Gate{
@@ -278,9 +299,30 @@ public:
     : Gate(gid, fin, fout, Gate::TRISTATE) {}
     ~TristateGate() {}
     void evaluate();
+    virtual TristateGate* clone() { return new TristateGate(*this);}
 };
 
+//INLINE GATE METHODS
 inline InputGate* Gate::castInput() { return dynamic_cast<InputGate* >(this); }
+
 inline DffGate* Gate::castDff() { return dynamic_cast<DffGate*>(this); }
+
+inline void Gate::removeFanin(Gate* gate) {
+    for(int i = 0; i<fanin.size(); i++) {
+        if(gate->getId() == fanin[i]->getId()) {
+            fanin.erase(fanin.begin()+i);
+            break;
+        }
+    }
+}
+
+inline void Gate::removeFanout(Gate *gate) {
+    for(int i = 0; i<fanout.size(); i++) {
+        if(gate->getId() == fanout[i]->getId()) {
+            fanout.erase(fanout.begin()+i);
+            break;
+        }
+    }
+}
 #endif
 
