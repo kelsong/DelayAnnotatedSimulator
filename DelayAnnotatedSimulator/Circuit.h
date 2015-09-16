@@ -56,12 +56,14 @@ private:
     
     //fault info
     std::vector<Fault> faultlist;
+    unsigned int injected_fault_idx;
     
 public:
     Circuit(std::string filename, bool delay) { if(delay) readDelay(filename + ".dly"); readLev(filename + ".lev", delay); };
     ~Circuit();
     
     void readLev(std::string filename, bool delay);
+    void readFaultList(std::string filename);
     void readBench(std::string filename);
     void readDelay(std::string filename);
     void levelize();
@@ -79,6 +81,12 @@ public:
     inline Gate* getOutput(unsigned int idx) { return ((idx < outputs.size()) ? outputs[idx] : NULL); }
     inline Gate* getGateById(unsigned int gate_id) { return ((gate_id < allGates.size()) ?  allGates[gate_id-1] : NULL); }
     inline unsigned int getMaxDelay() {return max_delay;}
+    
+    //this can be used to aid in limiting memory footprint
+    void injectFaults();
+    void cleanupInjectedFaults();
+    inline size_t numFaults() {return faultlist.size();}
+    void printFaults();
 };
 
 

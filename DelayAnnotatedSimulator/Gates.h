@@ -28,8 +28,8 @@
 //forward declarations
 #include <cstdlib>
 #include "Type.h"
-#include "Fault.h"
 #include <vector>
+#include "Fault.h"
 
 class InputGate;
 class DffGate;
@@ -69,11 +69,11 @@ protected:
     unsigned int delay; //nanoseconds
     
     //faulty gate information
-    bool faulty;
-    bool propagates;
-    Fault& fault;
-    std::vector<Gate*> faulty_clones;
-    Gate* good_gate;
+    bool faulty;
+    bool propagates;
+    Fault* fault;
+    std::vector<Gate*> faulty_clones;
+    Gate* good_gate;
     
 public:
     Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) {}
@@ -111,9 +111,10 @@ public:
     InputGate* castInput();
     DffGate* castDff();
     
-    Gate* diverge();
-    void converge();
-    
+    Gate* diverge();
+    Gate* createFaultyGate(Fault*);
+    void converge();
+    void endOfCycleConverge();
 };
 
 class AndGate : public Gate{
@@ -282,3 +283,4 @@ public:
 inline InputGate* Gate::castInput() { return dynamic_cast<InputGate* >(this); }
 inline DffGate* Gate::castDff() { return dynamic_cast<DffGate*>(this); }
 #endif
+

@@ -313,9 +313,37 @@ void Circuit::readDelay(std::string filename){
     }
 }
 
+void Circuit::readFaultList(std::string filename){
+    std::string line;
+    std::fstream input(filename.c_str(), std::fstream::in);
+    if(input.good()){
+        do{
+            std::getline(input, line);
+            if(!input.good()){
+                break;
+            }
+            std::stringstream ss(line);
+            unsigned int gate_id;
+            unsigned int gate_net;
+            bool stuck_at_value;
+            ss >> gate_id >> gate_net >> stuck_at_value;
+            faultlist.push_back(Fault(gate_id, gate_net, stuck_at_value));
+        } while (input.good());
+    }
+}
+
+void Circuit::printFaults(){
+    for(size_t i = 0; i<faultlist.size(); i++){
+        std::cout<< faultlist[i].faultGateId() << " ";
+        std::cout<< faultlist[i].faultGateNet() << " ";
+        std::cout<< faultlist[i].faultSA() << std::endl;
+    }
+}
+
+void Circuit::cleanupInjectedFaults(){}
+
 Circuit::~Circuit(){
     for(size_t i = 0; i<allGates.size(); i++){
         delete allGates[i];
     }
 }
-

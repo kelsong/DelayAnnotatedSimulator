@@ -25,8 +25,6 @@
 #ifndef __DelayAnnotatedSimulator__Fault__
 #define __DelayAnnotatedSimulator__Fault__
 
-#include "Type.h"
-
 //base stuck at fault for the simulator.
 class Fault {
 private:
@@ -34,6 +32,7 @@ private:
     unsigned int gate_net;
     bool stuck_at_value;
     bool detected;
+    bool active;
 public:
     Fault(unsigned int gid, unsigned int net, bool stuck_at) : gate_id(gid), gate_net(net),  stuck_at_value(stuck_at), detected(false) {}
     inline unsigned int faultGateId() {return gate_id;}
