@@ -24,7 +24,7 @@ clang: $(OBJECTS)
 ../build/args.o: Args.cpp Args.h
 	$(CC) $(CFLAGS) -o ../build/args.o Args.cpp
 
-../build/circuit.o: Circuit.cpp Circuit.h Gates.h Type.h
+../build/circuit.o: Circuit.cpp Circuit.h Gates.h Type.h Fault.h
 	$(CC) $(CFLAGS) -o ../build/circuit.o Circuit.cpp
 
 ../build/eventwheel.o: EventWheel.cpp EventWheel.h Gates.h Type.h
@@ -33,9 +33,9 @@ clang: $(OBJECTS)
 ../build/inputvector.o: InputVector.cpp InputVector.h
 	$(CC) $(CFLAGS) -o ../build/inputvector.o InputVector.cpp
 
-../build/simulator.o: Simulator.cpp Simulator.h EventWheel.h Circuit.h Gates.h Args.h Type.h
+../build/simulator.o: Simulator.cpp Simulator.h EventWheel.h Circuit.h Gates.h Args.h Type.h 
 	$(CC) $(CFLAGS) -o ../build/simulator.o Simulator.cpp
 
-../build/gates.o: Gates.cpp Gates.h Type.h
+../build/gates.o: Gates.cpp Gates.h Type.h Fault.h
 	$(CC) $(CFLAGS) -o ../build/gates.o Gates.cpp
 
