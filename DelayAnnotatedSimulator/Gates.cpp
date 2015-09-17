@@ -45,27 +45,35 @@ const std::vector<Gate*>& Gate::getFanout(){
 void Gate::converge(){
     //to ensure the correct operation and minimize memory footprint, we converge each gate when it matches the output of the good gate.
     if(!faulty) return;
-    if(fanout.size() )
-    //pseudo-code:
-    // A) remove from fanouts of fanin gates
-    // B) converge prior gates if they have no fanouts
-    // C) delete gate
+    if(fanout.size() != 0) return;
+
     for(int i = 0; i<fanin.size(); i++){
         fanin[i]->removeFanout(this);
+        fanin[i]->converge();
     }
     delete this; //not great... Fortunately, we can make some guarantees about the creation of this gate
 }
 
 Gate* Gate::createFaultyGate(Fault * fault_create, Gate * gate_create){
+    //check if there is already a faulty copy
+    
     Gate* clne = this->clone();
+    clne->clearFanout(); //empties fanout because this is a faulty gate copy, these will not be populated until a propagation occurs
     return clne;
 }
 
 //diverges and creates faulty copies for all fanouts.
 void Gate::diverge(){
-    fanout.clear();
     for(int i=0; i < good_gate->getNumFanout(); i++){
-        fanout.push_back(good_gate->getFanout(i)->createFaultyGate(fault, this));
+        if(fanout.size() > i){
+            if(fanout[i]->getId() != good_gate->getFanout(i)->getId()){ //this keeps things in the same order
+                fanout.insert(fanout.begin()+i, good_gate->getFanout(i)->createFaultyGate(fault, this));
+            } else { //already exists
+                continue;
+            }
+        } else {
+            fanout.push_back(good_gate->getFanout(i)->createFaultyGate(fault, this));
+        }
     }
 }
 

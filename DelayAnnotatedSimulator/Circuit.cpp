@@ -187,15 +187,6 @@ void Circuit::readLev(std::string filename, bool delay){
     }
 }
 
-void Circuit::readBench(std::string filename){
-    //TODO: read in bench format
-    
-}
-
-void Circuit::levelize(){ //if level information has not been provided
-    //TODO: levelize if read in Bench
-}
-
 void Circuit::readDelay(std::string filename){
     std::fstream dly_stream(filename);
     if(dly_stream.is_open()){

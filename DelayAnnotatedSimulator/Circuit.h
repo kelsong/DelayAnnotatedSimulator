@@ -74,9 +74,7 @@ public:
     
     void readLev(std::string filename, bool delay);
     void readFaultList(std::string filename);
-    void readBench(std::string filename);
     void readDelay(std::string filename);
-    void levelize();
     
     std::vector<Gate*> getInputs() {return inputs;}
     InputGate * getInput(unsigned int idx) {return inputs[idx]->castInput();} //in lev format gate id starts at 1
