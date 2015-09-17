@@ -331,8 +331,7 @@ unsigned int TestDFF(){
 }
 
 unsigned int TestCircuit(){
-    Circuit * test = new Circuit("b01rst", false);
-    test->readFaultList("b01rst.eqf");
+    Circuit * test = new Circuit("b01rst", false, true);
     if(test->numFaults() != 135) {
         std::cerr << "NUM FAULTS: " << test->numFaults() << std::endl;
         test->printFaults();

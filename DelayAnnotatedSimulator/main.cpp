@@ -38,7 +38,7 @@ int main(int argc, const char * argv[]) {
     Args args;
     args.readArgs(argc, argv);
     //std::cerr << args.getCircuitName();
-    Circuit * circuit = new Circuit(args.getCircuitName(), true);
+    Circuit * circuit = new Circuit(args.getCircuitName(), true, false);
     //std::cerr << circuit->getMaxDelay() << std::endl;
     LogicDelaySimulator * simulator = new LogicDelaySimulator(circuit);
     InputVector test_vector(args.getInputSource());

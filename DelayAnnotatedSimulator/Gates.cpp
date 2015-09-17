@@ -41,6 +41,50 @@ const std::vector<Gate*>& Gate::getFanout(){
     return fanout;
 }
 
+//converges faulty and good circuit in FFR after non-propagation
+void Gate::converge(){
+    //to ensure the correct operation and minimize memory footprint, we converge each gate when it matches the output of the good gate.
+    if(!faulty) return;
+    if(fanout.size() != 0) return;
+
+    for(int i = 0; i<fanin.size(); i++){
+        fanin[i]->removeFanout(this);
+        fanin[i]->converge();
+    }
+    delete this; //not great... Fortunately, we can make some guarantees about the creation of this gate
+}
+
+Gate* Gate::createFaultyGate(Fault * fault_create, Gate * gate_create){
+    //check if there is already a faulty copy
+    
+    Gate* clne = this->clone();
+    clne->clearFanout(); //empties fanout because this is a faulty gate copy, these will not be populated until a propagation occurs
+    return clne;
+}
+
+//diverges and creates faulty copies for all fanouts.
+void Gate::diverge(){
+    for(int i=0; i < good_gate->getNumFanout(); i++){
+        if(fanout.size() > i){
+            if(fanout[i]->getId() != good_gate->getFanout(i)->getId()){ //this keeps things in the same order
+                fanout.insert(fanout.begin()+i, good_gate->getFanout(i)->createFaultyGate(fault, this));
+            } else { //already exists
+                continue;
+            }
+        } else {
+            fanout.push_back(good_gate->getFanout(i)->createFaultyGate(fault, this));
+        }
+    }
+}
+
+//cleanup method for faulty gates
+void Gate::deleteFaulty(){
+    for(int i = 0; i<faulty_clones.size(); i++){
+        delete faulty_clones[i];
+    }
+    faulty_clones.clear();
+}
+
 /********************************************************/
 // AND
 /********************************************************/
@@ -53,9 +97,7 @@ void AndGate::evaluate(){
         val = val & fanin[i]->getOut();
     }
     output = val;
-    if(previous != output){
-        dirty=true;
-    }
+    dirty = (previous != output);
 }
 
 
@@ -73,9 +115,7 @@ void NandGate::evaluate(){
     
     output = ~val;
     
-    if(previous != output){
-        dirty=true;
-    }
+    dirty = (previous != output);
 }
 
 /********************************************************/
@@ -91,9 +131,7 @@ void OrGate::evaluate(){
     }
     
     output = val;
-    if(previous != output){
-        dirty=true;
-    }
+    dirty = (previous != output);
 }
 
 /********************************************************/
@@ -109,9 +147,7 @@ void NorGate::evaluate(){
     }
     
     output = ~val;
-    if(previous != output){
-        dirty=true;
-    }
+    dirty = (previous != output);
 }
 
 /********************************************************/
@@ -127,9 +163,7 @@ void XorGate::evaluate(){
         val = val ^ fanin[i]->getOut();
     }
     output = val;
-    if(previous != output){
-        dirty=true;
-    }
+    dirty = (previous != output);
 }
 
 /********************************************************/
@@ -145,9 +179,7 @@ void XnorGate::evaluate(){
         val = val ^ fanin[i]->getOut();
     }
     output = ~val;
-    if(previous != output){
-        dirty=true;
-    }
+    dirty = (previous != output);
 }
 
 /********************************************************/
@@ -155,12 +187,11 @@ void XnorGate::evaluate(){
 /********************************************************/
 void NotGate::evaluate(){
     LogicValue previous = output;
+
     
     output = ~fanin[0]->getOut();
     
-    if(previous != output){
-        dirty=true;
-    }
+    dirty = (previous != output);
 }
 
 /********************************************************/
@@ -173,9 +204,7 @@ void BufGate::evaluate(){
     
     output = fanin[0]->getOut();
     
-    if(previous != output){
-        dirty=true;
-    }
+    dirty = (previous != output);
 }
 
 /********************************************************/
@@ -243,9 +272,7 @@ void DffGate::evaluate(){
     
     output = fanin[0]->getOut();
     
-    if(previous != output){
-        dirty=true;
-    }
+    dirty = (previous != output);
 }
 
 void DffGate::setDff(LogicValue::VALUES in){
@@ -266,9 +293,7 @@ void Mux2Gate::evaluate(){
         output = (fanin[0]->getOut() == LogicValue::ONE) ? fanin[2]->getOut() : fanin[1]->getOut();
     }
     
-    if (previous != output) {
-        dirty = true;
-    }
+    dirty = (previous != output);
 }
 
 
@@ -283,7 +308,5 @@ void TristateGate::evaluate(){
     } else {
         output = LogicValue::Z;
     }
-    if (previous != output) {
-        dirty = true;
-    }
+    dirty = (previous != output);
 }
