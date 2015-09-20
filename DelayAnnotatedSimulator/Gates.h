@@ -110,18 +110,19 @@ public:
     //Gate info methods
     inline unsigned int getLevel() { return levelnum; }
     inline void setLevel(unsigned int level) { levelnum = level; }
-    inline unsigned int getDelay() {return delay;}
-    inline void setDelay(unsigned int dly) { delay = dly;}
-    inline unsigned int getId() {return gate_id;}
-    inline size_t numFaultyCopies() {return faulty_clones.size();}
+    inline unsigned int getDelay() {return delay; }
+    inline void setDelay(unsigned int dly) { delay = dly; }
+    inline unsigned int getId() {return gate_id; }
+    inline size_t numFaultyCopies() {return faulty_clones.size(); }
     
     //faulty gate methods
     void diverge();
     Gate* createFaultyGate(Fault*, Gate*);
     void converge();
     void deleteFaulty();
+    void deleteFaulty(Gate*);
     
-    //dynamic cast methods for inputs (don't care at all about logic gates)
+    //dynamic cast methods for Flip Flops and Inputs
     InputGate* castInput();
     DffGate* castDff();
     
@@ -134,7 +135,7 @@ class AndGate : public Gate{
         : Gate(gid, fin, fout, Gate::AND) {}
     ~AndGate() {};
     void evaluate();
-    virtual AndGate* clone() { return new AndGate(*this);}
+    virtual AndGate* clone() { return new AndGate(*this); }
 };
 
 class NandGate : public Gate{
@@ -144,7 +145,7 @@ class NandGate : public Gate{
         : Gate(gid, fin, fout, Gate::NAND) {}
     ~NandGate() {}
     void evaluate();
-    virtual NandGate* clone() { return new NandGate(*this);}
+    virtual NandGate* clone() { return new NandGate(*this); }
     
 };
 
@@ -155,7 +156,7 @@ class OrGate : public Gate{
         : Gate(gid, fin, fout, Gate::OR) {}
     ~OrGate() {}
     void evaluate();
-    virtual OrGate* clone() { return new OrGate(*this);}
+    virtual OrGate* clone() { return new OrGate(*this); }
 };
 
 class NorGate : public Gate{

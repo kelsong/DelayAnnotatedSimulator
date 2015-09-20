@@ -30,11 +30,11 @@ class Fault {
 private:
     unsigned int gate_id;
     unsigned int gate_net;
-    bool stuck_at_value;
+    LogicValue stuck_at_value;
     bool detected;
     bool active;
 public:
-    Fault(unsigned int gid, unsigned int net, bool stuck_at) : gate_id(gid), gate_net(net),  stuck_at_value(stuck_at), detected(false) {}
+    Fault(unsigned int gid, unsigned int net, LogicValue stuck_at) : gate_id(gid), gate_net(net),  stuck_at_value(stuck_at), detected(false) {}
     inline unsigned int faultGateId() {return gate_id;}
     inline unsigned int faultGateNet() {return gate_net;}
     inline bool faultSA() {return stuck_at_value;}
