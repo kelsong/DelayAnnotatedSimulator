@@ -1,18 +1,18 @@
 /*
  The MIT License (MIT)
- 
+
  Copyright (c) 2015 Kelson Gent
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,10 +37,10 @@
 
 //Base class for simulators. Will be used for LogicSimulator, FaultSimulator, DelaySimulator.
 class Simulator {
- protected:
+protected:
     Circuit * circuit;
     unsigned int cycle_id;
- public:
+public:
     Simulator(Circuit * ckt) : circuit(ckt), cycle_id(0) {}
     virtual ~Simulator() {}
     std::vector<LogicValue> getOutputs();
@@ -54,9 +54,13 @@ class Simulator {
 
 class LogicSimulator: public Simulator {
     EventWheel * eventwheel;
- public:
-    LogicSimulator(Circuit * ckt): Simulator(ckt) {eventwheel = new EventWheel(ckt->getNumLevels());}
-    ~LogicSimulator() { delete eventwheel;}
+public:
+    LogicSimulator(Circuit * ckt): Simulator(ckt) {
+        eventwheel = new EventWheel(ckt->getNumLevels());
+    }
+    ~LogicSimulator() {
+        delete eventwheel;
+    }
     void simCycle(const std::vector<char>&);
 };
 
@@ -64,12 +68,16 @@ class LogicDelaySimulator: public Simulator {
     GateDelayWheel * eventwheel;
     std::vector<unsigned int> output_time;
 public:
-    LogicDelaySimulator(Circuit * ckt): Simulator(ckt) {eventwheel = new GateDelayWheel(ckt->getMaxDelay());}
-    ~LogicDelaySimulator() {delete eventwheel;}
+    LogicDelaySimulator(Circuit * ckt): Simulator(ckt) {
+        eventwheel = new GateDelayWheel(ckt->getMaxDelay());
+    }
+    ~LogicDelaySimulator() {
+        delete eventwheel;
+    }
     void simCycle(const std::vector<char>&);
 };
 
-class SimulatorFactory{
+class SimulatorFactory {
 public:
     static Simulator* create(Args& args);
 };

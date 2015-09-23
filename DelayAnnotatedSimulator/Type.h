@@ -1,18 +1,18 @@
 /*
  The MIT License (MIT)
- 
+
  Copyright (c) 2015 Kelson Gent
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,28 +25,39 @@
 #ifndef DelayAnnotatedSimulator_Type_h
 #define DelayAnnotatedSimulator_Type_h
 
-class LogicValue{
+class LogicValue {
 public:
-    enum VALUES{
+    enum VALUES {
         ZERO = 0,
         X,
         Z,
         ONE
     };
-    
+
     const char* ascii() const {
         static const char* names[] = {"0", "X", "Z", "1"};
         return names[val];
     }
-    
+
     enum VALUES val;
-    
+
     LogicValue(VALUES val): val(val) {} //don't need IDs until scheduled;
-    operator VALUES () { return val; }
-    LogicValue& operator= (LogicValue::VALUES rhs) { this->val = rhs; return *this; }
-    bool operator== (LogicValue::VALUES rhs) {return (val == rhs);}
-    bool operator== (LogicValue rhs) {return val == rhs.val;}
-    bool operator!= (LogicValue::VALUES rhs) {return (val != rhs);}
+    operator VALUES () {
+        return val;
+    }
+    LogicValue& operator= (LogicValue::VALUES rhs) {
+        this->val = rhs;
+        return *this;
+    }
+    bool operator== (LogicValue::VALUES rhs) {
+        return (val == rhs);
+    }
+    bool operator== (LogicValue rhs) {
+        return val == rhs.val;
+    }
+    bool operator!= (LogicValue::VALUES rhs) {
+        return (val != rhs);
+    }
     LogicValue& operator&= (LogicValue rhs);
     LogicValue& operator|= (LogicValue rhs);
     LogicValue& operator^= (LogicValue rhs);
@@ -56,39 +67,40 @@ public:
         if (c == '1')  return LogicValue(ONE);
         if (c == 'x' || c == 'X') return LogicValue(X);
         if (c == 'z' || c == 'Z') return LogicValue(X);
-        return LogicValue(X); }
+        return LogicValue(X);
+    }
 };
 
 inline LogicValue operator& (LogicValue lhs, LogicValue rhs) {
     bool rhs_z = (rhs.val == LogicValue::Z);
     bool lhs_z = (lhs.val == LogicValue::Z);
-    
+
     if(rhs_z && lhs_z) return LogicValue(LogicValue::X);
     if(rhs_z) return lhs;
     if(lhs_z) return rhs;
-    
+
     return LogicValue(LogicValue::VALUES(lhs.val & rhs.val));
 }
 
 inline LogicValue operator| (LogicValue lhs, LogicValue rhs) {
     bool rhs_z = (rhs.val == LogicValue::Z);
     bool lhs_z = (lhs.val == LogicValue::Z);
-    
+
     if(rhs_z && lhs_z) return LogicValue(LogicValue::X);
     if(rhs_z) return lhs;
     if(lhs_z) return rhs;
-    
+
     return LogicValue(LogicValue::VALUES(lhs.val | rhs.val));
 }
 
 inline LogicValue operator^ (LogicValue lhs, LogicValue rhs) {
     bool rhs_z = (rhs.val == LogicValue::Z);
     bool lhs_z = (lhs.val == LogicValue::Z);
-    
+
     if(rhs_z && lhs_z) return LogicValue(LogicValue::X);
     if(rhs_z) return lhs;
     if(lhs_z) return rhs;
-    
+
     return LogicValue(LogicValue::VALUES((lhs.val == LogicValue::X || rhs.val == LogicValue::X) ? LogicValue::X : lhs.val ^ rhs.val));
 }
 
@@ -97,7 +109,16 @@ inline LogicValue operator~ (LogicValue lhs) {
     return LogicValue((lhs.val == LogicValue::X) ? LogicValue::X : LogicValue::VALUES(LogicValue::ONE - lhs.val));
 }
 
-inline LogicValue& LogicValue::operator&= (LogicValue rhs) { *this = LogicValue(*this & rhs); return *this; }
-inline LogicValue& LogicValue::operator|= (LogicValue rhs) { *this = LogicValue(*this | rhs); return *this; }
-inline LogicValue& LogicValue::operator^= (LogicValue rhs) { *this = LogicValue(*this ^ rhs); return *this; }
+inline LogicValue& LogicValue::operator&= (LogicValue rhs) {
+    *this = LogicValue(*this & rhs);
+    return *this;
+}
+inline LogicValue& LogicValue::operator|= (LogicValue rhs) {
+    *this = LogicValue(*this | rhs);
+    return *this;
+}
+inline LogicValue& LogicValue::operator^= (LogicValue rhs) {
+    *this = LogicValue(*this ^ rhs);
+    return *this;
+}
 #endif

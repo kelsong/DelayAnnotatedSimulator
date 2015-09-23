@@ -1,18 +1,18 @@
 /*
  The MIT License (MIT) modified
- 
+
  Copyright (c) 2015 Kelson Gent
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software. 
- 
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,7 +24,7 @@
 
 #include "Simulator.h"
 
-std::vector<LogicValue> Simulator::getOutputs(){
+std::vector<LogicValue> Simulator::getOutputs() {
     std::vector<Gate*> outs = circuit->getOutputs();
     std::vector<LogicValue> ret;
     for(unsigned int i = 0; i < outs.size(); i++) {
@@ -33,19 +33,19 @@ std::vector<LogicValue> Simulator::getOutputs(){
     return ret;
 }
 
-void Simulator::simCycle(const std::vector<char>& input){
+void Simulator::simCycle(const std::vector<char>& input) {
     //do nothing in base simulator.
 }
 
-void Simulator::dumpPO(std::ostream& out_stream){
-    for(unsigned int i = 0; i < circuit->getNumOutput(); i++){
+void Simulator::dumpPO(std::ostream& out_stream) {
+    for(unsigned int i = 0; i < circuit->getNumOutput(); i++) {
         out_stream << circuit->getOutput(i)->getOut().ascii();
     }
     out_stream << std::endl;
 }
 //dumps the circuit state to output stream
 void Simulator::dumpState(std::ostream& out_stream) {
-    for(unsigned int i = 0; i < circuit->getNumStateVar(); i++){
+    for(unsigned int i = 0; i < circuit->getNumStateVar(); i++) {
         out_stream << circuit->getStateVar(i)->getOut().ascii();
     }
     out_stream << std::endl;
@@ -66,12 +66,12 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
             exit(-1);
         }
     }
-    
+
     //always schedule all state vars (there are some optimizations possible, but this is easiest for now)
     for(unsigned int i = 0; i<circuit->getNumStateVar(); i++) {
         eventwheel->insertEvent(circuit->getStateVar(i));
     }
-    
+
     Gate * gate_to_eval = eventwheel->getNextScheduled();
     while (gate_to_eval != NULL) {
         gate_to_eval->evaluate();
@@ -79,13 +79,13 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
             gate_to_eval = eventwheel->getNextScheduled();
             continue;
         }
-        
+
         for(unsigned int i = 0; i<gate_to_eval->getNumFanout(); i++) {
-            if(gate_to_eval->getFanout(i)->type() != Gate::D_FF){
+            if(gate_to_eval->getFanout(i)->type() != Gate::D_FF) {
                 eventwheel->insertEvent(gate_to_eval->getFanout(i));
             }
         }
-        
+
         //clear dirty and move on
         gate_to_eval->resetDirty();
         gate_to_eval = eventwheel->getNextScheduled();
@@ -95,7 +95,7 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
 /****************************************************************************
  * LogicDelaySimulator
  ****************************************************************************/
-void LogicDelaySimulator::simCycle(const std::vector<char> & input){
+void LogicDelaySimulator::simCycle(const std::vector<char> & input) {
     if(input.size() != circuit->getNumInput()) {
         std::cerr << "INVALID INPUT AT: " << cycle_id << std::endl;
     }
@@ -109,14 +109,14 @@ void LogicDelaySimulator::simCycle(const std::vector<char> & input){
             exit(-1);
         }
     }
-    
+
     //always schedule all state vars (there are some optimizations possible, but this is easiest for now)
     for(unsigned int i = 0; i<circuit->getNumStateVar(); i++) {
         //inject X_ids
-        
+
         eventwheel->insertEvent(circuit->getStateVar(i));
     }
-    
+
     Gate * gate_to_eval = eventwheel->getNextScheduled();
     while (gate_to_eval != NULL) {
         gate_to_eval->evaluate();
@@ -124,13 +124,13 @@ void LogicDelaySimulator::simCycle(const std::vector<char> & input){
             gate_to_eval = eventwheel->getNextScheduled();
             continue;
         }
-        
+
         for(unsigned int i = 0; i<gate_to_eval->getNumFanout(); i++) {
-            if(gate_to_eval->getFanout(i)->type() != Gate::D_FF){
+            if(gate_to_eval->getFanout(i)->type() != Gate::D_FF) {
                 eventwheel->insertEvent(gate_to_eval->getFanout(i));
             }
         }
-        
+
         //clear dirty and move on
         gate_to_eval->resetDirty();
         gate_to_eval = eventwheel->getNextScheduled();
