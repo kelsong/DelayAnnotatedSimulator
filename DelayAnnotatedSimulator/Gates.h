@@ -116,11 +116,13 @@ public:
     inline size_t numFaultyCopies() {return faulty_clones.size(); }
     
     //faulty gate methods
+    inline Gate* goodGate() {return good_gate;}
     void diverge();
     Gate* createFaultyGate(Fault*, Gate*);
     void converge();
     void deleteFaulty();
     void deleteFaulty(Gate*);
+    void replaceFanin(Gate*);
     
     //dynamic cast methods for Flip Flops and Inputs
     InputGate* castInput();

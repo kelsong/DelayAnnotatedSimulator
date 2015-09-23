@@ -339,8 +339,8 @@ unsigned int TestCircuit(){
     }
     return TEST_PASS;
 }
-
-/*int main(){
+/*
+int main(){
   std::cerr << TestAnd() << std::endl;
   std::cerr << TestNand() << std::endl;
   std::cerr << TestOr() << std::endl;
@@ -353,4 +353,5 @@ unsigned int TestCircuit(){
   std::cerr << TestInput() << std::endl;
   std::cerr << TestOutput() << std::endl;
   std::cerr << TestCircuit() << std::endl;
+    getchar();
 }*/

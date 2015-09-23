@@ -96,7 +96,6 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
  * LogicDelaySimulator
  ****************************************************************************/
 void LogicDelaySimulator::simCycle(const std::vector<char> & input){
-    LogicIDGenerator::reset();
     if(input.size() != circuit->getNumInput()) {
         std::cerr << "INVALID INPUT AT: " << cycle_id << std::endl;
     }

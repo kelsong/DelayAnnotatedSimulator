@@ -31,16 +31,14 @@
 #include "Args.h"
 #include "InputVector.h"
 
-unsigned int LogicIDGenerator::ids = 0;
-
 int main(int argc, const char * argv[]) {
     // insert code here...
     Args args;
     args.readArgs(argc, argv);
     //std::cerr << args.getCircuitName();
-    Circuit * circuit = new Circuit(args.getCircuitName(), true, false);
+    Circuit * circuit = new Circuit(args.getCircuitName(), false, false);
     //std::cerr << circuit->getMaxDelay() << std::endl;
-    LogicDelaySimulator * simulator = new LogicDelaySimulator(circuit);
+    LogicSimulator * simulator = new LogicSimulator(circuit);
     InputVector test_vector(args.getInputSource());
     
     //circuit->PrintPIFanoutCone(3);

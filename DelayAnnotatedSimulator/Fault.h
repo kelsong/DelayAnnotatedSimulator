@@ -37,7 +37,7 @@ public:
     Fault(unsigned int gid, unsigned int net, LogicValue stuck_at) : gate_id(gid), gate_net(net),  stuck_at_value(stuck_at), detected(false) {}
     inline unsigned int faultGateId() {return gate_id;}
     inline unsigned int faultGateNet() {return gate_net;}
-    inline bool faultSA() {return stuck_at_value;}
+    inline LogicValue faultSA() {return stuck_at_value;}
     inline void setDetected(){detected = false;}
 };
 #endif /* defined(__DelayAnnotatedSimulator__Fault__) */

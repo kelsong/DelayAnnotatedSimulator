@@ -25,15 +25,6 @@
 #ifndef DelayAnnotatedSimulator_Type_h
 #define DelayAnnotatedSimulator_Type_h
 
-
-class LogicIDGenerator {
-private:
-    static unsigned int ids;
-public:
-    static unsigned int getNewID() {int ret = ids; ids += 2; return ret;}
-    static void reset() {ids = 0;}
-};
-
 class LogicValue{
 public:
     enum VALUES{
@@ -49,21 +40,16 @@ public:
     }
     
     enum VALUES val;
-    unsigned int x_id;
     
     LogicValue(VALUES val): val(val) {} //don't need IDs until scheduled;
     operator VALUES () { return val; }
-    LogicValue operator= (LogicValue::VALUES rhs) { this->val = rhs; return *this; }
+    LogicValue& operator= (LogicValue::VALUES rhs) { this->val = rhs; return *this; }
     bool operator== (LogicValue::VALUES rhs) {return (val == rhs);}
     bool operator== (LogicValue rhs) {return val == rhs.val;}
     bool operator!= (LogicValue::VALUES rhs) {return (val != rhs);}
-
-    inline unsigned int getID(){ return ( val == X ) ? x_id : -1; }
-    inline void setID(int ident) { x_id = ident; }
-    inline void newID() { x_id = LogicIDGenerator::getNewID(); }
-    inline void invertID() { x_id = ((x_id % 2) == 0) ? x_id + 1  : x_id - 1; }
-    
-    
+    LogicValue& operator&= (LogicValue rhs);
+    LogicValue& operator|= (LogicValue rhs);
+    LogicValue& operator^= (LogicValue rhs);
 
     static LogicValue fromChar(char c) {
         if (c == '0')  return LogicValue(ZERO);
@@ -111,4 +97,7 @@ inline LogicValue operator~ (LogicValue lhs) {
     return LogicValue((lhs.val == LogicValue::X) ? LogicValue::X : LogicValue::VALUES(LogicValue::ONE - lhs.val));
 }
 
+inline LogicValue& LogicValue::operator&= (LogicValue rhs) { *this = LogicValue(*this & rhs); return *this; }
+inline LogicValue& LogicValue::operator|= (LogicValue rhs) { *this = LogicValue(*this | rhs); return *this; }
+inline LogicValue& LogicValue::operator^= (LogicValue rhs) { *this = LogicValue(*this ^ rhs); return *this; }
 #endif

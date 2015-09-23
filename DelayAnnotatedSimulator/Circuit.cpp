@@ -318,7 +318,9 @@ void Circuit::readFaultList(std::string filename){
             unsigned int gate_net;
             bool stuck_at_value;
             ss >> gate_id >> gate_net >> stuck_at_value;
-            faultlist.push_back(Fault(gate_id, gate_net, stuck_at_value));
+            LogicValue sa = stuck_at_value ? LogicValue::ONE : LogicValue::ZERO;
+            
+            faultlist.push_back(Fault(gate_id, gate_net, sa));
         } while (input.good());
     }
 }

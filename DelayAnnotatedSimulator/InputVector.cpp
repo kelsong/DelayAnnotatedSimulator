@@ -39,7 +39,7 @@ std::vector<char> InputVector::getNext() {
         }
     }
     if(current_buffer.compare("END") == 0) {
-            found_end = true;
+        found_end = true;
     } else {
         for(unsigned int i = 0; i<pi_length; i++){
             if(current_buffer[i] == '0' || current_buffer[i] == '1' || current_buffer[i] == 'X' || current_buffer[i] == 'x'){
