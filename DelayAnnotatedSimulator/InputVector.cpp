@@ -38,23 +38,23 @@ std::vector<char> InputVector::getNext() {
             return ret;
         }
     }
-    
-    for(unsigned int i = 0; i<current_buffer.size(); i++){
-        if(current_buffer[i] == '0' || current_buffer[i] == '1' || current_buffer[i] == 'X' || current_buffer[i] == 'x'){
-            ret.push_back(current_buffer[i]);
-        } else {
-            std::cerr << "Input Error on input " << line_no << ": "
-                      << "Inputs must be a '0', '1', X or 'END' " << std::endl;
-            exit(-5);
+    if(current_buffer.compare("END") == 0) {
+            found_end = true;
+    } else {
+        for(unsigned int i = 0; i<pi_length; i++){
+            if(current_buffer[i] == '0' || current_buffer[i] == '1' || current_buffer[i] == 'X' || current_buffer[i] == 'x'){
+                ret.push_back(current_buffer[i]);
+            }  else {
+                std::cerr << "Input Error on input " << line_no << ": "
+                          << "Inputs must be a '0', '1', X or 'END' " << std::endl;
+                exit(-5);
+            }
+            line_no++;
         }
-        line_no++;
     }
     
-    if(!isStdIn()){
+    if(!isStdIn() && !found_end){
         std::getline(source,current_buffer);
-        if(current_buffer.compare("END") == 0) {
-            found_end = true;
-        }
     }
     
     return ret;
