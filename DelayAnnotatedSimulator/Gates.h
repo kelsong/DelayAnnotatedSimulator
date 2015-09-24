@@ -77,8 +77,8 @@ protected:
 
 public:
     Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) {}
-    Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(1)  { }
-    Gate(unsigned int idx, GateType type, unsigned int level, unsigned int delay) :gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(delay) {}
+ Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(1), faulty(false)  { }
+ Gate(unsigned int idx, GateType type, unsigned int level, unsigned int delay) :gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(delay), faulty(false) {}
     Gate(unsigned int idx, std::vector<Gate *> fin, std::vector<Gate *> fout, GateType type)
         : gate_id(idx), m_type(type), output(LogicValue::X),  fanin(fin), fanout(fout) { }
     virtual ~Gate() { }
@@ -400,7 +400,7 @@ inline DffGate* Gate::castDff() {
 }
 
 inline void Gate::removeFanin(Gate* gate) {
-    for(int i = 0; i<fanin.size(); i++) {
+    for(unsigned int i = 0; i<fanin.size(); i++) {
         if(gate->getId() == fanin[i]->getId()) {
             fanin.erase(fanin.begin()+i);
             break;
@@ -409,7 +409,7 @@ inline void Gate::removeFanin(Gate* gate) {
 }
 
 inline void Gate::removeFanout(Gate *gate) {
-    for(int i = 0; i<fanout.size(); i++) {
+    for(unsigned int i = 0; i<fanout.size(); i++) {
         if(gate->getId() == fanout[i]->getId()) {
             fanout.erase(fanout.begin()+i);
             break;

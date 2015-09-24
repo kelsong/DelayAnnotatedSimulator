@@ -36,9 +36,9 @@ int main(int argc, const char * argv[]) {
     Args args;
     args.readArgs(argc, argv);
     //std::cerr << args.getCircuitName();
-    Circuit * circuit = new Circuit(args.getCircuitName(), false, false);
+    Circuit * circuit = new Circuit(args.getCircuitName(), false, true);
     //std::cerr << circuit->getMaxDelay() << std::endl;
-    LogicSimulator * simulator = new LogicSimulator(circuit);
+    FaultSimulator * simulator = new FaultSimulator(circuit);
     InputVector test_vector(args.getInputSource());
 
     //circuit->PrintPIFanoutCone(3);
