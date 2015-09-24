@@ -77,6 +77,18 @@ public:
     void simCycle(const std::vector<char>&);
 };
 
+class FaultSimulator : public Simulator{
+    EventWheel * eventwheel;
+public:
+    FaultSimulator(Circuit * ckt): Simulator(ckt) {
+        eventwheel = new EventWheel(ckt->getNumLevels());
+    }
+    ~FaultSimulator() {
+        delete eventwheel;
+    }
+    void simCycle(const std::vector<char>&);
+};
+
 class SimulatorFactory {
 public:
     static Simulator* create(Args& args);

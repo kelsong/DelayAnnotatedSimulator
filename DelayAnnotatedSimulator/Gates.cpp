@@ -56,7 +56,9 @@ void Gate::converge() {
         fanin[i]->removeFanout(this);
         fanin[i]->converge();
     }
-
+    if(fault->faultGateId() == this->getId()){
+        fault->setInactive();
+    }
     good_gate->deleteFaulty(this);
 }
 
@@ -68,28 +70,35 @@ void Gate::replaceFanin(Gate * rep) {
     }
 }
 
-Gate* Gate::createFaultyGate(Fault * fault_create, Gate * gate_create) {
+Gate* Gate::createFaultyGate(Fault * fault_create) {
     //check if there is already a faulty copy
 
     Gate* clne = this->clone();
     clne->clearFanout(); //empties fanout because this is a faulty gate copy,
     //these will not be populated until a propagation occurs
+    clne->setFault(fault_create);
+    this->faulty_clones.push_back(clne);
     return clne;
+}
+
+Gate* Gate::getFaulty(Fault* flt){
+    for(size_t i = 0; i<faulty_clones.size(); i++){
+        if(faulty_clones[i]->getFault() == flt){
+            return faulty_clones[i];
+        }
+    }
+    return NULL;
 }
 
 //diverges and creates faulty copies for all fanouts.
 void Gate::diverge() {
-    for(size_t i=0; i < good_gate->getNumFanout(); i++) {
-        if(fanout.size() > i) {
-            if(fanout[i]->getId() != good_gate->getFanout(i)->getId()) {
-                //this keeps things in the same order
-                fanout.insert(fanout.begin()+i, good_gate->getFanout(i)->createFaultyGate(fault, this));
-            } else { //already exists
-                continue;
-            }
-        } else {
-            fanout.push_back(good_gate->getFanout(i)->createFaultyGate(fault, this));
+    for(unsigned int i=0; i < good_gate->getNumFanout(); i++) {
+        Gate* flty = good_gate->getFanout(i)->getFaulty(fault);
+        if(flty == NULL){
+            flty = good_gate->getFanout(i)->createFaultyGate(fault);
         }
+        
+        fanout.push_back(flty);
     }
 }
 
@@ -394,8 +403,24 @@ void BufGate::evaluate() {
 /********************************************************/
 
 void OutputGate::evaluate() {
+    bool fault_eval = false;
+    if(faulty) {
+        fault->setDetected();
+        fault_eval = (fault->faultGateId() == gate_id);
+    }
+    
+    if(!fault_eval) {
+        output = fanin[0]->getOut();
+    } else {
+        output = fault->faultSA();
+        fault->setDetected();
+        if(output!=good_gate->getOut()) {
+            diverge();
+        } else {
+            converge();
+        }
+    }
 
-    output = fanin[0]->getOut();
 }
 
 /********************************************************/
@@ -404,6 +429,10 @@ void OutputGate::evaluate() {
 
 void InputGate::evaluate() {
     dirty=true; //always true
+    if(faulty){
+        output=fault->faultSA();
+        diverge();
+    }
 }
 
 void InputGate::setInput(LogicValue::VALUES in) { //must be used to set value
@@ -451,10 +480,23 @@ void TieZGate::evaluate() {
 
 void DffGate::evaluate() {
     LogicValue previous = output;
-
-    output = fanin[0]->getOut();
-
-    dirty = (previous != output);
+    bool fault_eval = false;
+    if(faulty) {
+        fault_eval = (fault->faultGateId() == gate_id);
+    }
+    
+    if(!fault_eval) {
+        output = fanin[0]->getOut();
+        dirty = (previous != output);
+    } else {
+        output = fault->faultSA();
+        dirty = true;
+        if(output!=good_gate->getOut()) {
+            diverge();
+        } else {
+            converge();
+        }
+    }
 }
 
 void DffGate::setDff(LogicValue::VALUES in) {

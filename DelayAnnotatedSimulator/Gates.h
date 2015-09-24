@@ -162,11 +162,18 @@ public:
         return good_gate;
     }
     void diverge();
-    Gate* createFaultyGate(Fault*, Gate*);
+    Gate* createFaultyGate(Fault*);
     void converge();
     void deleteFaulty();
     void deleteFaulty(Gate*);
     void replaceFanin(Gate*);
+    Gate * getFaulty(Fault*);
+    inline void setFault(Fault* flt) {
+        fault = flt; faulty = true;
+    }
+    inline Fault* getFault() {
+        return fault;
+    }
 
     //dynamic cast methods for Flip Flops and Inputs
     InputGate* castInput();

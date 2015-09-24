@@ -340,6 +340,25 @@ void Circuit::cleanupInjectedFaults() {
 }
 
 std::vector<Gate*> Circuit::injectFaults() {
+    unsigned int count = 0;
+    for(size_t i = injected_fault_idx; i<faultlist.size(); i++){
+        if(faultlist[i].isDetected()) {
+            injected_fault_idx++;
+            continue;
+        }
+        Gate* gate = getGateById(faultlist[i].faultGateId());
+        if(faultlist[i].isActive()) {
+            injected_fault_idx++;
+            count++;
+            injected_faulty_gates.push_back(gate->getFaulty(&faultlist[i]));
+        } else {
+            count++;
+            injected_faulty_gates.push_back(gate->createFaultyGate(&faultlist[i]));
+        }
+        if(count == NUM_FAULT_INJECT){
+            break;
+        }
+    }
     return injected_faulty_gates;
 }
 

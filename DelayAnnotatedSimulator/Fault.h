@@ -45,7 +45,19 @@ public:
         return stuck_at_value;
     }
     inline void setDetected() {
-        detected = false;
+        detected = true;
+    }
+    inline bool isDetected() {
+        return detected;
+    }
+    inline void setActive() {
+        active = true;
+    }
+    inline void setInactive() {
+        active = false;
+    }
+    inline bool isActive() {
+        return active;
     }
 };
 #endif /* defined(__DelayAnnotatedSimulator__Fault__) */
