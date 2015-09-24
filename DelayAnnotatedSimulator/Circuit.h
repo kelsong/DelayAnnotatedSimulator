@@ -110,7 +110,7 @@ public:
         return ((idx < outputs.size()) ? outputs[idx] : NULL);
     }
     inline Gate* getGateById(unsigned int gate_id) {
-        return ((gate_id < allGates.size()) ?  allGates[gate_id-1] : NULL);
+        return ((gate_id <= allGates.size() && gate_id > 0) ?  allGates[gate_id-1] : NULL);
     }
     inline unsigned int getMaxDelay() {
         return max_delay;

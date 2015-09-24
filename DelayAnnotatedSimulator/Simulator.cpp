@@ -187,4 +187,5 @@ void FaultSimulator::simCycle(const std::vector<char>& input) {
     for(unsigned int i = 0; i< injected.size(); i++){
 	
     }
+    std::cerr <<"COMPLETE FAULT SIM" << std::endl;
 }
