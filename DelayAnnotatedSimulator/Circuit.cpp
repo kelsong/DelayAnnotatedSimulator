@@ -307,21 +307,19 @@ void Circuit::readDelay(std::string filename) {
 void Circuit::readFaultList(std::string filename) {
     std::string line;
     std::fstream input(filename.c_str(), std::fstream::in);
-    if(input.good()) {
-        do {
-            std::getline(input, line);
-            if(!input.good()) {
-                break;
-            }
-            std::stringstream ss(line);
-            unsigned int gate_id;
-            unsigned int gate_net;
-            bool stuck_at_value;
-            ss >> gate_id >> gate_net >> stuck_at_value;
-            LogicValue sa = stuck_at_value ? LogicValue::ONE : LogicValue::ZERO;
 
-            faultlist.push_back(Fault(gate_id, gate_net, sa));
-        } while (input.good());
+    while (input.good()) {
+        std::getline(input, line);
+        if(line.length() == 0){
+            continue;
+        }
+        std::stringstream ss(line);
+        unsigned int gate_id;
+        unsigned int gate_net;
+        bool stuck_at_value;
+        ss >> gate_id >> gate_net >> stuck_at_value;
+        LogicValue sa = stuck_at_value ? LogicValue::ONE : LogicValue::ZERO;
+        faultlist.push_back(Fault(gate_id, gate_net, sa));
     }
 }
 
@@ -371,8 +369,16 @@ double Circuit::calculateFaultCov() const{
             count++;
         }
     }
+    std::cout << count << " detected" << std::endl;
     return ((double) count) / faultlist.size();
 }
+
+void Circuit::resetActiveFaults() {
+    for(unsigned int i = 0; i < faultlist.size(); i++){
+        faultlist[i].setInactive();
+    }
+}
+
 Circuit::~Circuit() {
     for(size_t i = 0; i<allGates.size(); i++) {
         allGates[i]->deleteFaulty();

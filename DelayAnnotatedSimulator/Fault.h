@@ -34,7 +34,7 @@ private:
     bool detected;
     bool active;
 public:
-    Fault(unsigned int gid, unsigned int net, LogicValue stuck_at) : gate_id(gid), gate_net(net),  stuck_at_value(stuck_at), detected(false) {}
+    Fault(unsigned int gid, unsigned int net, LogicValue stuck_at) : gate_id(gid), gate_net(net),  stuck_at_value(stuck_at), detected(false), active(false) {}
     inline unsigned int faultGateId() const {
         return gate_id;
     }

@@ -47,27 +47,33 @@ void Gate::converge() {
     //we converge each gate when it matches the output of the good gate.
     if(!faulty) return;
 
-    for(unsigned int i = 0; i<fanout.size(); i++) {
-        //replace fanouts with good gate
-        fanout[i]->replaceFanin(this);
-    }
-
     for(unsigned int i = 0; i<fanin.size(); i++) {
         if(fanin[i]->isFaulty()) {
             fanin[i]->removeFanout(this);
             fanin[i]->converge();
         }
     }
-    if(fault->faultGateId() == this->getId()){
-        fault->setInactive();
+    
+    if(fanout.size() != 0) {
+        dirty = true;
+    } else {
+        good_gate->deleteFaulty(this);
     }
-    good_gate->deleteFaulty(this);
 }
 
 void Gate::replaceFanin(Gate * rep) {
     for(unsigned int i = 0; i<fanin.size(); i++) {
         if(fanin[i] == rep) {
             fanin[i] = rep->goodGate();
+        }
+    }
+}
+
+void Gate::replaceFanin(Gate* good, Gate * fault_in) {
+    if (!this->isFaulty()) return;
+    for(unsigned int i = 0; i < fanin.size(); i++) {
+        if(fanin[i] == good){
+            fanin[i] = fault_in;
         }
     }
 }
@@ -102,8 +108,9 @@ void Gate::diverge() {
         Gate* flty = good_gate->getFanout(i)->getFaulty(fault);
         if(flty == NULL){
             flty = good_gate->getFanout(i)->createFaultyGate(fault);
+            
         }
-        
+        flty->replaceFanin(good_gate, this);
         fanout.push_back(flty);
     }
 }
@@ -135,7 +142,7 @@ void AndGate::evaluate() {
     if(faulty) {
         fault_eval = (fault->faultGateId() == gate_id);
     }
-
+    
     if(!fault_eval) {
         LogicValue val = fanin[0]->getOut();
         for(unsigned int i = 1; i<fanin.size(); i++) {
@@ -144,17 +151,20 @@ void AndGate::evaluate() {
         output = val;
         dirty = (previous != output);
     } else {
-        if(fault->faultGateNet() >= fanin.size()) { //applies to output
+        if(fault->faultGateNet() == 0) { //applies to output
             output = fault->faultSA();
         } else { //apply to fanin
             LogicValue val = LogicValue::ONE;
             for(unsigned int i = 0; i<fanin.size(); i++) {
-                val &= (fault->faultSA() == i) ? fault->faultSA() : fanin[i]->getOut();
+                val &= (fault->faultGateNet()-1 == i) ? fault->faultSA() : fanin[i]->getOut();
             }
             output = val;
         }
-        dirty = true;
+    }
+    
+    if(faulty){
         if(output != good_gate->getOut()) {
+            dirty = true;
             diverge();
         } else {
             converge();
@@ -182,17 +192,20 @@ void NandGate::evaluate() {
         output = ~val;
         dirty = (previous != output);
     } else {
-        if(fault->faultGateNet() >= fanin.size()) { //applies to output
+        if(fault->faultGateNet() == 0) { //applies to output
             output = fault->faultSA();
         } else { //apply to fanin
             LogicValue val = LogicValue::ONE;
             for(unsigned int i = 0; i<fanin.size(); i++) {
-                val &= (fault->faultSA() == i) ? fault->faultSA() : fanin[i]->getOut();
+                val &= (fault->faultGateNet()-1 == i) ? fault->faultSA() : fanin[i]->getOut();
             }
             output = ~val;
         }
-        dirty = true;
-        if(output!=good_gate->getOut()) {
+    }
+    
+    if(faulty){
+        if(output != good_gate->getOut()) {
+            dirty = true;
             diverge();
         } else {
             converge();
@@ -211,7 +224,7 @@ void OrGate::evaluate() {
     if(faulty) {
         fault_eval = (fault->faultGateId() == gate_id);
     }
-
+    
     if(!fault_eval) {
         LogicValue val = fanin[0]->getOut();
         for(unsigned int i = 1; i<fanin.size(); i++) {
@@ -220,17 +233,20 @@ void OrGate::evaluate() {
         output = val;
         dirty = (previous != output);
     } else {
-        if(fault->faultGateNet() >= fanin.size()) { //applies to output
+        if(fault->faultGateNet() == 0) { //applies to output
             output = fault->faultSA();
         } else { //apply to fanin
-            LogicValue val = LogicValue::ONE;
+            LogicValue val = LogicValue::ZERO;
             for(unsigned int i = 0; i<fanin.size(); i++) {
-                val |= (fault->faultSA() == i) ? fault->faultSA() : fanin[i]->getOut();
+                val |= (fault->faultGateNet()-1 == i) ? fault->faultSA() : fanin[i]->getOut();
             }
             output = val;
         }
-        dirty = true;
-        if(output!=good_gate->getOut()) {
+    }
+    
+    if(faulty){
+        if(output != good_gate->getOut()) {
+            dirty = true;
             diverge();
         } else {
             converge();
@@ -248,7 +264,7 @@ void NorGate::evaluate() {
     if(faulty) {
         fault_eval = (fault->faultGateId() == gate_id);
     }
-
+    
     if(!fault_eval) {
         LogicValue val = fanin[0]->getOut();
         for(unsigned int i = 1; i<fanin.size(); i++) {
@@ -257,17 +273,20 @@ void NorGate::evaluate() {
         output = ~val;
         dirty = (previous != output);
     } else {
-        if(fault->faultGateNet() >= fanin.size()) { //applies to output
+        if(fault->faultGateNet() == 0) { //applies to output
             output = fault->faultSA();
         } else { //apply to fanin
-            LogicValue val = LogicValue::ONE;
+            LogicValue val = LogicValue::ZERO;
             for(unsigned int i = 0; i<fanin.size(); i++) {
-                val |= (fault->faultSA() == i) ? fault->faultSA() : fanin[i]->getOut();
+                val |= (fault->faultGateNet()-1 == i) ? fault->faultSA() : fanin[i]->getOut();
             }
             output = ~val;
         }
-        dirty = true;
-        if(output!=good_gate->getOut()) {
+    }
+    
+    if(faulty){
+        if(output != good_gate->getOut()) {
+            dirty = true;
             diverge();
         } else {
             converge();
@@ -286,7 +305,7 @@ void XorGate::evaluate() {
     if(faulty) {
         fault_eval = (fault->faultGateId() == gate_id);
     }
-
+    
     if(!fault_eval) {
         LogicValue val = fanin[0]->getOut();
         for(unsigned int i = 1; i<fanin.size(); i++) {
@@ -295,17 +314,20 @@ void XorGate::evaluate() {
         output = val;
         dirty = (previous != output);
     } else {
-        if(fault->faultGateNet() >= fanin.size()) { //applies to output
+        if(fault->faultGateNet() == 0) { //applies to output
             output = fault->faultSA();
         } else { //apply to fanin
-            LogicValue val = LogicValue::ONE;
+            LogicValue val = LogicValue::ZERO;
             for(unsigned int i = 0; i<fanin.size(); i++) {
-                val ^= (fault->faultSA() == i) ? fault->faultSA() : fanin[i]->getOut();
+                val ^= (fault->faultGateNet()-1 == i) ? fault->faultSA() : fanin[i]->getOut();
             }
             output = val;
         }
-        dirty = true;
-        if(output!=good_gate->getOut()) {
+    }
+    
+    if(faulty){
+        if(output != good_gate->getOut()) {
+            dirty = true;
             diverge();
         } else {
             converge();
@@ -324,7 +346,7 @@ void XnorGate::evaluate() {
     if(faulty) {
         fault_eval = (fault->faultGateId() == gate_id);
     }
-
+    
     if(!fault_eval) {
         LogicValue val = fanin[0]->getOut();
         for(unsigned int i = 1; i<fanin.size(); i++) {
@@ -333,17 +355,20 @@ void XnorGate::evaluate() {
         output = ~val;
         dirty = (previous != output);
     } else {
-        if(fault->faultGateNet() >= fanin.size()) { //applies to output
+        if(fault->faultGateNet() == 0) { //applies to output
             output = fault->faultSA();
         } else { //apply to fanin
-            LogicValue val = LogicValue::ONE;
+            LogicValue val = LogicValue::ZERO;
             for(unsigned int i = 0; i<fanin.size(); i++) {
-                val ^= (fault->faultSA() == i) ? fault->faultSA() : fanin[i]->getOut();
+                val ^= (fault->faultGateNet()-1 == i) ? fault->faultSA() : fanin[i]->getOut();
             }
             output = ~val;
         }
-        dirty = true;
-        if(output!=good_gate->getOut()) {
+    }
+    
+    if(faulty){
+        if(output != good_gate->getOut()) {
+            dirty = true;
             diverge();
         } else {
             converge();
@@ -365,13 +390,17 @@ void NotGate::evaluate() {
         output = ~fanin[0]->getOut();
         dirty = (previous != output);
     } else {
-        if(fault->faultGateNet() == 0) {
+        if(fault->faultGateNet() == 1) {
             output = ~fault->faultSA();
         } else {
             output = fault->faultSA();
         }
-        dirty = true;
+        
+    }
+
+    if(faulty) {
         if(output!=good_gate->getOut()) {
+            dirty = true;
             diverge();
         } else {
             converge();
@@ -394,8 +423,11 @@ void BufGate::evaluate() {
         dirty = (previous != output);
     } else {
         output = fault->faultSA();
-        dirty = true;
+    }
+    
+    if(faulty){
         if(output!=good_gate->getOut()) {
+            dirty = true;
             diverge();
         } else {
             converge();
@@ -410,7 +442,6 @@ void BufGate::evaluate() {
 void OutputGate::evaluate() {
     bool fault_eval = false;
     if(faulty) {
-        fault->setDetected();
         fault_eval = (fault->faultGateId() == gate_id);
     }
     
@@ -418,9 +449,16 @@ void OutputGate::evaluate() {
         output = fanin[0]->getOut();
     } else {
         output = fault->faultSA();
-        fault->setDetected();
-        if(output!=good_gate->getOut()) {
-            diverge();
+    }
+    
+    if (faulty){
+        if (output != good_gate->getOut()){
+            /*if(!fault->isDetected()){
+                std::cout << fault->faultGateId() << " "
+                        << fault->faultGateNet() << " "
+                        << fault->faultSA().ascii() << std::endl;
+            }*/
+            fault->setDetected();
         } else {
             converge();
         }
@@ -435,8 +473,12 @@ void OutputGate::evaluate() {
 void InputGate::evaluate() {
     dirty=true; //always true
     if(faulty){
-        output=fault->faultSA();
-        diverge();
+        output = fault->faultSA();
+        if(output != good_gate->getOut()){
+            diverge();
+        } else {
+            converge();
+        }
     }
 }
 
@@ -495,8 +537,11 @@ void DffGate::evaluate() {
         dirty = (previous != output);
     } else {
         output = fault->faultSA();
-        dirty = true;
+    }
+    
+    if(faulty){
         if(output!=good_gate->getOut()) {
+            dirty = true;
             diverge();
         } else {
             converge();

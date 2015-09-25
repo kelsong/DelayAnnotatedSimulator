@@ -77,8 +77,8 @@ protected:
 
 public:
     Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) {}
- Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(1), faulty(false)  { }
- Gate(unsigned int idx, GateType type, unsigned int level, unsigned int delay) :gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(delay), faulty(false) {}
+    Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(1), faulty(false)  { }
+    Gate(unsigned int idx, GateType type, unsigned int level, unsigned int delay) :gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(delay), faulty(false) {}
     Gate(unsigned int idx, std::vector<Gate *> fin, std::vector<Gate *> fout, GateType type)
         : gate_id(idx), m_type(type), output(LogicValue::X),  fanin(fin), fanout(fout) { }
     virtual ~Gate() { }
@@ -170,6 +170,7 @@ public:
     void deleteFaulty();
     void deleteFaulty(Gate*);
     void replaceFanin(Gate*);
+    void replaceFanin(Gate*, Gate *);
     Gate * getFaulty(Fault*);
     inline void setFault(Fault* flt) {
         fault = flt; faulty = true;

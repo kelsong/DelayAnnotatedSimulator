@@ -40,7 +40,6 @@ int main(int argc, const char * argv[]) {
     //std::cerr << circuit->getMaxDelay() << std::endl;
     FaultSimulator * simulator = new FaultSimulator(circuit);
     InputVector test_vector(args.getInputSource());
-
     //circuit->PrintPIFanoutCone(3);
 
     while(!test_vector.isDone()) {
