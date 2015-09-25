@@ -35,19 +35,19 @@ private:
     bool active;
 public:
     Fault(unsigned int gid, unsigned int net, LogicValue stuck_at) : gate_id(gid), gate_net(net),  stuck_at_value(stuck_at), detected(false) {}
-    inline unsigned int faultGateId() {
+    inline unsigned int faultGateId() const {
         return gate_id;
     }
-    inline unsigned int faultGateNet() {
+    inline unsigned int faultGateNet() const {
         return gate_net;
     }
-    inline LogicValue faultSA() {
+    inline LogicValue faultSA() const {
         return stuck_at_value;
     }
     inline void setDetected() {
         detected = true;
     }
-    inline bool isDetected() {
+    inline bool isDetected() const {
         return detected;
     }
     inline void setActive() {
@@ -56,7 +56,7 @@ public:
     inline void setInactive() {
         active = false;
     }
-    inline bool isActive() {
+    inline bool isActive() const {
         return active;
     }
 };

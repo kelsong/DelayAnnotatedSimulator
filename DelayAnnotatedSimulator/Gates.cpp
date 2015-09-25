@@ -53,8 +53,10 @@ void Gate::converge() {
     }
 
     for(unsigned int i = 0; i<fanin.size(); i++) {
-        fanin[i]->removeFanout(this);
-        fanin[i]->converge();
+        if(fanin[i]->isFaulty()) {
+            fanin[i]->removeFanout(this);
+            fanin[i]->converge();
+        }
     }
     if(fault->faultGateId() == this->getId()){
         fault->setInactive();
@@ -72,15 +74,16 @@ void Gate::replaceFanin(Gate * rep) {
 
 Gate* Gate::createFaultyGate(Fault * fault_create) {
     //check if there is already a faulty copy
-    std::cerr << "CREATE FAULTY " << fault_create->faultGateId() 
-	      << " " << fault_create->faultGateNet() 
-	      << " " << fault_create->faultSA().ascii() << std::endl;
+    //std::cerr << "CREATE FAULTY " << fault_create->faultGateId()
+	//      << " " << fault_create->faultGateNet()
+	//      << " " << fault_create->faultSA().ascii() << std::endl;
     Gate* clne = this->clone();
     clne->clearFanout(); //empties fanout because this is a faulty gate copy,
     //these will not be populated until a propagation occurs
     clne->setFault(fault_create);
+    clne->setGoodGate(this);
     this->faulty_clones.push_back(clne);
-    std::cerr << "END CREATE FAULTY" << std::endl;
+    //std::cerr << "END CREATE FAULTY" << std::endl;
     return clne;
 }
 
@@ -151,7 +154,7 @@ void AndGate::evaluate() {
             output = val;
         }
         dirty = true;
-        if(output!=good_gate->getOut()) {
+        if(output != good_gate->getOut()) {
             diverge();
         } else {
             converge();

@@ -341,6 +341,7 @@ void Circuit::cleanupInjectedFaults() {
 
 std::vector<Gate*> Circuit::injectFaults() {
     unsigned int count = 0;
+    injected_faulty_gates.clear();
     for(size_t i = injected_fault_idx; i<faultlist.size(); i++){
         if(faultlist[i].isDetected()) {
             injected_fault_idx++;
@@ -352,6 +353,7 @@ std::vector<Gate*> Circuit::injectFaults() {
             count++;
             injected_faulty_gates.push_back(gate->getFaulty(&faultlist[i]));
         } else {
+            injected_fault_idx++;
             count++;
             injected_faulty_gates.push_back(gate->createFaultyGate(&faultlist[i]));
         }
@@ -362,6 +364,15 @@ std::vector<Gate*> Circuit::injectFaults() {
     return injected_faulty_gates;
 }
 
+double Circuit::calculateFaultCov() const{
+    unsigned int count = 0;
+    for(unsigned int i = 0; i < faultlist.size(); i++) {
+        if(faultlist[i].isDetected()){
+            count++;
+        }
+    }
+    return ((double) count) / faultlist.size();
+}
 Circuit::~Circuit() {
     for(size_t i = 0; i<allGates.size(); i++) {
         allGates[i]->deleteFaulty();

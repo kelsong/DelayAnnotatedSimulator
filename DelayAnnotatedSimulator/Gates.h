@@ -161,6 +161,9 @@ public:
     inline Gate* goodGate() {
         return good_gate;
     }
+    inline bool isFaulty() {
+        return faulty;
+    }
     void diverge();
     Gate* createFaultyGate(Fault*);
     void converge();
@@ -173,6 +176,9 @@ public:
     }
     inline Fault* getFault() {
         return fault;
+    }
+    inline void setGoodGate(Gate * good) {
+        good_gate = good;
     }
 
     //dynamic cast methods for Flip Flops and Inputs

@@ -162,7 +162,27 @@ void FaultSimulator::simCycle(const std::vector<char>& input) {
     }
     
     //goodsim
-    std::cerr << "GOODSIM" << std::endl;
+    //std::cerr << "GOODSIM" << std::endl;
+    simEvents();
+    
+    
+    //faultsim
+    circuit->resetInjection();
+    //std::cerr << "FAULTSIM" << std::endl;
+    std::vector<Gate*> injected = circuit->injectFaults();
+    while(!injected.empty()){
+        for(unsigned int i = 0; i< injected.size(); i++){
+            eventwheel->insertEvent(injected[i]);
+        }
+        simEvents();
+        injected = circuit->injectFaults();
+    }
+    
+    //Calculate Fault Coverage
+    std::cout << "FAULT COV: " << circuit->calculateFaultCov() << std::endl;
+}
+
+void FaultSimulator::simEvents(){
     Gate * gate_to_eval = eventwheel->getNextScheduled();
     while (gate_to_eval != NULL) {
         gate_to_eval->evaluate();
@@ -181,11 +201,4 @@ void FaultSimulator::simCycle(const std::vector<char>& input) {
         gate_to_eval->resetDirty();
         gate_to_eval = eventwheel->getNextScheduled();
     }
-    std::cerr << "DO FAULT SIM" << std::endl;
-    //faultsim
-    std::vector<Gate*> injected = circuit->injectFaults();
-    for(unsigned int i = 0; i< injected.size(); i++){
-	
-    }
-    std::cerr <<"COMPLETE FAULT SIM" << std::endl;
 }

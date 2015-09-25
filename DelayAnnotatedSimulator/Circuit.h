@@ -119,8 +119,12 @@ public:
     //this can be used to aid in limiting memory footprint
     std::vector<Gate*> injectFaults();
     void cleanupInjectedFaults();
+    double calculateFaultCov() const;
     inline size_t numFaults() {
         return faultlist.size();
+    }
+    inline void resetInjection() {
+        injected_fault_idx = 0;
     }
     void printFaults();
 };
