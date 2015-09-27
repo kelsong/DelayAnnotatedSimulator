@@ -25,6 +25,8 @@
 #ifndef DelayAnnotatedSimulator_Type_h
 #define DelayAnnotatedSimulator_Type_h
 
+#define NUM_FAULT_INJECT 128
+
 class LogicValue {
 public:
     enum VALUES {
@@ -40,8 +42,9 @@ public:
     }
 
     enum VALUES val;
-
-    LogicValue(VALUES val): val(val) {} //don't need IDs until scheduled;
+    
+    LogicValue() : val(X) {}
+    LogicValue(VALUES val): val(val) { } //don't need IDs until scheduled;
     operator VALUES () {
         return val;
     }
@@ -49,13 +52,18 @@ public:
         this->val = rhs;
         return *this;
     }
-    bool operator== (LogicValue::VALUES rhs) {
+    LogicValue& operator= (LogicValue rhs) {
+        this->val = rhs.val;
+        return *this;
+    }
+    
+    inline bool operator== (LogicValue::VALUES rhs) {
         return (val == rhs);
     }
-    bool operator== (LogicValue rhs) {
+    inline bool operator== (LogicValue rhs) {
         return val == rhs.val;
     }
-    bool operator!= (LogicValue::VALUES rhs) {
+    inline bool operator!= (LogicValue::VALUES rhs) {
         return (val != rhs);
     }
     LogicValue& operator&= (LogicValue rhs);
@@ -66,46 +74,23 @@ public:
         if (c == '0')  return LogicValue(ZERO);
         if (c == '1')  return LogicValue(ONE);
         if (c == 'x' || c == 'X') return LogicValue(X);
-        if (c == 'z' || c == 'Z') return LogicValue(X);
         return LogicValue(X);
     }
 };
 
 inline LogicValue operator& (LogicValue lhs, LogicValue rhs) {
-    bool rhs_z = (rhs.val == LogicValue::Z);
-    bool lhs_z = (lhs.val == LogicValue::Z);
-
-    if(rhs_z && lhs_z) return LogicValue(LogicValue::X);
-    if(rhs_z) return lhs;
-    if(lhs_z) return rhs;
-
     return LogicValue(LogicValue::VALUES(lhs.val & rhs.val));
 }
 
 inline LogicValue operator| (LogicValue lhs, LogicValue rhs) {
-    bool rhs_z = (rhs.val == LogicValue::Z);
-    bool lhs_z = (lhs.val == LogicValue::Z);
-
-    if(rhs_z && lhs_z) return LogicValue(LogicValue::X);
-    if(rhs_z) return lhs;
-    if(lhs_z) return rhs;
-
     return LogicValue(LogicValue::VALUES(lhs.val | rhs.val));
 }
 
 inline LogicValue operator^ (LogicValue lhs, LogicValue rhs) {
-    bool rhs_z = (rhs.val == LogicValue::Z);
-    bool lhs_z = (lhs.val == LogicValue::Z);
-
-    if(rhs_z && lhs_z) return LogicValue(LogicValue::X);
-    if(rhs_z) return lhs;
-    if(lhs_z) return rhs;
-
     return LogicValue(LogicValue::VALUES((lhs.val == LogicValue::X || rhs.val == LogicValue::X) ? LogicValue::X : lhs.val ^ rhs.val));
 }
 
 inline LogicValue operator~ (LogicValue lhs) {
-    if(lhs.val == LogicValue::Z) return LogicValue(LogicValue::Z);
     return LogicValue((lhs.val == LogicValue::X) ? LogicValue::X : LogicValue::VALUES(LogicValue::ONE - lhs.val));
 }
 

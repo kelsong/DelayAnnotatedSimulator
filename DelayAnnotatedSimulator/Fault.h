@@ -28,13 +28,14 @@
 //base stuck at fault for the simulator.
 class Fault {
 private:
+    unsigned int fault_id;
     unsigned int gate_id;
     unsigned int gate_net;
     LogicValue stuck_at_value;
     bool detected;
     bool active;
 public:
-    Fault(unsigned int gid, unsigned int net, LogicValue stuck_at) : gate_id(gid), gate_net(net),  stuck_at_value(stuck_at), detected(false), active(false) {}
+    Fault(unsigned int gid, unsigned int net, LogicValue stuck_at, unsigned int fault_id) : gate_id(gid), gate_net(net),  stuck_at_value(stuck_at), detected(false), fault_id(fault_id)  {}
     inline unsigned int faultGateId() const {
         return gate_id;
     }
@@ -58,6 +59,9 @@ public:
     }
     inline bool isActive() const {
         return active;
+    }
+    inline unsigned int getFID(){
+        return fault_id;
     }
 };
 #endif /* defined(__DelayAnnotatedSimulator__Fault__) */

@@ -40,7 +40,7 @@
 #include "Type.h"
 
 
-#define NUM_FAULT_INJECT 64
+
 
 //Circuit Class
 //For Project 0 create the circuit using false for the delay (there is no dly file for the circuit)
@@ -118,16 +118,15 @@ public:
 
     //this can be used to aid in limiting memory footprint
     std::vector<Gate*> injectFaults();
-    void resetActiveFaults();
-    void setSeqFaultsActive();
-    void cleanupNonActive();
-    void cleanupInjectedFaults();
+    void clearDFFFaults();
+    void invalidateFaultArrays();
     double calculateFaultCov() const;
     inline size_t numFaults() {
         return faultlist.size();
     }
     inline void resetInjection() {
         injected_fault_idx = 0;
+
     }
     void printFaults();
 };

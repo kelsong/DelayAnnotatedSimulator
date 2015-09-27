@@ -29,9 +29,11 @@
 #include <cstdlib>
 #include "Type.h"
 #include <vector>
+#include <map>
 #include "Fault.h"
 
 class InputGate;
+class OutputGate;
 class DffGate;
 
 //Polymorphic "gate" type. Evaluate is a hot function.
@@ -69,18 +71,22 @@ protected:
     unsigned int delay; //nanoseconds
 
     //faulty gate information
-    bool faulty;
     bool propagates;
-    Fault* fault;
-    std::vector<Gate*> faulty_clones;
-    Gate* good_gate;
-
+    LogicValue f_vals[NUM_FAULT_INJECT];
+    Fault * assoc_faults[NUM_FAULT_INJECT];
+    bool valid[NUM_FAULT_INJECT];
+    
+    
+    //meta-information from faulty circuit
+    static unsigned short fault_round;
+    static unsigned int num_injected;
+    
 public:
-    Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) {}
-    Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(1), faulty(false)  { }
-    Gate(unsigned int idx, GateType type, unsigned int level, unsigned int delay) :gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(delay), faulty(false) {}
+    Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
+    Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(1) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
+    Gate(unsigned int idx, GateType type, unsigned int level, unsigned int delay) :gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(delay){for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
     Gate(unsigned int idx, std::vector<Gate *> fin, std::vector<Gate *> fout, GateType type)
-        : gate_id(idx), m_type(type), output(LogicValue::X),  fanin(fin), fanout(fout) { }
+        : gate_id(idx), m_type(type), output(LogicValue::X),  fanin(fin), fanout(fout) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
     virtual ~Gate() { }
     virtual void evaluate(); //eval and schedule if transition
     bool isDirty() {
@@ -97,7 +103,7 @@ public:
     }
 
 
-    LogicValue getOut() {
+    inline LogicValue getOut() {
         return output;
     }
     const std::vector<Gate *>& getFanout();
@@ -134,8 +140,6 @@ public:
     inline void clearFanout() {
         fanout.clear();
     }
-    void removeFanin(Gate * gate);
-    void removeFanout(Gate * gate);
 
     //Gate info methods
     inline unsigned int getLevel() {
@@ -153,37 +157,42 @@ public:
     inline unsigned int getId() {
         return gate_id;
     }
-    inline size_t numFaultyCopies() {
-        return faulty_clones.size();
-    }
 
     //faulty gate methods
-    inline Gate* goodGate() {
-        return good_gate;
+    void diverge(Fault *);
+    void clearFaultValid();
+    
+    inline bool propagatesFault(){
+        return propagates;
     }
-    inline bool isFaulty() {
-        return faulty;
+    
+    
+    inline void addFault(Fault * flt){
+        assoc_faults[flt->getFID() % NUM_FAULT_INJECT] = flt;
+        valid[flt->getFID() % NUM_FAULT_INJECT] = true;
     }
-    void diverge();
-    Gate* createFaultyGate(Fault*);
-    void converge();
-    void deleteFaulty();
-    void deleteFaulty(Gate*);
-    void replaceFanin(Gate*);
-    void replaceFanin(Gate*, Gate *);
-    Gate * getFaulty(Fault*);
-    inline void setFault(Fault* flt) {
-        fault = flt; faulty = true;
+    
+    inline LogicValue getFaultyValue(Fault * flt){
+        if(valid[flt->getFID() % NUM_FAULT_INJECT]){
+            return (assoc_faults[flt->getFID() % NUM_FAULT_INJECT] == flt) ?
+            f_vals[flt->getFID() % NUM_FAULT_INJECT] : output;
+        } else {
+            return output;
+        }
     }
-    inline Fault* getFault() {
-        return fault;
+    
+    static void setFaultRound(unsigned short round) {
+        fault_round = round;
     }
-    inline void setGoodGate(Gate * good) {
-        good_gate = good;
+    
+    static void setNumInjected(unsigned int num){
+        num_injected = num;
     }
 
+    
     //dynamic cast methods for Flip Flops and Inputs
     InputGate* castInput();
+    OutputGate* castOutput();
     DffGate* castDff();
 
 };
@@ -210,7 +219,6 @@ public:
     virtual NandGate* clone() {
         return new NandGate(*this);
     }
-
 };
 
 class OrGate : public Gate {
@@ -361,6 +369,8 @@ public:
 };
 
 class DffGate : public Gate {
+private:
+    std::map<Fault*, LogicValue> savedFaultValueMap;
 public:
     DffGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::D_FF, level) {}
     DffGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
@@ -368,6 +378,9 @@ public:
     ~DffGate() {}
     void evaluate();
     void setDff(LogicValue::VALUES);
+    void storeFault(Fault*, LogicValue);
+    void clearStoredFaults();
+    bool injectStoredFault(Fault*);
     virtual DffGate* clone() {
         return new DffGate(*this);
     }
@@ -406,22 +419,9 @@ inline DffGate* Gate::castDff() {
     return dynamic_cast<DffGate*>(this);
 }
 
-inline void Gate::removeFanin(Gate* gate) {
-    for(unsigned int i = 0; i<fanin.size(); i++) {
-        if(gate->getId() == fanin[i]->getId()) {
-            fanin.erase(fanin.begin()+i);
-            break;
-        }
-    }
+inline OutputGate* Gate::castOutput() {
+    return dynamic_cast<OutputGate*>(this);
 }
 
-inline void Gate::removeFanout(Gate *gate) {
-    for(unsigned int i = 0; i<fanout.size(); i++) {
-        if(gate->getId() == fanout[i]->getId()) {
-            fanout.erase(fanout.begin()+i);
-            break;
-        }
-    }
-}
 #endif
 

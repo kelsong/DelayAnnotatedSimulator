@@ -307,7 +307,7 @@ void Circuit::readDelay(std::string filename) {
 void Circuit::readFaultList(std::string filename) {
     std::string line;
     std::fstream input(filename.c_str(), std::fstream::in);
-
+    unsigned int num_faults = 0;
     while (input.good()) {
         std::getline(input, line);
         if(line.length() == 0){
@@ -319,7 +319,8 @@ void Circuit::readFaultList(std::string filename) {
         bool stuck_at_value;
         ss >> gate_id >> gate_net >> stuck_at_value;
         LogicValue sa = stuck_at_value ? LogicValue::ONE : LogicValue::ZERO;
-        faultlist.push_back(Fault(gate_id, gate_net, sa));
+        num_faults++;
+        faultlist.push_back(Fault(gate_id, gate_net, sa, num_faults));
     }
 }
 
@@ -331,34 +332,37 @@ void Circuit::printFaults() {
     }
 }
 
-void Circuit::cleanupInjectedFaults() {
-    for(int i = 0; i<allGates.size(); i++) {
-        allGates[i]->deleteFaulty();
-    }
-}
-
 std::vector<Gate*> Circuit::injectFaults() {
     unsigned int count = 0;
     injected_faulty_gates.clear();
-    for(size_t i = injected_fault_idx; i<faultlist.size(); i++){
-        if(faultlist[i].isDetected()) {
+    unsigned int num_fault_round = injected_fault_idx/NUM_FAULT_INJECT;
+    //regular injection
+    for(size_t i = injected_fault_idx; i< (injected_fault_idx + NUM_FAULT_INJECT); i++){
+        if(i >= faultlist.size()){
+            break;
+        }
+        
+        if(faultlist[i].isDetected()){
             injected_fault_idx++;
             continue;
         }
-        Gate* gate = getGateById(faultlist[i].faultGateId());
-        if(faultlist[i].isActive()) {
-            injected_fault_idx++;
-            count++;
-            injected_faulty_gates.push_back(gate->getFaulty(&faultlist[i]));
-        } else {
-            injected_fault_idx++;
-            count++;
-            injected_faulty_gates.push_back(gate->createFaultyGate(&faultlist[i]));
+        
+        Gate * to_inject = getGateById(faultlist[i].faultGateId());
+        to_inject->addFault(&faultlist[i]);
+        injected_faulty_gates.push_back(to_inject);
+        count++;
+        injected_fault_idx++;
+        
+        //regular DFF()
+        for(unsigned int i = 0; i < stateVars.size(); i++){
+            if(stateVars[i]->castDff()->injectStoredFault(&faultlist[i])){
+                injected_faulty_gates.push_back(stateVars[i]);
+            }
         }
-        if(count == NUM_FAULT_INJECT){
-            break;
-        }
+        
     }
+    Gate::setNumInjected(count);
+    Gate::setFaultRound((short) num_fault_round);
     return injected_faulty_gates;
 }
 
@@ -373,15 +377,20 @@ double Circuit::calculateFaultCov() const{
     return ((double) count) / faultlist.size();
 }
 
-void Circuit::resetActiveFaults() {
-    for(unsigned int i = 0; i < faultlist.size(); i++){
-        faultlist[i].setInactive();
+void Circuit::clearDFFFaults() {
+    for(unsigned int i = 0; i < stateVars.size(); i++){
+        stateVars[i]->castDff()->clearStoredFaults();
+    }
+}
+
+void Circuit::invalidateFaultArrays(){
+    for(int i = 0; i<allGates.size(); i++){
+        allGates[i]->clearFaultValid();
     }
 }
 
 Circuit::~Circuit() {
     for(size_t i = 0; i<allGates.size(); i++) {
-        allGates[i]->deleteFaulty();
         delete allGates[i];
     }
 }

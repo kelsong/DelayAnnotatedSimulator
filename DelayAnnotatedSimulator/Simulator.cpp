@@ -178,6 +178,8 @@ void FaultSimulator::simCycle(const std::vector<char>& input) {
         injected = circuit->injectFaults();
     }
     
+    circuit->clearDFFFaults();
+    circuit->invalidateFaultArrays();
     //Calculate Fault Coverage
     std::cout << "FAULT COV: " << circuit->calculateFaultCov() << std::endl;
 }
