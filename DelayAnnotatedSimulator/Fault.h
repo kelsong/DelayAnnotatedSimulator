@@ -25,6 +25,11 @@
 #ifndef __DelayAnnotatedSimulator__Fault__
 #define __DelayAnnotatedSimulator__Fault__
 
+#include <map>
+#include <vector>
+#include "Type.h"
+class Gate;
+
 //base stuck at fault for the simulator.
 class Fault {
 private:
@@ -33,7 +38,7 @@ private:
     unsigned int gate_net;
     LogicValue stuck_at_value;
     bool detected;
-    bool active;
+    std::map<Gate*, LogicValue> stateStore;
 public:
     Fault(unsigned int gid, unsigned int net, LogicValue stuck_at, unsigned int fault_id) : gate_id(gid), gate_net(net),  stuck_at_value(stuck_at), detected(false), fault_id(fault_id)  {}
     inline unsigned int faultGateId() const {
@@ -51,18 +56,14 @@ public:
     inline bool isDetected() const {
         return detected;
     }
-    inline void setActive() {
-        active = true;
-    }
-    inline void setInactive() {
-        active = false;
-    }
-    inline bool isActive() const {
-        return active;
-    }
     inline unsigned int getFID(){
         return fault_id;
     }
+    inline void setRoundID(unsigned int r_id){
+        fault_id = r_id;
+    }
+    std::vector<Gate*> injectState();
+    void storeState(Gate * gate, LogicValue val);
 };
 #endif /* defined(__DelayAnnotatedSimulator__Fault__) */
 

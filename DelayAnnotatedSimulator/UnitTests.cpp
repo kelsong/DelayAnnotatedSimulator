@@ -323,6 +323,7 @@ unsigned int TestDFF() {
         if(bufGate->getOut() != exp_results[i]) {
             return TEST_FAIL;
         }
+        bufGate->castDff()->clearGoodSim();
     }
 
     delete bufGate;

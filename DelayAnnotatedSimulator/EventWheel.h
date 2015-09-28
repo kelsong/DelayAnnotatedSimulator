@@ -29,8 +29,10 @@
 #include <vector>
 #include <queue>
 #include <set>
+#include <list>
 #include "Gates.h"
 #include "Type.h"
+#include <iostream>
 
 //base zero delay eventwheel, uses levels.
 //TODO: Inherit to make delay
@@ -38,7 +40,7 @@ class EventWheel {
 protected:
     //for now no delay annotation, just logic simulator
     //list of scheduled events
-    std::vector< std::queue<Gate *> > scheduled_events;
+    std::vector< std::queue<Gate *, std::deque<Gate*> > > scheduled_events;
     std::set<Gate *> scheduled_set;
     unsigned int current_event_queue;
 

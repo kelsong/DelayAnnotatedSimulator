@@ -69,6 +69,7 @@ protected:
     bool dirty; //output changed during eval;
     unsigned int levelnum;
     unsigned int delay; //nanoseconds
+    bool scheduled;
 
     //faulty gate information
     bool propagates;
@@ -83,8 +84,8 @@ protected:
     
 public:
     Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
-    Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(1) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
-    Gate(unsigned int idx, GateType type, unsigned int level, unsigned int delay) :gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(delay){for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
+    Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(1), scheduled(false) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
+    Gate(unsigned int idx, GateType type, unsigned int level, unsigned int delay) :gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(delay), scheduled(false) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
     Gate(unsigned int idx, std::vector<Gate *> fin, std::vector<Gate *> fout, GateType type)
         : gate_id(idx), m_type(type), output(LogicValue::X),  fanin(fin), fanout(fout) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
     virtual ~Gate() { }
@@ -157,6 +158,15 @@ public:
     inline unsigned int getId() {
         return gate_id;
     }
+    inline void setScheduled() {
+        scheduled = true;
+    }
+    inline void unsetScheduled(){
+        scheduled = false;
+    }
+    inline bool isScheduled(){
+        return scheduled;
+    }
 
     //faulty gate methods
     void diverge(Fault *);
@@ -174,8 +184,7 @@ public:
     
     inline LogicValue getFaultyValue(Fault * flt){
         if(valid[flt->getFID() % NUM_FAULT_INJECT]){
-            return (assoc_faults[flt->getFID() % NUM_FAULT_INJECT] == flt) ?
-            f_vals[flt->getFID() % NUM_FAULT_INJECT] : output;
+            return f_vals[flt->getFID() % NUM_FAULT_INJECT];
         } else {
             return output;
         }
@@ -370,17 +379,16 @@ public:
 
 class DffGate : public Gate {
 private:
-    std::map<Fault*, LogicValue> savedFaultValueMap;
+    bool doneGoodSim;
 public:
-    DffGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::D_FF, level) {}
+    DffGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::D_FF, level) {doneGoodSim = false;}
     DffGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::D_FF) {}
+        : Gate(gid, fin, fout, Gate::D_FF) {doneGoodSim = false;}
     ~DffGate() {}
     void evaluate();
     void setDff(LogicValue::VALUES);
-    void storeFault(Fault*, LogicValue);
-    void clearStoredFaults();
-    bool injectStoredFault(Fault*);
+    void injectStoredFault(Fault * flt, LogicValue val);
+    void clearGoodSim() {doneGoodSim = false;}
     virtual DffGate* clone() {
         return new DffGate(*this);
     }

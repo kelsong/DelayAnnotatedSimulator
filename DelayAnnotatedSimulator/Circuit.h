@@ -40,8 +40,6 @@
 #include "Type.h"
 
 
-
-
 //Circuit Class
 //For Project 0 create the circuit using false for the delay (there is no dly file for the circuit)
 
@@ -115,10 +113,14 @@ public:
     inline unsigned int getMaxDelay() {
         return max_delay;
     }
+    void clearStateGoodSim(){
+        for(unsigned int i = 0; i<stateVars.size(); i++){
+            stateVars[i]->castDff()->clearGoodSim();
+        }
+    }
 
     //this can be used to aid in limiting memory footprint
     std::vector<Gate*> injectFaults();
-    void clearDFFFaults();
     void invalidateFaultArrays();
     double calculateFaultCov() const;
     inline size_t numFaults() {

@@ -30,9 +30,9 @@
  *
  *****************************************************************************/
 void EventWheel::insertEvent(Gate * gate) {
-    if(scheduled_set.find(gate) == scheduled_set.end()) {
+    if(!gate->isScheduled()) {
         scheduled_events.at(gate->getLevel()).push(gate);
-        scheduled_set.insert(gate);
+        gate->setScheduled();
     }
 }
 
@@ -47,14 +47,11 @@ Gate * EventWheel::getNextScheduled() {
 
     Gate * ret = scheduled_events.at(current_event_queue).front();
     scheduled_events.at(current_event_queue).pop();
-    scheduled_set.erase(ret);
+    ret->unsetScheduled();
     return ret;
 }
 
 void EventWheel::clearWheel() {
-    for(unsigned int i = 0; i < scheduled_events.size(); i++) {
-        scheduled_events.at(i).empty();
-    }
     scheduled_set.clear();
 }
 

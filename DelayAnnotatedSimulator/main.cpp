@@ -38,14 +38,17 @@ int main(int argc, const char * argv[]) {
     Circuit * circuit = new Circuit(args.getCircuitName(), false, true);
     FaultSimulator * simulator = new FaultSimulator(circuit);
     InputVector test_vector(args.getInputSource());
-
+    unsigned int vec_num = 0;
     while(!test_vector.isDone()) {
         std::vector<char> vec = test_vector.getNext();
         if(test_vector.isDone())
             break;
-
+        
+        if(vec_num == 39) {
+            std::cerr << "";
+        }
         simulator->simCycle(vec);
-
+        std::cerr << "VECTOR # " << vec_num++ << std::endl;
         if (args.isOutputState()) {
             simulator->dumpState(args.getOutputSource());
         }

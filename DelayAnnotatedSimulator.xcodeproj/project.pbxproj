@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9B1EE5401AF3129200D4C053 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B1EE53F1AF3129200D4C053 /* main.cpp */; };
+		9B3DCC0E1BB8DF40007D947B /* Fault.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B3DCC0D1BB8DF40007D947B /* Fault.cpp */; settings = {ASSET_TAGS = (); }; };
 		9B52F8621AFC967500D6230E /* Gates.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B52F8611AFC967500D6230E /* Gates.cpp */; };
 		9B52F8651AFD4FAB00D6230E /* Circuit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B52F8631AFD4FAB00D6230E /* Circuit.cpp */; };
 		9BA906331B4D6AD400B67D29 /* Args.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BA906321B4D6AD400B67D29 /* Args.cpp */; };
@@ -35,6 +36,7 @@
 		9B1EE5461AF312AA00D4C053 /* Type.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Type.h; sourceTree = "<group>"; };
 		9B1EE5471AF312BE00D4C053 /* EventWheel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EventWheel.h; sourceTree = "<group>"; };
 		9B1EE5481AF312D900D4C053 /* Gates.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Gates.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		9B3DCC0D1BB8DF40007D947B /* Fault.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Fault.cpp; sourceTree = "<group>"; };
 		9B52F8611AFC967500D6230E /* Gates.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gates.cpp; sourceTree = "<group>"; };
 		9B52F8631AFD4FAB00D6230E /* Circuit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Circuit.cpp; sourceTree = "<group>"; };
 		9B52F8641AFD4FAB00D6230E /* Circuit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Circuit.h; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 				9BA906311B4C9D1D00B67D29 /* Args.h */,
 				9BA906321B4D6AD400B67D29 /* Args.cpp */,
 				9BAFC6381BA865C5006FCA9F /* Fault.h */,
+				9B3DCC0D1BB8DF40007D947B /* Fault.cpp */,
 				9BD2C3361B9E2FB0007C9A3C /* UnitTests.cpp */,
 				9B1EE53F1AF3129200D4C053 /* main.cpp */,
 				9B1EE5461AF312AA00D4C053 /* Type.h */,
@@ -156,6 +159,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9B52F8621AFC967500D6230E /* Gates.cpp in Sources */,
+				9B3DCC0E1BB8DF40007D947B /* Fault.cpp in Sources */,
 				9BD2C3371B9E2FB0007C9A3C /* UnitTests.cpp in Sources */,
 				9B1EE5401AF3129200D4C053 /* main.cpp in Sources */,
 				9BA906381B4D7AAF00B67D29 /* EventWheel.cpp in Sources */,

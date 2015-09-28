@@ -25,7 +25,7 @@
 #ifndef DelayAnnotatedSimulator_Type_h
 #define DelayAnnotatedSimulator_Type_h
 
-#define NUM_FAULT_INJECT 128
+#define NUM_FAULT_INJECT 32
 
 class LogicValue {
 public:
@@ -66,6 +66,9 @@ public:
     inline bool operator!= (LogicValue::VALUES rhs) {
         return (val != rhs);
     }
+    inline bool operator!= (LogicValue rhs){
+        return (val != rhs.val);
+    }
     LogicValue& operator&= (LogicValue rhs);
     LogicValue& operator|= (LogicValue rhs);
     LogicValue& operator^= (LogicValue rhs);
@@ -95,15 +98,15 @@ inline LogicValue operator~ (LogicValue lhs) {
 }
 
 inline LogicValue& LogicValue::operator&= (LogicValue rhs) {
-    *this = LogicValue(*this & rhs);
+    *this = *this & rhs;
     return *this;
 }
 inline LogicValue& LogicValue::operator|= (LogicValue rhs) {
-    *this = LogicValue(*this | rhs);
+    *this = *this | rhs;
     return *this;
 }
 inline LogicValue& LogicValue::operator^= (LogicValue rhs) {
-    *this = LogicValue(*this ^ rhs);
+    *this = *this ^ rhs;
     return *this;
 }
 #endif
