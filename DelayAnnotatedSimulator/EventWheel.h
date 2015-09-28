@@ -54,17 +54,4 @@ public:
     virtual Gate * getNextScheduled();
     void clearWheel();
 };
-
-
-class GateDelayWheel : EventWheel {
-private:
-    unsigned int current_time_ns; //used to track the time taken this cycle, so each gates completion time can be annotated.
-public:
-    GateDelayWheel(unsigned int max_delay) : current_time_ns(0) {
-        scheduled_events.resize(max_delay);
-    }
-    ~GateDelayWheel() {}
-    void insertEvent(Gate *);
-    Gate * getNextScheduled();
-};
 #endif

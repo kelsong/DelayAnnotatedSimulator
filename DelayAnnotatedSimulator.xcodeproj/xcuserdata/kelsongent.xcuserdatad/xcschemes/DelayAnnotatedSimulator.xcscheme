@@ -72,6 +72,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "b12rst"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "b10rst"
             isEnabled = "YES">
          </CommandLineArgument>

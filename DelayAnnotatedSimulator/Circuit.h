@@ -61,16 +61,15 @@ private:
     unsigned int injected_fault_idx;
 
 public:
-    Circuit(std::string filename, bool delay, bool fault) {
-        if(delay) readDelay(filename + ".dly");
+    Circuit(std::string filename, bool fault) {
         if(fault) readFaultList(filename + ".eqf");
-        readLev(filename + ".lev", delay);
+        readLev(filename + ".lev");
         injected_fault_idx = 0;
     };
 
     ~Circuit();
 
-    void readLev(std::string filename, bool delay);
+    void readLev(std::string filename);
     void readFaultList(std::string filename);
     void readDelay(std::string filename);
 

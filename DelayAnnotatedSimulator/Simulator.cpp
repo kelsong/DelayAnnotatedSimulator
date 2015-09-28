@@ -93,51 +93,6 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
 }
 
 /****************************************************************************
- * LogicDelaySimulator
- ****************************************************************************/
-void LogicDelaySimulator::simCycle(const std::vector<char> & input) {
-    if(input.size() != circuit->getNumInput()) {
-        std::cerr << "INVALID INPUT AT: " << cycle_id << std::endl;
-    }
-    for(unsigned int i = 0; i < input.size(); i++) { //insert all inputs as events
-        InputGate * in = circuit->getInput(i);
-        if(in) {
-            in->setInput(LogicValue::fromChar(input[i]));
-            eventwheel->insertEvent(in);
-        } else {
-            std::cerr << "INVALID INPUT GATE: CKT ERROR" << std::endl;
-            exit(-1);
-        }
-    }
-
-    //always schedule all state vars (there are some optimizations possible, but this is easiest for now)
-    for(unsigned int i = 0; i<circuit->getNumStateVar(); i++) {
-        //inject X_ids
-
-        eventwheel->insertEvent(circuit->getStateVar(i));
-    }
-
-    Gate * gate_to_eval = eventwheel->getNextScheduled();
-    while (gate_to_eval != NULL) {
-        gate_to_eval->evaluate();
-        if(!gate_to_eval->isDirty()) {
-            gate_to_eval = eventwheel->getNextScheduled();
-            continue;
-        }
-
-        for(unsigned int i = 0; i<gate_to_eval->getNumFanout(); i++) {
-            if(gate_to_eval->getFanout(i)->type() != Gate::D_FF) {
-                eventwheel->insertEvent(gate_to_eval->getFanout(i));
-            }
-        }
-
-        //clear dirty and move on
-        gate_to_eval->resetDirty();
-        gate_to_eval = eventwheel->getNextScheduled();
-    }
-}
-
-/****************************************************************************
  * FaultSimulator
  ****************************************************************************/
 void FaultSimulator::simCycle(const std::vector<char>& input) {

@@ -85,7 +85,6 @@ protected:
 public:
     Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
     Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(1), scheduled(false) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
-    Gate(unsigned int idx, GateType type, unsigned int level, unsigned int delay) :gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(delay), scheduled(false) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
     Gate(unsigned int idx, std::vector<Gate *> fin, std::vector<Gate *> fout, GateType type)
         : gate_id(idx), m_type(type), output(LogicValue::X),  fanin(fin), fanout(fout) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
     virtual ~Gate() { }

@@ -24,7 +24,7 @@
 
 #include "Circuit.h"
 
-void Circuit::readLev(std::string filename, bool delay) {
+void Circuit::readLev(std::string filename) {
     std::fstream circuit_desc(filename.c_str(), std::fstream::in);
     if(circuit_desc.is_open()) {
         std::string line;
@@ -167,15 +167,6 @@ void Circuit::readLev(std::string filename, bool delay) {
                     fanin->addFanout(created_gate);
                 }
             }
-
-            if(delay) {
-                if(gate_delays.count(created_gate->type()) != 0) {
-                    created_gate->setDelay(gate_delays[created_gate->type()]);
-                } else {
-                    //default
-                    created_gate->setDelay(1);
-                }
-            }
         }
         for(unsigned int i = 0; i<dff_inputs.size(); i++) {
             stateVars[i]->addFanin(allGates[dff_inputs[i]-1]);
@@ -184,123 +175,6 @@ void Circuit::readLev(std::string filename, bool delay) {
     } else {
         std::cerr << "FILE DOES NOT EXIST" << std::endl;
         exit(-5);
-    }
-}
-
-void Circuit::readDelay(std::string filename) {
-    std::fstream dly_stream(filename);
-    if(dly_stream.is_open()) {
-        std::string line;
-        while(dly_stream.good()) {
-            std::getline(dly_stream, line);
-            std::stringstream ss (line);
-            if(std::regex_search(line.c_str(), std::regex("[Nn][Aa][Nn][Dd]"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::NAND] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Aa][Nn][Dd]"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::AND] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Nn][Oo][Rr]"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::NOR] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Oo][Rr]"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::NOR] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Xx][Oo][Rr]"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::XOR] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Xx][Nn][Oo][Rr]"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::XNOR] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Ii][Nn]"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::INPUT] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Oo][Uu][Tt]"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::OUTPUT] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Bb][Uu][Ff]"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::BUF] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Nn][Oo][Tt]"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::NOT] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Mm][Uu][Xx]"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::MUX_2] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Tt][Ii][Ee]0"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::TIE_ZERO] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Tt][Ii][Ee]1"))) {
-                std::string gate;
-                unsigned int dly;
-                if(dly > max_delay) max_delay = dly;
-                ss >> gate >> dly;
-                gate_delays[Gate::TIE_ONE] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Tt][Ii][Ee]X"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::TIE_X] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Tt][Ii][Ee]Z"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::TIE_Z] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Dd][Ff][Ff]"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::D_FF] = dly;
-            } else if (std::regex_search(line.c_str(), std::regex("[Tt][Rr][Ii]"))) {
-                std::string gate;
-                unsigned int dly;
-                ss >> gate >> dly;
-                if(dly > max_delay) max_delay = dly;
-                gate_delays[Gate::D_FF] = dly;
-            } else {
-                std::cerr << "INVALID GATE TYPE IN DELAY FILE: " << line << std::endl;
-                exit(-1);
-            }
-        }
     }
 }
 

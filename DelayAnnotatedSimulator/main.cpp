@@ -35,7 +35,7 @@ int main(int argc, const char * argv[]) {
     // insert code here...
     Args args;
     args.readArgs(argc, argv);
-    Circuit * circuit = new Circuit(args.getCircuitName(), false, true);
+    Circuit * circuit = new Circuit(args.getCircuitName(), true);
     FaultSimulator * simulator = new FaultSimulator(circuit);
     InputVector test_vector(args.getInputSource());
     unsigned int vec_num = 0;

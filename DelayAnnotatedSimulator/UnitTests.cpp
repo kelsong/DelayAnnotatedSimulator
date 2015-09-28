@@ -332,7 +332,7 @@ unsigned int TestDFF() {
 }
 
 unsigned int TestCircuit() {
-    Circuit * test = new Circuit("b01rst", false, true);
+    Circuit * test = new Circuit("b01rst", true);
     if(test->numFaults() != 135) {
         std::cerr << "NUM FAULTS: " << test->numFaults() << std::endl;
         test->printFaults();
