@@ -52,8 +52,6 @@ private:
     std::vector<Gate*> outputs;
     std::vector<Gate*> logicGates;
     unsigned int num_levels;
-    std::map<unsigned int, unsigned int> gate_delays;
-    unsigned int max_delay;
 
     //fault info
     std::vector<Fault> faultlist;
@@ -71,7 +69,6 @@ public:
 
     void readLev(std::string filename);
     void readFaultList(std::string filename);
-    void readDelay(std::string filename);
 
     std::vector<Gate*> getInputs() {
         return inputs;
@@ -109,9 +106,7 @@ public:
     inline Gate* getGateById(unsigned int gate_id) {
         return ((gate_id <= allGates.size() && gate_id > 0) ?  allGates[gate_id-1] : NULL);
     }
-    inline unsigned int getMaxDelay() {
-        return max_delay;
-    }
+
     void clearStateGoodSim(){
         for(unsigned int i = 0; i<stateVars.size(); i++){
             stateVars[i]->castDff()->clearGoodSim();

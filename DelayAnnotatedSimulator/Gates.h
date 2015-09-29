@@ -68,7 +68,6 @@ protected:
     std::vector<Gate *> fanout;
     bool dirty; //output changed during eval;
     unsigned int levelnum;
-    unsigned int delay; //nanoseconds
     bool scheduled;
 
     //faulty gate information
@@ -84,7 +83,7 @@ protected:
     
 public:
     Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
-    Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(1), scheduled(false) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
+    Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), scheduled(false) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
     Gate(unsigned int idx, std::vector<Gate *> fin, std::vector<Gate *> fout, GateType type)
         : gate_id(idx), m_type(type), output(LogicValue::X),  fanin(fin), fanout(fout) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
     virtual ~Gate() { }
@@ -147,12 +146,6 @@ public:
     }
     inline void setLevel(unsigned int level) {
         levelnum = level;
-    }
-    inline unsigned int getDelay() {
-        return delay;
-    }
-    inline void setDelay(unsigned int dly) {
-        delay = dly;
     }
     inline unsigned int getId() {
         return gate_id;
