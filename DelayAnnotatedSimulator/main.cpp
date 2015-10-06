@@ -23,6 +23,7 @@
  */
 
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
 #include "Circuit.h"
 #include "Type.h"
@@ -38,6 +39,7 @@ int main(int argc, const char * argv[]) {
     Circuit * circuit = new Circuit(args.getCircuitName(), true);
     FaultSimulator * simulator = new FaultSimulator(circuit);
     InputVector test_vector(args.getInputSource());
+    std::fstream fault_out(args.getCircuitName() + "_fault.csv", std::fstream::out);
     unsigned int vec_num = 0;
     while(!test_vector.isDone()) {
         std::vector<char> vec = test_vector.getNext();
@@ -45,7 +47,8 @@ int main(int argc, const char * argv[]) {
             break;
         
         simulator->simCycle(vec);
-        std::cerr << "VECTOR # " << vec_num++ << std::endl;
+        //std::cerr << "VECTOR # " << vec_num++ << std::endl;
+        fault_out << vec_num++ << ", " << circuit->calculateFaultCov() << "\n";
         if (args.isOutputState()) {
             simulator->dumpState(args.getOutputSource());
         }
