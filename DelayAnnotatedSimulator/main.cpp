@@ -44,9 +44,6 @@ int main(int argc, const char * argv[]) {
         if(test_vector.isDone())
             break;
         
-        if(vec_num == 39) {
-            std::cerr << "";
-        }
         simulator->simCycle(vec);
         std::cerr << "VECTOR # " << vec_num++ << std::endl;
         if (args.isOutputState()) {

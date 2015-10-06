@@ -38,9 +38,10 @@ private:
     unsigned int gate_net;
     LogicValue stuck_at_value;
     bool detected;
-    std::map<Gate*, LogicValue> stateStore;
+    FastDataPairStack<Gate*, LogicValue> stateStore;
 public:
-    Fault(unsigned int gid, unsigned int net, LogicValue stuck_at, unsigned int fault_id) : gate_id(gid), gate_net(net),  stuck_at_value(stuck_at), detected(false), fault_id(fault_id)  {}
+    Fault(unsigned int gid, unsigned int net, LogicValue stuck_at, unsigned int fault_id) : gate_id(gid), gate_net(net),  stuck_at_value(stuck_at), detected(false), fault_id(fault_id)  { }
+    
     inline unsigned int faultGateId() const {
         return gate_id;
     }
@@ -62,7 +63,7 @@ public:
     inline void setRoundID(unsigned int r_id){
         fault_id = r_id;
     }
-    std::vector<Gate*> injectState();
+    void injectState(std::vector<Gate*>&);
     void storeState(Gate * gate, LogicValue val);
 };
 #endif /* defined(__DelayAnnotatedSimulator__Fault__) */

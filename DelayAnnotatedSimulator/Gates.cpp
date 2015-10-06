@@ -46,7 +46,7 @@ const std::vector<Gate*>& Gate::getFanout() {
 
 
 //diverges and creates faulty copies for all fanouts.
-void Gate::diverge(Fault* flt) {
+inline void Gate::diverge(Fault* flt) {
     for(unsigned int i = 0; i<fanout.size(); i++){
         if(fanout[i]->type() != Gate::D_FF){
             fanout[i]->addFault(flt);
@@ -75,7 +75,9 @@ void AndGate::evaluate() {
     }
     output = val;
     dirty = (output != previous);
-    
+}
+
+void AndGate::faultEvaluate(){
     //fault sim;
     propagates = false;
     for( unsigned int i = 0; i < NUM_FAULT_INJECT; i++){
@@ -87,10 +89,10 @@ void AndGate::evaluate() {
         
         for( unsigned int inputs = 0; inputs < fanin.size(); inputs++ ){
             fval &= (injection_site && (assoc_faults[i]->faultGateNet()-1 == inputs))
-                    ? assoc_faults[i]->faultSA() : fanin[inputs]->getFaultyValue(assoc_faults[i]);
+            ? assoc_faults[i]->faultSA() : fanin[inputs]->getFaultyValue(assoc_faults[i]);
         }
         f_vals[i] = (injection_site && (assoc_faults[i]->faultGateNet() == 0)) ? assoc_faults[i]->faultSA() : fval;
-
+        
         if(f_vals[i] != output){
             propagates = true;
             diverge(assoc_faults[i]);
@@ -112,7 +114,9 @@ void NandGate::evaluate() {
     }
     output = ~val;
     dirty = (output != previous);
-    
+}
+
+void NandGate::faultEvaluate(){
     //fault sim;
     propagates = false;
     for( unsigned int i = 0; i < NUM_FAULT_INJECT; i++){
@@ -127,7 +131,7 @@ void NandGate::evaluate() {
             ? assoc_faults[i]->faultSA() : fanin[inputs]->getFaultyValue(assoc_faults[i]);
         }
         f_vals[i] = (injection_site && (assoc_faults[i]->faultGateNet() == 0)) ? assoc_faults[i]->faultSA() : ~fval;
-
+        
         if(f_vals[i] != output){
             propagates = true;
             diverge(assoc_faults[i]);
@@ -148,7 +152,9 @@ void OrGate::evaluate() {
     }
     output = val;
     dirty = (output != previous);
-    
+}
+
+void OrGate::faultEvaluate(){
     //fault sim;
     propagates = false;
     for( unsigned int i = 0; i < NUM_FAULT_INJECT; i++){
@@ -163,7 +169,7 @@ void OrGate::evaluate() {
             ? assoc_faults[i]->faultSA() : fanin[inputs]->getFaultyValue(assoc_faults[i]);
         }
         f_vals[i] = (injection_site && (assoc_faults[i]->faultGateNet() == 0)) ? assoc_faults[i]->faultSA() : fval;
-
+        
         if(f_vals[i] != output){
             propagates = true;
             diverge(assoc_faults[i]);
@@ -184,7 +190,9 @@ void NorGate::evaluate() {
     }
     output = ~val;
     dirty = (output != previous);
-    
+}
+
+void NorGate::faultEvaluate(){
     //fault sim;
     propagates = false;
     for( unsigned int i = 0; i <NUM_FAULT_INJECT; i++){
@@ -199,7 +207,7 @@ void NorGate::evaluate() {
             ? assoc_faults[i]->faultSA() : fanin[inputs]->getFaultyValue(assoc_faults[i]);
         }
         f_vals[i] = (injection_site && (assoc_faults[i]->faultGateNet() == 0)) ? assoc_faults[i]->faultSA() : ~fval;
-
+        
         if(f_vals[i] != output){
             propagates = true;
             diverge(assoc_faults[i]);
@@ -221,7 +229,9 @@ void XorGate::evaluate() {
     }
     output = val;
     dirty = (output != previous);
-    
+}
+
+void XorGate::faultEvaluate(){
     //fault sim;
     propagates = false;
     for( unsigned int i = 0; i < NUM_FAULT_INJECT; i++){
@@ -236,7 +246,7 @@ void XorGate::evaluate() {
             ? assoc_faults[i]->faultSA() : fanin[inputs]->getFaultyValue(assoc_faults[i]);
         }
         f_vals[i] = (injection_site && (assoc_faults[i]->faultGateNet() == 0)) ? assoc_faults[i]->faultSA() : fval;
-
+        
         if(f_vals[i] != output){
             propagates = true;
             diverge(assoc_faults[i]);
@@ -257,7 +267,9 @@ void XnorGate::evaluate() {
     }
     output = ~val;
     dirty = (output != previous);
-    
+}
+
+void XnorGate::faultEvaluate(){
     //fault sim;
     propagates = false;
     for( unsigned int i = 0; i < NUM_FAULT_INJECT; i++){
@@ -288,7 +300,9 @@ void NotGate::evaluate() {
     LogicValue previous = output;
     output = ~(fanin[0]->getOut());
     dirty = (output != previous);
-    
+}
+
+void NotGate::faultEvaluate(){
     //fault sim;
     propagates = false;
     for(unsigned int i = 0; i < NUM_FAULT_INJECT; i++){
@@ -301,7 +315,7 @@ void NotGate::evaluate() {
         } else {
             f_vals[i] = ~(fanin[0]->getFaultyValue(assoc_faults[i]));
         }
-
+        
         if(f_vals[i] != output){
             propagates = true;
             diverge(assoc_faults[i]);
@@ -317,7 +331,9 @@ void BufGate::evaluate() {
     LogicValue previous = output;
     output = fanin[0]->getOut();
     dirty = (output != previous);
-    
+}
+
+void BufGate::faultEvaluate(){
     //fault sim;
     propagates = false;
     for(unsigned int i = 0; i < NUM_FAULT_INJECT; i++){
@@ -330,7 +346,7 @@ void BufGate::evaluate() {
         } else {
             f_vals[i] = fanin[i]->getFaultyValue(assoc_faults[i]);
         }
-
+        
         if(f_vals[i] != output){
             propagates = true;
             diverge(assoc_faults[i]);
@@ -348,7 +364,9 @@ void OutputGate::evaluate() {
     output = fanin[0]->getOut();
     
     dirty = (output != previous);
-    
+}
+
+void OutputGate::faultEvaluate(){
     //fault sim;
     propagates = false;
     for( int i = 0; i < NUM_FAULT_INJECT; i++){
@@ -361,7 +379,7 @@ void OutputGate::evaluate() {
         } else {
             f_vals[i] = fanin[0]->getFaultyValue(assoc_faults[i]);
         }
-
+        
         if((f_vals[i] != output) && (output != LogicValue::X) && (f_vals[i] != LogicValue::X)){
             if(!assoc_faults[i]->isDetected()){
                 std::cerr << assoc_faults[i]->faultGateId() << " "
@@ -371,7 +389,6 @@ void OutputGate::evaluate() {
             assoc_faults[i]->setDetected();
         }
     }
-
 }
 
 /********************************************************/
@@ -383,6 +400,9 @@ void InputGate::evaluate() {
     
     dirty = true;
     
+}
+
+void InputGate::faultEvaluate(){
     //fault sim;
     propagates = false;
     for( int i = 0; i < NUM_FAULT_INJECT; i++){
@@ -393,7 +413,7 @@ void InputGate::evaluate() {
             continue;
         }
         f_vals[i] = assoc_faults[i]->faultSA();
-
+        
         if(f_vals[i] != output){
             propagates = true;
             diverge(assoc_faults[i]);
@@ -445,13 +465,12 @@ void TieZGate::evaluate() {
 /********************************************************/
 
 void DffGate::evaluate() {
-    if(!doneGoodSim){
-        LogicValue previous = output;
-        output = fanin[0]->getOut();
-        dirty = (output != previous);
-        doneGoodSim = true;
-    }
-    
+    LogicValue previous = output;
+    output = fanin[0]->getOut();
+    dirty = (output != previous);
+}
+
+void DffGate::faultEvaluate(){
     //fault sim;
     propagates = false;
     for(unsigned int i = 0; i < NUM_FAULT_INJECT; i++){
@@ -468,7 +487,6 @@ void DffGate::evaluate() {
             diverge(assoc_faults[i]);
         }
     }
-    
 }
 
 void DffGate::setDff(LogicValue::VALUES in) {

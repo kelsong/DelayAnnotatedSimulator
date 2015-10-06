@@ -87,7 +87,9 @@ public:
     Gate(unsigned int idx, std::vector<Gate *> fin, std::vector<Gate *> fout, GateType type)
         : gate_id(idx), m_type(type), output(LogicValue::X),  fanin(fin), fanout(fout) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
     virtual ~Gate() { }
+    
     virtual void evaluate(); //eval and schedule if transition
+    
     bool isDirty() {
         return dirty;
     }
@@ -163,17 +165,15 @@ public:
     //faulty gate methods
     void diverge(Fault *);
     void clearFaultValid();
+    virtual void faultEvaluate() {}
     
     inline bool propagatesFault(){
         return propagates;
     }
-    
-    
     inline void addFault(Fault * flt){
         assoc_faults[flt->getFID() % NUM_FAULT_INJECT] = flt;
         valid[flt->getFID() % NUM_FAULT_INJECT] = true;
     }
-    
     inline LogicValue getFaultyValue(Fault * flt){
         if(valid[flt->getFID() % NUM_FAULT_INJECT]){
             return f_vals[flt->getFID() % NUM_FAULT_INJECT];
@@ -181,15 +181,13 @@ public:
             return output;
         }
     }
-    
     static void setFaultRound(unsigned short round) {
         fault_round = round;
     }
-    
     static void setNumInjected(unsigned int num){
         num_injected = num;
     }
-
+    
     
     //dynamic cast methods for Flip Flops and Inputs
     InputGate* castInput();
@@ -205,6 +203,7 @@ public:
         : Gate(gid, fin, fout, Gate::AND) {}
     ~AndGate() {};
     void evaluate();
+    void faultEvaluate();
     virtual AndGate* clone() {
         return new AndGate(*this);
     }
@@ -217,6 +216,7 @@ public:
         : Gate(gid, fin, fout, Gate::NAND) {}
     ~NandGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual NandGate* clone() {
         return new NandGate(*this);
     }
@@ -229,6 +229,7 @@ public:
         : Gate(gid, fin, fout, Gate::OR) {}
     ~OrGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual OrGate* clone() {
         return new OrGate(*this);
     }
@@ -241,6 +242,7 @@ public:
         : Gate(gid, fin, fout, Gate::NOR) {}
     ~NorGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual NorGate* clone() {
         return new NorGate(*this);
     }
@@ -253,6 +255,7 @@ public:
         : Gate(gid, fin, fout, Gate::XOR) {}
     ~XorGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual XorGate* clone() {
         return new XorGate(*this);
     }
@@ -265,6 +268,7 @@ public:
         : Gate(gid, fin, fout, Gate::XNOR) {}
     ~XnorGate () {}
     void evaluate();
+    void faultEvaluate();
     virtual XnorGate* clone() {
         return new XnorGate(*this);
     }
@@ -277,6 +281,7 @@ public:
         : Gate(gid, fin, fout, Gate::NOT) {}
     ~NotGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual NotGate* clone() {
         return new NotGate(*this);
     }
@@ -289,6 +294,7 @@ public:
         : Gate(gid, fin, fout, Gate::INPUT) {}
     ~InputGate() {}
     void evaluate();
+    void faultEvaluate();
     void setInput(LogicValue::VALUES);
 
     virtual InputGate* clone() {
@@ -303,6 +309,7 @@ public:
         : Gate(gid, fin, fout, Gate::OUTPUT) {}
     ~OutputGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual OutputGate* clone() {
         return new OutputGate(*this);
     }
@@ -316,6 +323,7 @@ public:
         : Gate(gid, fin, fout, Gate::TIE_ZERO) {}
     ~TieZeroGate() {}
     void evaluate();
+    void faultEvaluate() {}
     virtual TieZeroGate* clone() {
         return new TieZeroGate(*this);
     }
@@ -328,6 +336,7 @@ public:
         : Gate(gid, fin, fout, Gate::TIE_ONE) {}
     ~TieOneGate() {}
     void evaluate();
+    void faultEvaluate() {}
     virtual TieOneGate* clone() {
         return new TieOneGate(*this);
     }
@@ -340,6 +349,7 @@ public:
         : Gate(gid, fin, fout, Gate::TIE_X) {}
     ~TieXGate() {}
     void evaluate();
+    void faultEvaluate() {}
     virtual TieXGate* clone() {
         return new TieXGate(*this);
     }
@@ -352,6 +362,7 @@ public:
         : Gate(gid, fin, fout, Gate::TIE_Z) {}
     ~TieZGate() {}
     void evaluate();
+    void faultEvaluate() {}
     virtual TieZGate* clone() {
         return new TieZGate(*this);
     }
@@ -364,6 +375,7 @@ public:
         : Gate(gid, fin, fout, Gate::BUF) {}
     ~BufGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual BufGate* clone() {
         return new BufGate(*this);
     }
@@ -378,9 +390,9 @@ public:
         : Gate(gid, fin, fout, Gate::D_FF) {doneGoodSim = false;}
     ~DffGate() {}
     void evaluate();
+    void faultEvaluate();
     void setDff(LogicValue::VALUES);
     void injectStoredFault(Fault * flt, LogicValue val);
-    void clearGoodSim() {doneGoodSim = false;}
     virtual DffGate* clone() {
         return new DffGate(*this);
     }
@@ -393,6 +405,7 @@ public:
         : Gate(gid, fin, fout, Gate::MUX_2) {}
     ~Mux2Gate() {}
     void evaluate();
+    void faultEvaluate() {}
     virtual Mux2Gate* clone() {
         return new Mux2Gate(*this);
     }
@@ -405,6 +418,7 @@ public:
         : Gate(gid, fin, fout, Gate::TRISTATE) {}
     ~TristateGate() {}
     void evaluate();
+    void faultEvaluate() {}
     virtual TristateGate* clone() {
         return new TristateGate(*this);
     }

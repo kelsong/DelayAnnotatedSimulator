@@ -74,7 +74,8 @@ public:
         delete eventwheel;
     }
     void simCycle(const std::vector<char>&);
-    void simEvents();
+    void simGoodEvents();
+    void simFaultyEvents();
 };
 
 class SimulatorFactory {

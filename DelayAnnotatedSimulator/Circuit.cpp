@@ -206,8 +206,7 @@ void Circuit::printFaults() {
     }
 }
 
-std::vector<Gate*> Circuit::injectFaults() {
-    injected_faulty_gates.clear();
+void Circuit::injectFaults(std::vector<Gate*>& injected_faulty_gates) {
     //regular injection
     bool at_least_one_injected = false;
     while(!at_least_one_injected && injected_fault_idx != faultlist.size()){
@@ -223,11 +222,9 @@ std::vector<Gate*> Circuit::injectFaults() {
             }
         
             //inject state
-            std::vector<Gate*> f_state_events  = faultlist[i].injectState();
+            std::vector<Gate*> f_state_events;
+            faultlist[i].injectState(f_state_events);
             for(unsigned int j = 0; j<f_state_events.size(); j++){
-                if(faultlist[i].getFID() == 510) {
-                    std::cerr << "";
-                }
                 injected_faulty_gates.push_back(f_state_events[j]);
             }
         
@@ -240,7 +237,6 @@ std::vector<Gate*> Circuit::injectFaults() {
             at_least_one_injected = true;
         }
     }
-    return injected_faulty_gates;
 }
 
 double Circuit::calculateFaultCov() const{

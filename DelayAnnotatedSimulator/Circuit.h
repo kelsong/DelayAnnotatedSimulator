@@ -55,7 +55,6 @@ private:
 
     //fault info
     std::vector<Fault> faultlist;
-    std::vector<Gate*> injected_faulty_gates;
     unsigned int injected_fault_idx;
 
 public:
@@ -107,14 +106,8 @@ public:
         return ((gate_id <= allGates.size() && gate_id > 0) ?  allGates[gate_id-1] : NULL);
     }
 
-    void clearStateGoodSim(){
-        for(unsigned int i = 0; i<stateVars.size(); i++){
-            stateVars[i]->castDff()->clearGoodSim();
-        }
-    }
-
     //this can be used to aid in limiting memory footprint
-    std::vector<Gate*> injectFaults();
+    void injectFaults(std::vector<Gate*>&);
     void invalidateFaultArrays();
     double calculateFaultCov() const;
     inline size_t numFaults() {
