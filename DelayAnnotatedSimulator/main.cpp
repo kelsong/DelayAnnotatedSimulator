@@ -36,10 +36,10 @@ int main(int argc, const char * argv[]) {
     // insert code here...
     Args args;
     args.readArgs(argc, argv);
-    Circuit * circuit = new Circuit(args.getCircuitName(), true);
-    FaultSimulator * simulator = new FaultSimulator(circuit);
+    Circuit * circuit = new Circuit(args.getCircuitName(), false);
+    LogicSimulator * simulator = new LogicSimulator(circuit);
     InputVector test_vector(args.getInputSource());
-    std::fstream fault_out(args.getCircuitName() + "_fault.csv", std::fstream::out);
+    //std::fstream fault_out(args.getCircuitName() + "_fault.csv", std::fstream::out);
     unsigned int vec_num = 0;
     while(!test_vector.isDone()) {
         std::vector<char> vec = test_vector.getNext();
@@ -48,7 +48,7 @@ int main(int argc, const char * argv[]) {
         
         simulator->simCycle(vec);
         //std::cerr << "VECTOR # " << vec_num++ << std::endl;
-        fault_out << vec_num++ << ", " << circuit->calculateFaultCov() << "\n";
+        //fault_out << vec_num++ << ", " << circuit->calculateFaultCov() << "\n";
         if (args.isOutputState()) {
             simulator->dumpState(args.getOutputSource());
         }
@@ -56,7 +56,9 @@ int main(int argc, const char * argv[]) {
             simulator->dumpPO(args.getOutputSource());
         }
     }
-
+    std::fstream gic_out(args.getCircuitName() + std::string("_gic.csv"), std::fstream::out);
+    simulator->dumpGIC(gic_out);
+    gic_out.close();
     //std::cout << "DONE" << std::endl;
     delete circuit;
     delete simulator;

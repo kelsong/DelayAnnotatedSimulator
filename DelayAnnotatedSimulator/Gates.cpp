@@ -75,6 +75,7 @@ void AndGate::evaluate() {
     }
     output = val;
     dirty = (output != previous);
+    setGIC();
 }
 
 void AndGate::faultEvaluate(){
@@ -114,6 +115,7 @@ void NandGate::evaluate() {
     }
     output = ~val;
     dirty = (output != previous);
+    setGIC();
 }
 
 void NandGate::faultEvaluate(){
@@ -152,6 +154,7 @@ void OrGate::evaluate() {
     }
     output = val;
     dirty = (output != previous);
+    setGIC();
 }
 
 void OrGate::faultEvaluate(){
@@ -190,6 +193,7 @@ void NorGate::evaluate() {
     }
     output = ~val;
     dirty = (output != previous);
+    setGIC();
 }
 
 void NorGate::faultEvaluate(){
@@ -229,6 +233,7 @@ void XorGate::evaluate() {
     }
     output = val;
     dirty = (output != previous);
+    setGIC();
 }
 
 void XorGate::faultEvaluate(){
@@ -267,6 +272,7 @@ void XnorGate::evaluate() {
     }
     output = ~val;
     dirty = (output != previous);
+    setGIC();
 }
 
 void XnorGate::faultEvaluate(){
@@ -300,6 +306,7 @@ void NotGate::evaluate() {
     LogicValue previous = output;
     output = ~(fanin[0]->getOut());
     dirty = (output != previous);
+    setGIC();
 }
 
 void NotGate::faultEvaluate(){
@@ -331,6 +338,7 @@ void BufGate::evaluate() {
     LogicValue previous = output;
     output = fanin[0]->getOut();
     dirty = (output != previous);
+    setGIC();
 }
 
 void BufGate::faultEvaluate(){
@@ -468,6 +476,7 @@ void DffGate::evaluate() {
     LogicValue previous = output;
     output = fanin[0]->getOut();
     dirty = (output != previous);
+    setGIC();
 }
 
 void DffGate::faultEvaluate(){
@@ -512,6 +521,7 @@ void Mux2Gate::evaluate() {
     }
 
     dirty = (previous != output);
+    setGIC();
 }
 
 

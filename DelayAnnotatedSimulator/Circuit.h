@@ -118,6 +118,24 @@ public:
 
     }
     void printFaults();
+    
+    double calculateGIC(){
+        unsigned int num_pts = 0;
+        unsigned int covered = 0;
+        for(unsigned int i = 0; i < allGates.size(); i++){
+            if((allGates[i]->type() != Gate::INPUT) &&
+               (allGates[i]->type() != Gate::OUTPUT) &&
+               (allGates[i]->type() != Gate::TIE_ONE) &&
+               (allGates[i]->type() != Gate::TIE_ONE) &&
+               (allGates[i]->type() != Gate::TIE_Z) &&
+               (allGates[i]->type() != Gate::TIE_X))
+            {
+                num_pts += allGates[i]->getNumGICPts();
+                covered += allGates[i]->getGICCov();
+            }
+        }
+        return (double) covered / ((double) num_pts);
+    }
 };
 
 

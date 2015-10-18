@@ -263,3 +263,4 @@ Circuit::~Circuit() {
         delete allGates[i];
     }
 }
+
