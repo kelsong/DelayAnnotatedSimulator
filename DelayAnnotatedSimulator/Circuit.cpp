@@ -31,7 +31,7 @@ void Circuit::readLev(std::string filename) {
         std::getline(circuit_desc, line);
         std::stringstream ss(line);
         std::vector<unsigned int> dff_inputs;
-
+        
         unsigned int num_gates;
         ss >> num_gates;
         num_gates--;
@@ -167,11 +167,15 @@ void Circuit::readLev(std::string filename) {
                     fanin->addFanout(created_gate);
                 }
             }
+            created_gate->createGIC();
         }
         for(unsigned int i = 0; i<dff_inputs.size(); i++) {
             stateVars[i]->addFanin(allGates[dff_inputs[i]-1]);
             allGates[dff_inputs[i]-1]->addFanout(stateVars[i]);
         }
+        //a hack for now
+        
+        global_reset = inputs.back();
     } else {
         std::cerr << "FILE DOES NOT EXIST" << std::endl;
         exit(-5);

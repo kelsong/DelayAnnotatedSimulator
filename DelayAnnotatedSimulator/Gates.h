@@ -84,39 +84,32 @@ protected:
     
     
     
+    
 public:
+    bool calc_GIC;
     Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) {
         for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;}
-        unsigned int num_gic = 0x01;
-        for(int i = 0; i<fanin.size(); i++) {num_gic = num_gic << 1; }
-        GIC_coverage.resize(num_gic);
-        for(int i = 0; i<GIC_coverage.size(); i++){
-            GIC_coverage[i] = false;
-        }
+        
     }
     Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), scheduled(false) {
         for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;}
-        unsigned int num_gic = 0x01;
-        for(int i = 0; i<fanin.size(); i++) {num_gic = num_gic << 1; }
-        GIC_coverage.resize(num_gic);
-        for(int i = 0; i<GIC_coverage.size(); i++){
-            GIC_coverage[i] = false;
-        }
     }
     Gate(unsigned int idx, std::vector<Gate *> fin, std::vector<Gate *> fout, GateType type)
         : gate_id(idx), m_type(type), output(LogicValue::X),  fanin(fin), fanout(fout) {
             for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;}
-            unsigned int num_gic = 0x01;
-            for(int i = 0; i<fanin.size(); i++) {num_gic = num_gic << 1; }
-            GIC_coverage.resize(num_gic);
-            for(int i = 0; i<GIC_coverage.size(); i++){
-                GIC_coverage[i] = false;
-            }
         }
     virtual ~Gate() { }
     
     virtual void evaluate(); //eval and schedule if transition
     
+    void createGIC(){
+        unsigned int num_gic = 0x01;
+        for(int i = 0; i<fanin.size(); i++) {num_gic = num_gic << 1; }
+        GIC_coverage.resize(num_gic);
+        for(int i = 0; i<GIC_coverage.size(); i++){
+            GIC_coverage[i] = false;
+        }
+    }
     bool isDirty() {
         return dirty;
     }
@@ -216,6 +209,7 @@ public:
     }
     
     inline void setGIC(){
+        if(!calc_GIC) return;
         unsigned int idx = 0;
         for(unsigned int i = 0; i < fanin.size(); i++){
             if(fanin[i]->getOut() == LogicValue::X || fanin[i]->getOut() == LogicValue::Z){
@@ -234,7 +228,7 @@ public:
     
     inline unsigned int getGICCov(){
         unsigned int cnt = 0;
-        for(int i = 0; i<fanin.size(); i++){
+        for(int i = 0; i<GIC_coverage.size(); i++){
             if(GIC_coverage[i] == true){
                 cnt++;
             }

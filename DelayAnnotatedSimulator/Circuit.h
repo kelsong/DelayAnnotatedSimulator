@@ -52,12 +52,14 @@ private:
     std::vector<Gate*> outputs;
     std::vector<Gate*> logicGates;
     unsigned int num_levels;
+    
 
     //fault info
     std::vector<Fault> faultlist;
     unsigned int injected_fault_idx;
 
 public:
+    Gate* global_reset;
     Circuit(std::string filename, bool fault) {
         if(fault) readFaultList(filename + ".eqf");
         readLev(filename + ".lev");

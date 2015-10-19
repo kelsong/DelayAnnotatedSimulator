@@ -80,6 +80,11 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
 
     Gate * gate_to_eval = eventwheel->getNextScheduled();
     while (gate_to_eval != NULL) {
+        if(circuit->global_reset->getOut() == LogicValue::ZERO){
+            gate_to_eval->calc_GIC = false;
+        } else {
+            gate_to_eval->calc_GIC = true;
+        }
         gate_to_eval->evaluate();
         if(!gate_to_eval->isDirty()) {
             gate_to_eval = eventwheel->getNextScheduled();
