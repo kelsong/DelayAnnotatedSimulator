@@ -54,3 +54,38 @@ Gate * EventWheel::getNextScheduled() {
 void EventWheel::clearWheel() {
     scheduled_set.clear();
 }
+
+/*****************************************************************************
+ *
+ * GateDelayWheel class:
+ * Simple Delay event wheel
+ *
+ *****************************************************************************/
+void GateDelayWheel::insertEvent(Gate * gate) {
+    unsigned int wheel_space = current_event_queue + gate->getDelay();
+    if(wheel_space >= scheduled_events.size()) {
+        wheel_space = wheel_space - scheduled_events.size();
+    }
+    scheduled_events.at(wheel_space).push(gate);
+}
+
+Gate * GateDelayWheel::getNextScheduled() {
+    unsigned int start_position = current_event_queue;
+    while(scheduled_events.at(current_event_queue).size() == 0) {
+        
+        current_event_queue++;
+        current_time_ns++;
+        if(current_event_queue >= scheduled_events.size()) {
+            current_event_queue -= scheduled_events.size();
+        }
+        
+        if(start_position == current_event_queue) {
+            current_event_queue = 0;
+            return NULL;
+        }
+    }
+    
+    Gate * ret = scheduled_events.at(current_event_queue).front();
+    scheduled_events.at(current_event_queue).pop();
+    return ret;
+}

@@ -170,6 +170,12 @@ public:
     inline void setLevel(unsigned int level) {
         levelnum = level;
     }
+    inline unsigned int getDelay() {
+        return delay;
+    }
+    inline void setDelay(unsigned int dly) {
+        delay = dly;
+    }
     inline unsigned int getId() {
         return gate_id;
     }

@@ -36,7 +36,7 @@ int main(int argc, const char * argv[]) {
     // insert code here...
     Args args;
     args.readArgs(argc, argv);
-    Circuit * circuit = new Circuit(args.getCircuitName(), false);
+    Circuit * circuit = new Circuit(args.getCircuitName(), false, false);
     LogicSimulator * simulator = new LogicSimulator(circuit);
     InputVector test_vector(args.getInputSource());
     //std::fstream fault_out(args.getCircuitName() + "_fault.csv", std::fstream::out);

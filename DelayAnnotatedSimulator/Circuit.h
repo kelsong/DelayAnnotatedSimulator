@@ -113,7 +113,10 @@ public:
     inline Gate* getGateById(unsigned int gate_id) {
         return ((gate_id <= allGates.size() && gate_id > 0) ?  allGates[gate_id-1] : NULL);
     }
-
+    inline unsigned int getMaxDelay() {
+        return max_delay;
+    }
+    
     //this can be used to aid in limiting memory footprint
     void injectFaults(std::vector<Gate*>&);
     void invalidateFaultArrays();

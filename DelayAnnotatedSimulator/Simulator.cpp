@@ -51,6 +51,12 @@ void Simulator::dumpState(std::ostream& out_stream) {
     }
     out_stream << std::endl;
 }
+
+void Simulator::dumpGIC(std::ostream& out_stream){
+    for(unsigned int i = 0; i < GIC_log.size(); i++){
+        out_stream << GIC_log[i] << std::endl;
+    }
+}
 /****************************************************************************
  * LogicDelaySimulator
  ****************************************************************************/
