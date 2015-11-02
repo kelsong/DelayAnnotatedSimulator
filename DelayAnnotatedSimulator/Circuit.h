@@ -61,9 +61,9 @@ private:
     unsigned int injected_fault_idx;
 
 public:
+    Gate* global_reset;
     Circuit(std::string filename, bool delay, bool fault) {
         if(delay) readDelay(filename + ".dly"); //KEEP
-        if(fault) readFaultList(filename + ".eqf");
         readLev(filename + ".lev");
         injected_fault_idx = 0;
     };

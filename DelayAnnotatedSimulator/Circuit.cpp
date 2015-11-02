@@ -168,6 +168,15 @@ void Circuit::readLev(std::string filename) {
                 }
             }
             created_gate->createGIC();
+
+            if(delay) {
+                if(gate_delays.count(created_gate->type()) != 0) {
+                    created_gate->setDelay(gate_delays[created_gate->type()]);
+                } else {
+                    //default
+                    created_gate->setDelay(1);
+                }
+            }
         }
         for(unsigned int i = 0; i<dff_inputs.size(); i++) {
             stateVars[i]->addFanin(allGates[dff_inputs[i]-1]);
@@ -402,5 +411,5 @@ Circuit::~Circuit() {
     for(size_t i = 0; i<allGates.size(); i++) {
         delete allGates[i];
     }
-}
 
+}
