@@ -40,6 +40,7 @@ class Simulator {
 protected:
     Circuit * circuit;
     unsigned int cycle_id;
+    std::vector<double> GIC_log;
 public:
     Simulator(Circuit * ckt) : circuit(ckt), cycle_id(0) {}
     virtual ~Simulator() {}
@@ -47,6 +48,7 @@ public:
     virtual void simCycle(const std::vector<char>&); //root function
     void dumpPO( std::ostream& );
     void dumpState( std::ostream& );
+    void dumpGIC(std::ostream&);
 };
 
 
@@ -90,7 +92,8 @@ public:
         delete eventwheel;
     }
     void simCycle(const std::vector<char>&);
-    void simEvents();
+    void simGoodEvents();
+    void simFaultyEvents();
 };
 
 class SimulatorFactory {

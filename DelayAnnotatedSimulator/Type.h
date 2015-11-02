@@ -25,7 +25,10 @@
 #ifndef DelayAnnotatedSimulator_Type_h
 #define DelayAnnotatedSimulator_Type_h
 
-#define NUM_FAULT_INJECT 32
+#define NUM_FAULT_INJECT 16
+
+#include <algorithm>
+#include <iostream>
 
 class LogicValue {
 public:
@@ -109,4 +112,89 @@ inline LogicValue& LogicValue::operator^= (LogicValue rhs) {
     *this = *this ^ rhs;
     return *this;
 }
+
+inline unsigned int pow2uint(unsigned int pow){
+    if(pow >= 32) return 0;
+    unsigned int operand = 0x01;
+    for(unsigned int i = 0; i < pow; i++){
+        operand = operand << 1;
+    }    
+    return operand;
+}
+
+//Some useful data structures for optimization
+
+//Linked list for fast faulty state lookup
+template <class T, class W>
+class FastDataPairStack{
+private:
+    T* typeA = NULL;
+    W* typeB = NULL;
+    int top;
+    unsigned int alloc_size;
+public:
+    FastDataPairStack() {
+        //std::cerr << "create data pair stack " << this << "\n";
+        typeA = new T[10];
+        typeB = new W[10];
+        top = -1;
+        alloc_size = 10;
+    }
+    FastDataPairStack(unsigned int size) {
+        typeA = new T[size];
+        typeB = new W[size];
+        top = -1;
+        alloc_size = size;
+    }
+    
+    FastDataPairStack(const FastDataPairStack<T,W>& copy){
+        typeA = new T[copy.alloc_size];
+        typeB = new W[copy.alloc_size];
+        std::copy(copy.typeA, copy.typeA + copy.top+1, typeA);
+        std::copy(copy.typeB, copy.typeB + copy.top+1, typeB);
+        top = copy.top;
+        alloc_size = copy.alloc_size;
+    }
+    
+    inline bool isEmpty(){
+        return (top == -1);
+    }
+    
+    inline void pop(T& valueA, W& valueB){
+        if(isEmpty()){
+            return;
+        }
+        valueA = typeA[top];
+        valueB = typeB[top];
+        top--;
+    }
+    
+    inline void push(T gateIdx, W value){
+        if(top == (alloc_size - 1) ){
+            //std::cerr << "Doubling stored space was size " << alloc_size << "\n";
+            T * tmp_A = new T[alloc_size * 2];
+            W * tmp_B = new W[alloc_size * 2];
+            std::copy(typeA, typeA + alloc_size, tmp_A);
+            std::copy(typeB, typeB + alloc_size, tmp_B);
+            delete typeA;
+            delete typeB;
+            
+            typeA = tmp_A;
+            typeB = tmp_B;
+            alloc_size = alloc_size * 2;
+        }
+        
+        top++;
+        typeA[top] = gateIdx;
+        typeB[top] = value;
+    }
+    ~FastDataPairStack(){
+        //std::cerr << "delete data pair stack " << this << "\n";
+        if(typeA)
+            delete [] typeA;
+        if(typeB)
+            delete [] typeB;
+    }
+};
+
 #endif

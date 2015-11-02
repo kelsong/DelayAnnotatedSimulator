@@ -24,14 +24,14 @@
 
 #include "Circuit.h"
 
-void Circuit::readLev(std::string filename, bool delay) {
+void Circuit::readLev(std::string filename) {
     std::fstream circuit_desc(filename.c_str(), std::fstream::in);
     if(circuit_desc.is_open()) {
         std::string line;
         std::getline(circuit_desc, line);
         std::stringstream ss(line);
         std::vector<unsigned int> dff_inputs;
-
+        
         unsigned int num_gates;
         ss >> num_gates;
         num_gates--;
@@ -167,20 +167,33 @@ void Circuit::readLev(std::string filename, bool delay) {
                     fanin->addFanout(created_gate);
                 }
             }
-
-            if(delay) {
-                if(gate_delays.count(created_gate->type()) != 0) {
-                    created_gate->setDelay(gate_delays[created_gate->type()]);
-                } else {
-                    //default
-                    created_gate->setDelay(1);
-                }
-            }
+            created_gate->createGIC();
         }
         for(unsigned int i = 0; i<dff_inputs.size(); i++) {
             stateVars[i]->addFanin(allGates[dff_inputs[i]-1]);
             allGates[dff_inputs[i]-1]->addFanout(stateVars[i]);
         }
+        
+        if(stateVars.size() % FF_GROUPING_SIZE == 0){
+            stateGICCoverage.resize(stateVars.size() / FF_GROUPING_SIZE);
+        } else {
+            stateGICCoverage.resize((stateVars.size()/ FF_GROUPING_SIZE) + 1);
+        }
+        
+        unsigned int count = 0;
+        for(unsigned int i = 0; i<stateVars.size(); i++){
+            count++;
+            if(count == FF_GROUPING_SIZE){
+                std::vector<bool> temp(FF_GROUPING_SIZE, false);
+                stateGICCoverage[i/FF_GROUPING_SIZE] = temp;
+            }
+        }
+        if(stateVars.size() % FF_GROUPING_SIZE != 0){
+            std::vector<bool> temp(stateVars.size() % FF_GROUPING_SIZE, false);
+            stateGICCoverage[stateVars.size()/FF_GROUPING_SIZE + 1] = temp;
+        }
+        
+        global_reset = inputs.back();
     } else {
         std::cerr << "FILE DOES NOT EXIST" << std::endl;
         exit(-5);
@@ -333,8 +346,7 @@ void Circuit::printFaults() {
     }
 }
 
-std::vector<Gate*> Circuit::injectFaults() {
-    injected_faulty_gates.clear();
+void Circuit::injectFaults(std::vector<Gate*>& injected_faulty_gates) {
     //regular injection
     bool at_least_one_injected = false;
     while(!at_least_one_injected && injected_fault_idx != faultlist.size()){
@@ -350,11 +362,9 @@ std::vector<Gate*> Circuit::injectFaults() {
             }
         
             //inject state
-            std::vector<Gate*> f_state_events  = faultlist[i].injectState();
+            std::vector<Gate*> f_state_events;
+            faultlist[i].injectState(f_state_events);
             for(unsigned int j = 0; j<f_state_events.size(); j++){
-                if(faultlist[i].getFID() == 510) {
-                    std::cerr << "";
-                }
                 injected_faulty_gates.push_back(f_state_events[j]);
             }
         
@@ -367,7 +377,6 @@ std::vector<Gate*> Circuit::injectFaults() {
             at_least_one_injected = true;
         }
     }
-    return injected_faulty_gates;
 }
 
 double Circuit::calculateFaultCov() const{
@@ -394,3 +403,4 @@ Circuit::~Circuit() {
         delete allGates[i];
     }
 }
+

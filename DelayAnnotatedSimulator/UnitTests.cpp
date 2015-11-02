@@ -323,7 +323,6 @@ unsigned int TestDFF() {
         if(bufGate->getOut() != exp_results[i]) {
             return TEST_FAIL;
         }
-        bufGate->castDff()->clearGoodSim();
     }
 
     delete bufGate;
@@ -332,7 +331,7 @@ unsigned int TestDFF() {
 }
 
 unsigned int TestCircuit() {
-    Circuit * test = new Circuit("b01rst", false, true);
+    Circuit * test = new Circuit("b01rst", true);
     if(test->numFaults() != 135) {
         std::cerr << "NUM FAULTS: " << test->numFaults() << std::endl;
         test->printFaults();

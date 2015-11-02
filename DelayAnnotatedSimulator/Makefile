@@ -10,7 +10,7 @@ clang:CC=clang++
 all:CFLAGS += ${OPTIMIZE2}
 clang:CFLAGS += ${OPTIMIZE2}
 TARGET=../build/fsim
-OBJECTS= ../build/args.o ../build/circuit.o ../build/eventwheel.o ../build/gates.o ../build/inputvector.o ../build/main.o ../build/simulator.o
+OBJECTS= ../build/args.o ../build/circuit.o ../build/eventwheel.o ../build/gates.o ../build/inputvector.o ../build/main.o ../build/simulator.o ../build/fault.o
 
 all: $(OBJECTS)
 	$(CC) $(OBJECTS) -o $(TARGET) -std=c++11
@@ -38,4 +38,7 @@ clang: $(OBJECTS)
 
 ../build/gates.o: Gates.cpp Gates.h Type.h Fault.h
 	$(CC) $(CFLAGS) -o ../build/gates.o Gates.cpp
+
+../build/fault.o: Gates.h Type.h Fault.h
+	$(CC) $(CFLAGS) -o ../build/fault.o Fault.cpp
 

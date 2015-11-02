@@ -70,7 +70,8 @@ protected:
     unsigned int levelnum;
     unsigned int delay;  //nanoseconds KEEP
     bool scheduled;
-
+    
+    std::vector<bool> GIC_coverage;
     //faulty gate information
     bool propagates;
     LogicValue f_vals[NUM_FAULT_INJECT];
@@ -82,14 +83,34 @@ protected:
     static unsigned short fault_round;
     static unsigned int num_injected;
     
+    
+    
+    
 public:
-    Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
-    Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(1), scheduled(false) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
-    Gate(unsigned int idx, GateType type, unsigned int level, unsigned int delay) :gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), delay(delay), scheduled(false) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
+    bool calc_GIC;
+    Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) {
+        for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;}
+        
+    }
+    Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), scheduled(false) {
+        for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;}
+    }
     Gate(unsigned int idx, std::vector<Gate *> fin, std::vector<Gate *> fout, GateType type)
-        : gate_id(idx), m_type(type), output(LogicValue::X),  fanin(fin), fanout(fout) { for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;} }
+        : gate_id(idx), m_type(type), output(LogicValue::X),  fanin(fin), fanout(fout) {
+            for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;}
+        }
     virtual ~Gate() { }
+    
     virtual void evaluate(); //eval and schedule if transition
+    
+    void createGIC(){
+        unsigned int num_gic = 0x01;
+        for(int i = 0; i<fanin.size(); i++) {num_gic = num_gic << 1; }
+        GIC_coverage.resize(num_gic);
+        for(int i = 0; i<GIC_coverage.size(); i++){
+            GIC_coverage[i] = false;
+        }
+    }
     bool isDirty() {
         return dirty;
     }
@@ -149,12 +170,6 @@ public:
     inline void setLevel(unsigned int level) {
         levelnum = level;
     }
-    inline unsigned int getDelay() {
-        return delay;
-    }
-    inline void setDelay(unsigned int dly) {
-        delay = dly;
-    }
     inline unsigned int getId() {
         return gate_id;
     }
@@ -171,17 +186,15 @@ public:
     //faulty gate methods
     void diverge(Fault *);
     void clearFaultValid();
+    virtual void faultEvaluate() {}
     
     inline bool propagatesFault(){
         return propagates;
     }
-    
-    
     inline void addFault(Fault * flt){
         assoc_faults[flt->getFID() % NUM_FAULT_INJECT] = flt;
         valid[flt->getFID() % NUM_FAULT_INJECT] = true;
     }
-    
     inline LogicValue getFaultyValue(Fault * flt){
         if(valid[flt->getFID() % NUM_FAULT_INJECT]){
             return f_vals[flt->getFID() % NUM_FAULT_INJECT];
@@ -189,21 +202,49 @@ public:
             return output;
         }
     }
-    
     static void setFaultRound(unsigned short round) {
         fault_round = round;
     }
-    
     static void setNumInjected(unsigned int num){
         num_injected = num;
     }
-
+    
+    inline void setGIC(){
+        if(!calc_GIC) return;
+        unsigned int idx = 0;
+        for(unsigned int i = 0; i < fanin.size(); i++){
+            if(fanin[i]->getOut() == LogicValue::X || fanin[i]->getOut() == LogicValue::Z){
+                return;
+            } else {
+                if(fanin[i]->getOut() == LogicValue::ONE){
+                    idx = (idx << 1) | 0x01;
+                }
+                else {
+                    idx = (idx << 1);
+                }
+            }
+        }
+        GIC_coverage[idx] = true;
+    }
+    
+    inline unsigned int getGICCov(){
+        unsigned int cnt = 0;
+        for(int i = 0; i<GIC_coverage.size(); i++){
+            if(GIC_coverage[i] == true){
+                cnt++;
+            }
+        }
+        return cnt;
+    }
+    
+    inline unsigned int getNumGICPts(){
+        return GIC_coverage.size();
+    }
     
     //dynamic cast methods for Flip Flops and Inputs
     InputGate* castInput();
     OutputGate* castOutput();
     DffGate* castDff();
-
 };
 
 class AndGate : public Gate {
@@ -213,6 +254,7 @@ public:
         : Gate(gid, fin, fout, Gate::AND) {}
     ~AndGate() {};
     void evaluate();
+    void faultEvaluate();
     virtual AndGate* clone() {
         return new AndGate(*this);
     }
@@ -225,6 +267,7 @@ public:
         : Gate(gid, fin, fout, Gate::NAND) {}
     ~NandGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual NandGate* clone() {
         return new NandGate(*this);
     }
@@ -237,6 +280,7 @@ public:
         : Gate(gid, fin, fout, Gate::OR) {}
     ~OrGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual OrGate* clone() {
         return new OrGate(*this);
     }
@@ -249,6 +293,7 @@ public:
         : Gate(gid, fin, fout, Gate::NOR) {}
     ~NorGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual NorGate* clone() {
         return new NorGate(*this);
     }
@@ -261,6 +306,7 @@ public:
         : Gate(gid, fin, fout, Gate::XOR) {}
     ~XorGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual XorGate* clone() {
         return new XorGate(*this);
     }
@@ -273,6 +319,7 @@ public:
         : Gate(gid, fin, fout, Gate::XNOR) {}
     ~XnorGate () {}
     void evaluate();
+    void faultEvaluate();
     virtual XnorGate* clone() {
         return new XnorGate(*this);
     }
@@ -285,6 +332,7 @@ public:
         : Gate(gid, fin, fout, Gate::NOT) {}
     ~NotGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual NotGate* clone() {
         return new NotGate(*this);
     }
@@ -297,6 +345,7 @@ public:
         : Gate(gid, fin, fout, Gate::INPUT) {}
     ~InputGate() {}
     void evaluate();
+    void faultEvaluate();
     void setInput(LogicValue::VALUES);
 
     virtual InputGate* clone() {
@@ -311,6 +360,7 @@ public:
         : Gate(gid, fin, fout, Gate::OUTPUT) {}
     ~OutputGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual OutputGate* clone() {
         return new OutputGate(*this);
     }
@@ -324,6 +374,7 @@ public:
         : Gate(gid, fin, fout, Gate::TIE_ZERO) {}
     ~TieZeroGate() {}
     void evaluate();
+    void faultEvaluate() {}
     virtual TieZeroGate* clone() {
         return new TieZeroGate(*this);
     }
@@ -336,6 +387,7 @@ public:
         : Gate(gid, fin, fout, Gate::TIE_ONE) {}
     ~TieOneGate() {}
     void evaluate();
+    void faultEvaluate() {}
     virtual TieOneGate* clone() {
         return new TieOneGate(*this);
     }
@@ -348,6 +400,7 @@ public:
         : Gate(gid, fin, fout, Gate::TIE_X) {}
     ~TieXGate() {}
     void evaluate();
+    void faultEvaluate() {}
     virtual TieXGate* clone() {
         return new TieXGate(*this);
     }
@@ -360,6 +413,7 @@ public:
         : Gate(gid, fin, fout, Gate::TIE_Z) {}
     ~TieZGate() {}
     void evaluate();
+    void faultEvaluate() {}
     virtual TieZGate* clone() {
         return new TieZGate(*this);
     }
@@ -372,6 +426,7 @@ public:
         : Gate(gid, fin, fout, Gate::BUF) {}
     ~BufGate() {}
     void evaluate();
+    void faultEvaluate();
     virtual BufGate* clone() {
         return new BufGate(*this);
     }
@@ -386,9 +441,9 @@ public:
         : Gate(gid, fin, fout, Gate::D_FF) {doneGoodSim = false;}
     ~DffGate() {}
     void evaluate();
+    void faultEvaluate();
     void setDff(LogicValue::VALUES);
     void injectStoredFault(Fault * flt, LogicValue val);
-    void clearGoodSim() {doneGoodSim = false;}
     virtual DffGate* clone() {
         return new DffGate(*this);
     }
@@ -401,6 +456,7 @@ public:
         : Gate(gid, fin, fout, Gate::MUX_2) {}
     ~Mux2Gate() {}
     void evaluate();
+    void faultEvaluate() {}
     virtual Mux2Gate* clone() {
         return new Mux2Gate(*this);
     }
@@ -413,6 +469,7 @@ public:
         : Gate(gid, fin, fout, Gate::TRISTATE) {}
     ~TristateGate() {}
     void evaluate();
+    void faultEvaluate() {}
     virtual TristateGate* clone() {
         return new TristateGate(*this);
     }
