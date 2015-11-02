@@ -43,6 +43,7 @@ void Simulator::dumpPO(std::ostream& out_stream) {
     }
     out_stream << std::endl;
 }
+
 //dumps the circuit state to output stream
 void Simulator::dumpState(std::ostream& out_stream) {
     for(unsigned int i = 0; i < circuit->getNumStateVar(); i++) {
