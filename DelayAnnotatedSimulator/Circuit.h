@@ -62,7 +62,7 @@ private:
 
 public:
     Circuit(std::string filename, bool delay, bool fault) {
-        if(delay) readDelay(filename + ".dly"); 
+        if(delay) readDelay(filename + ".dly"); //KEEP
         if(fault) readFaultList(filename + ".eqf");
         readLev(filename + ".lev", delay);
         injected_fault_idx = 0;
@@ -70,9 +70,9 @@ public:
 
     ~Circuit();
 
-    void readLev(std::string filename, bool delay);
+    void readLev(std::string filename, bool delay); //KEEP
     void readFaultList(std::string filename);
-    void readDelay(std::string filename);
+    void readDelay(std::string filename); //KEEP
 
     std::vector<Gate*> getInputs() {
         return inputs;

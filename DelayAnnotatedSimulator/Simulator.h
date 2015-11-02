@@ -65,6 +65,7 @@ public:
     void simCycle(const std::vector<char>&);
 };
 
+//LOGIC DELAY
 class LogicDelaySimulator: public Simulator {
     GateDelayWheel * eventwheel;
     std::vector<unsigned int> output_time;
@@ -78,6 +79,7 @@ public:
     void simCycle(const std::vector<char>&);
 };
 
+//FAULT SIM
 class FaultSimulator : public Simulator{
     EventWheel * eventwheel;
 public:

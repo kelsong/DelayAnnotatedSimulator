@@ -51,6 +51,10 @@ void Simulator::dumpState(std::ostream& out_stream) {
     out_stream << std::endl;
 }
 
+/****************************************************************************
+ * LogicSimulator
+ ****************************************************************************/
+
 void LogicSimulator::simCycle(const std::vector<char>& input) {
     //check if input is correct size
     if(input.size() != circuit->getNumInput()) {
@@ -92,10 +96,10 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
     }
 }
 
+
 /****************************************************************************
  * LogicDelaySimulator
  ****************************************************************************/
-
 void LogicDelaySimulator::simCycle(const std::vector<char> & input) {
     if(input.size() != circuit->getNumInput()) {
         std::cerr << "INVALID INPUT AT: " << cycle_id << std::endl;
