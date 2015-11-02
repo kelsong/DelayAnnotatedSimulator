@@ -62,7 +62,7 @@ private:
 
 public:
     Circuit(std::string filename, bool delay, bool fault) {
-        if(delay) readDelay(filename + ".dly");
+        if(delay) readDelay(filename + ".dly"); 
         if(fault) readFaultList(filename + ".eqf");
         readLev(filename + ".lev", delay);
         injected_fault_idx = 0;

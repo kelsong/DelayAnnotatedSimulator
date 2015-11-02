@@ -49,6 +49,7 @@ public:
     void dumpState( std::ostream& );
 };
 
+
 //this simulator simCycle simulates the positive edge.
 //Therefore, flip flops latch in at the beginning of simCycle.
 

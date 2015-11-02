@@ -68,7 +68,7 @@ protected:
     std::vector<Gate *> fanout;
     bool dirty; //output changed during eval;
     unsigned int levelnum;
-    unsigned int delay; //nanoseconds
+    unsigned int delay;  //nanoseconds
     bool scheduled;
 
     //faulty gate information

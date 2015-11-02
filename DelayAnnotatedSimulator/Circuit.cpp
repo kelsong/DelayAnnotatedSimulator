@@ -187,7 +187,7 @@ void Circuit::readLev(std::string filename, bool delay) {
     }
 }
 
-void Circuit::readDelay(std::string filename) {
+void Circuit::readDelay( std::string filename ) {
     std::fstream dly_stream(filename);
     if(dly_stream.is_open()) {
         std::string line;
