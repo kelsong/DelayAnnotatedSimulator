@@ -24,7 +24,7 @@
 
 #include "Circuit.h"
 
-void Circuit::readLev(std::string filename) {
+void Circuit::readLev(std::string filename, bool delay) {
     std::fstream circuit_desc(filename.c_str(), std::fstream::in);
     if(circuit_desc.is_open()) {
         std::string line;

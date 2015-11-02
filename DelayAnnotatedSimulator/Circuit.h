@@ -51,7 +51,9 @@ private:
     std::vector<Gate*> stateVars;
     std::vector<Gate*> outputs;
     std::vector<Gate*> logicGates;
+    std::map<Gate::GateType, unsigned int> gate_delays;
     unsigned int num_levels;
+    unsigned int max_delay;
     
     std::vector<std::vector<bool> > stateGICCoverage;
     
@@ -64,7 +66,8 @@ public:
     Gate* global_reset;
     Circuit(std::string filename, bool delay, bool fault) {
         if(delay) readDelay(filename + ".dly"); //KEEP
-        readLev(filename + ".lev");
+        if(fault) readFaultList(filename + ".eqf");
+        readLev(filename + ".lev", delay);
         injected_fault_idx = 0;
     };
 

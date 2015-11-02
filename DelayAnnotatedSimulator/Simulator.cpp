@@ -78,6 +78,11 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
 
     Gate * gate_to_eval = eventwheel->getNextScheduled();
     while (gate_to_eval != NULL) {
+        if(circuit->global_reset->getOut() == LogicValue::ZERO){
+            gate_to_eval->calc_GIC = false;
+        } else {
+            gate_to_eval->calc_GIC = true;
+        }
         gate_to_eval->evaluate();
         if(!gate_to_eval->isDirty()) {
             gate_to_eval = eventwheel->getNextScheduled();
@@ -89,11 +94,13 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
                 eventwheel->insertEvent(gate_to_eval->getFanout(i));
             }
         }
-
+        
+        circuit->setStateGIC();
         //clear dirty and move on
         gate_to_eval->resetDirty();
         gate_to_eval = eventwheel->getNextScheduled();
     }
+    GIC_log.push_back(circuit->calculateGIC());
 }
 
 
@@ -168,32 +175,54 @@ void FaultSimulator::simCycle(const std::vector<char>& input) {
     
     //goodsim
     //std::cerr << "GOODSIM" << std::endl;
-    simEvents();
+    simGoodEvents();
     
     
     //faultsim
     circuit->resetInjection();
     //std::cerr << "FAULTSIM" << std::endl;
-    std::vector<Gate*> injected = circuit->injectFaults();
+    std::vector<Gate*> injected;
+    circuit->injectFaults(injected);
     while(!injected.empty()){
         for(unsigned int i = 0; i < injected.size(); i++){
             eventwheel->insertEvent(injected[i]);
         }
-        simEvents();
+        simFaultyEvents();
         circuit->invalidateFaultArrays();
-        injected = circuit->injectFaults();
+        injected.clear();
+        circuit->injectFaults(injected);
     }
-    circuit->clearStateGoodSim();
     
     //Calculate Fault Coverage
     std::cout << "FAULT COV: " << circuit->calculateFaultCov() << std::endl;
 }
 
-void FaultSimulator::simEvents(){
+void FaultSimulator::simGoodEvents(){
     Gate * gate_to_eval = eventwheel->getNextScheduled();
     while (gate_to_eval != NULL) {
         gate_to_eval->evaluate();
-        if(!gate_to_eval->isDirty() && !gate_to_eval->propagatesFault()) {
+        if(!gate_to_eval->isDirty()) {
+            gate_to_eval = eventwheel->getNextScheduled();
+            continue;
+        }
+        
+        for(unsigned int i = 0; i<gate_to_eval->getNumFanout(); i++) {
+            if(gate_to_eval->getFanout(i)->type() != Gate::D_FF) {
+                eventwheel->insertEvent(gate_to_eval->getFanout(i));
+            }
+        }
+        
+        //clear dirty and move on
+        gate_to_eval->resetDirty();
+        gate_to_eval = eventwheel->getNextScheduled();
+    }
+}
+
+void FaultSimulator::simFaultyEvents(){
+    Gate * gate_to_eval = eventwheel->getNextScheduled();
+    while (gate_to_eval != NULL) {
+        gate_to_eval->faultEvaluate();
+        if(!gate_to_eval->propagatesFault()) {
             gate_to_eval = eventwheel->getNextScheduled();
             continue;
         }
