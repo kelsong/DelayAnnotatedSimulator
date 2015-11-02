@@ -113,6 +113,14 @@ inline LogicValue& LogicValue::operator^= (LogicValue rhs) {
     return *this;
 }
 
+inline unsigned int pow2uint(unsigned int pow){
+    if(pow >= 32) return 0;
+    unsigned int operand = 0x01;
+    for(unsigned int i = 0; i < pow; i++){
+        operand = operand << 1;
+    }    
+    return operand;
+}
 
 //Some useful data structures for optimization
 

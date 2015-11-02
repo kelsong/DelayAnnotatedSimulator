@@ -39,7 +39,7 @@
 #include "Fault.h"
 #include "Type.h"
 
-
+#define FF_GROUPING_SIZE 5
 //Circuit Class
 //For Project 0 create the circuit using false for the delay (there is no dly file for the circuit)
 
@@ -52,6 +52,8 @@ private:
     std::vector<Gate*> outputs;
     std::vector<Gate*> logicGates;
     unsigned int num_levels;
+    
+    std::vector<std::vector<bool> > stateGICCoverage;
     
 
     //fault info
@@ -121,21 +123,73 @@ public:
     }
     void printFaults();
     
+    void setStateGIC(){
+        for(unsigned int i = 0; i<stateVars.size(); i += FF_GROUPING_SIZE){
+            unsigned int idx = 0x01;
+            bool has_X = false;
+            for(unsigned int j = 0; j<FF_GROUPING_SIZE; i++){
+                if(stateVars[i+j]->getOut() == LogicValue::X){
+                    has_X = true;
+                    break;
+                }
+                
+                if(stateVars[i+j]->getOut() == LogicValue::ONE){
+                    idx = (idx << 1) | 0x01;
+                } else {
+                    idx = (idx << 1);
+                }
+            }
+            if(!has_X){
+                stateGICCoverage[i/FF_GROUPING_SIZE][idx] = true;
+            }
+        }
+        if(stateVars.size() % FF_GROUPING_SIZE != 0) {
+            unsigned int i = stateVars.size() - (stateVars.size() % FF_GROUPING_SIZE);
+            bool has_X = false;
+            unsigned int idx = 0x01;
+            for(; i< stateVars.size(); i++){
+                if(stateVars[i]->getOut() == LogicValue::X){
+                    has_X = true;
+                    break;
+                }
+                if(stateVars[i]->getOut() == LogicValue::ONE){
+                    idx = (idx << 1) | 0x01;
+                } else {
+                    idx = (idx << 1);
+                }
+            }
+            if(!has_X){
+                stateGICCoverage[i/FF_GROUPING_SIZE][idx] = true;
+            }
+        }
+    }
+    
     double calculateGIC(){
         unsigned int num_pts = 0;
         unsigned int covered = 0;
-        for(unsigned int i = 0; i < allGates.size(); i++){
+        for(unsigned int i = 0; i < allGates.size(); i++) {
             if((allGates[i]->type() != Gate::INPUT) &&
                (allGates[i]->type() != Gate::OUTPUT) &&
                (allGates[i]->type() != Gate::TIE_ONE) &&
                (allGates[i]->type() != Gate::TIE_ONE) &&
                (allGates[i]->type() != Gate::TIE_Z) &&
-               (allGates[i]->type() != Gate::TIE_X))
+               (allGates[i]->type() != Gate::TIE_X) &&
+               (allGates[i]->type() != Gate::D_FF))
             {
                 num_pts += allGates[i]->getNumGICPts();
                 covered += allGates[i]->getGICCov();
             }
         }
+        
+        for(unsigned int i = 0; i < stateGICCoverage.size(); i++){
+            num_pts += stateGICCoverage[i].size();
+            for(unsigned int j = 0; j < stateGICCoverage.size(); j++){
+                if(stateGICCoverage[i][j]){
+                    covered++;
+                }
+            }
+        }
+        //calculate the state GIC coverage
         return (double) covered / ((double) num_pts);
     }
 };

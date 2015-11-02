@@ -476,7 +476,6 @@ void DffGate::evaluate() {
     LogicValue previous = output;
     output = fanin[0]->getOut();
     dirty = (output != previous);
-    setGIC();
 }
 
 void DffGate::faultEvaluate(){

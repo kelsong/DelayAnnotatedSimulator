@@ -96,7 +96,7 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
                 eventwheel->insertEvent(gate_to_eval->getFanout(i));
             }
         }
-
+        circuit->setStateGIC();
         //clear dirty and move on
         gate_to_eval->resetDirty();
         gate_to_eval = eventwheel->getNextScheduled();

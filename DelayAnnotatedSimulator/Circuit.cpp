@@ -173,7 +173,25 @@ void Circuit::readLev(std::string filename) {
             stateVars[i]->addFanin(allGates[dff_inputs[i]-1]);
             allGates[dff_inputs[i]-1]->addFanout(stateVars[i]);
         }
-        //a hack for now
+        
+        if(stateVars.size() % FF_GROUPING_SIZE == 0){
+            stateGICCoverage.resize(stateVars.size() / FF_GROUPING_SIZE);
+        } else {
+            stateGICCoverage.resize((stateVars.size()/ FF_GROUPING_SIZE) + 1);
+        }
+        
+        unsigned int count = 0;
+        for(unsigned int i = 0; i<stateVars.size(); i++){
+            count++;
+            if(count == FF_GROUPING_SIZE){
+                std::vector<bool> temp(FF_GROUPING_SIZE, false);
+                stateGICCoverage[i/FF_GROUPING_SIZE] = temp;
+            }
+        }
+        if(stateVars.size() % FF_GROUPING_SIZE != 0){
+            std::vector<bool> temp(stateVars.size() % FF_GROUPING_SIZE, false);
+            stateGICCoverage[stateVars.size()/FF_GROUPING_SIZE + 1] = temp;
+        }
         
         global_reset = inputs.back();
     } else {
