@@ -37,8 +37,8 @@ private:
     std::istream* input_source;
     std::ostream* output_source;
     unsigned int simulator_type;
-    bool outputState;
-    bool outputPO;
+    bool outputState = false;
+    bool outputPO = false;
 public:
     //getter/setters
     inline void setCircuitName(std::string name) {

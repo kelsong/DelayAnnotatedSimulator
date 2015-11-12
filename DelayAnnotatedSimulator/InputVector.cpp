@@ -49,8 +49,9 @@ std::vector<char> InputVector::getNext() {
                           << "Inputs must be a '0', '1', X or 'END' " << std::endl;
                 exit(-5);
             }
-            line_no++;
+            //line_no++;
         }
+	line_no++;
     }
 
     if(!isStdIn() && !found_end) {

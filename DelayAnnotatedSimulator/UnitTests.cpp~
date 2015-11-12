@@ -1,0 +1,304 @@
+//these are the unit tests for the logic simulator
+
+#include "Gates.h"
+#include "Type.h"
+
+#define TEST_FAIL -10
+#define TEST_PASS 10
+//////////////////////////////////////////////////
+// Gate Unit Tests
+//////////////////////////////////////////////////
+const std::vector<LogicValue> two_bit_init_arr1 {LogicValue::ZERO, LogicValue::ZERO, LogicValue::ONE, LogicValue::ONE};
+const std::vector<LogicValue> two_bit_init_arr2 {LogicValue::ZERO, LogicValue::ONE, LogicValue::ZERO, LogicValue::ONE};
+
+unsigned int TestAnd(){
+  //setup
+  Gate * andGate = new AndGate(3, 5);
+  InputGate * inputA = new InputGate(1, 0);
+  InputGate * inputB = new InputGate(2, 0);
+  
+  andGate->addFanin(InputA);
+  andGate->addFanout(InputB);
+  
+  const std::vector<LogicValue> exp_results {LogicValue::ZERO, LogicValue::ZERO, LogicValue::ZERO, LogicValue::ONE};
+
+  //test
+  for(int i = 0; i<4; i++){
+    inputA->setInput(two_bit_init_arr1[i]);
+    inputB->setInput(two_bit_init_arr2[i]);
+    inputA->evaluate();
+    inputB->evaluate();
+    
+    andGate->evaluate();
+    if(andGate->getOut() != exp_results[i] ){
+      return TEST_FAIL;
+    }
+  }
+  
+  //teardown
+  delete andGate;
+  delete inputA;
+  delete inputB;
+  return TEST_PASS
+}
+
+unsigned int TestNand(){
+  Gate * nandGate = new NandGate(3, 5);
+  InputGate * inputA = new InputGate(1, 0);
+  InputGate * inputB = new InputGate(2, 0);
+  
+  nandGate->addFanin(InputA);
+  nandGate->addFanout(InputB);
+  
+  const std::vector<LogicValue> exp_results {LogicValue::ONE, LogicValue::ONE, LogicValue::ONE, LogicValue::ZERO};
+
+  //test
+  for(int i = 0; i<4; i++){
+    inputA->setInput(two_bit_init_arr1[i]);
+    inputB->setInput(two_bit_init_arr2[i]);
+    inputA->evaluate();
+    inputB->evaluate();
+    
+    nandGate->evaluate();
+    if(nandGate->getOut() != exp_results[i] ){
+      return TEST_FAIL;
+    }
+  }
+  
+  //teardown
+  delete nandGate;
+  delete inputA;
+  delete inputB;
+  return TEST_PASS;
+}
+
+unsigned int TestOr(){
+  Gate * orGate = new OrGate(3, 5);
+  InputGate * inputA = new InputGate(1, 0);
+  InputGate * inputB = new InputGate(2, 0);
+  
+  orGate->addFanin(InputA);
+  orGate->addFanout(InputB);
+  
+  const std::vector<LogicValue> exp_results {LogicValue::ZERO, LogicValue::ONE, LogicValue::ONE, LogicValue::ONE};
+
+  //test
+  for(int i = 0; i<4; i++){
+    inputA->setInput(two_bit_init_arr1[i]);
+    inputB->setInput(two_bit_init_arr2[i]);
+    inputA->evaluate();
+    inputB->evaluate();
+    
+    orGate->evaluate();
+    if(orGate->getOut() != exp_results[i] ){
+      return TEST_FAIL;
+    }
+  }
+  
+  //teardown
+  delete orGate;
+  delete inputA;
+  delete inputB;
+  return TEST_PASS;
+}
+
+unsigned int TestNor(){
+  Gate * norGate = new NorGate(3, 5);
+  InputGate * inputA = new InputGate(1, 0);
+  InputGate * inputB = new InputGate(2, 0);
+  
+  norGate->addFanin(InputA);
+  norGate->addFanout(InputB);
+  
+  const std::vector<LogicValue> exp_results {LogicValue::ONE, LogicValue::ZERO, LogicValue::ZERO, LogicValue::ZERO};
+
+  //test
+  for(int i = 0; i<4; i++){
+    inputA->setInput(two_bit_init_arr1[i]);
+    inputB->setInput(two_bit_init_arr2[i]);
+    inputA->evaluate();
+    inputB->evaluate();
+    
+    norGate->evaluate();
+    if(norGate->getOut() != exp_results[i] ){
+      return TEST_FAIL;
+    }
+  }
+  
+  //teardown
+  delete norGate;
+  delete inputA;
+  delete inputB;
+  return TEST_PASS;
+}
+
+unsigned int TestXor(){
+  Gate * xorGate = new XorGate(3, 5);
+  InputGate * inputA = new InputGate(1, 0);
+  InputGate * inputB = new InputGate(2, 0);
+  
+  xorGate->addFanin(InputA);
+  xorGate->addFanout(InputB);
+  
+  const std::vector<LogicValue> exp_results {LogicValue::ZERO, LogicValue::ONE, LogicValue::ONE, LogicValue::ZERO};
+
+  //test
+  for(int i = 0; i<4; i++){
+    inputA->setInput(two_bit_init_arr1[i]);
+    inputB->setInput(two_bit_init_arr2[i]);
+    inputA->evaluate();
+    inputB->evaluate();
+    
+    xorGate->evaluate();
+    if(xorGate->getOut() != exp_results[i] ){
+      return TEST_FAIL;
+    }
+  }
+  
+  //teardown
+  delete xorGate;
+  delete inputA;
+  delete inputB;
+  return TEST_PASS;
+}
+
+unsigned int TestXNor(){
+  Gate * xnorGate = new XnorGate(3, 5);
+  InputGate * inputA = new InputGate(1, 0);
+  InputGate * inputB = new InputGate(2, 0);
+  
+  xorGate->addFanin(InputA);
+  xorGate->addFanout(InputB);
+  
+  const std::vector<LogicValue> exp_results {LogicValue::ONE, LogicValue::ZERO, LogicValue::ZERO, LogicValue::ONE};
+
+  //test
+  for(int i = 0; i<4; i++){
+    inputA->setInput(two_bit_init_arr1[i]);
+    inputB->setInput(two_bit_init_arr2[i]);
+    inputA->evaluate();
+    inputB->evaluate();
+    
+    xnorGate->evaluate();
+    if(xnorGate->getOut() != exp_results[i] ){
+      return TEST_FAIL;
+    }
+  }
+  
+  //teardown
+  delete xnorGate;
+  delete inputA;
+  delete inputB;
+  return TEST_PASS;
+}
+
+unsigned int TestBuf(){
+  Gate * bufGate = new BufGate(2, 5);
+  InputGate * inputA = new InputGate();
+  bufGate->addFanin(inputA);
+
+  const std::vector<LogicValue> exp_results {LogicValue::ONE, LogicValue::ZERO, LogicValue::X};
+  
+  //test
+  for(int i = 0; i<exp_results.size(); i++){
+    inputA->setInput(exp_results[i]);
+    inputA->evaluate();
+    bufGate->evaluate();
+    if(bufGate->getOut != exp_results[i]){
+      return TEST_FAIL;
+    }
+  }
+  
+  delete bufGate;
+  delete inputA;
+  return TEST_PASS;
+}
+
+unsigned int TestNot(){
+  Gate * notGate = new NotGate(2, 5);
+  InputGate * inputA = new InputGate();
+  bufGate->addFanin(inputA);
+
+  const std::vector<LogicValue> input_values {LogicValue::ZERO, LogicValue::ONE, LogicValue::X}
+  const std::vector<LogicValue> exp_results {LogicValue::ONE, LogicValue::ZERO, LogicValue::X};
+  
+  //test
+  for(int i = 0; i<exp_results.size(); i++){
+    inputA->setInput(exp_results[i]);
+    inputA->evaluate();
+    bufGate->evaluate();
+    if(bufGate->getOut != exp_results[i]){
+      return TEST_FAIL;
+    }
+  }
+  
+  delete bufGate;
+  delete inputA;
+  return TEST_PASS;
+}
+
+unsigned int TestInput(){
+  InputGate * inputA = new InputGate();
+  bufGate->addFanin(inputA);
+
+  const std::vector<LogicValue> exp_results {LogicValue::ONE, LogicValue::ZERO, LogicValue::X};
+  
+  //test
+  for(int i = 0; i<exp_results.size(); i++){
+    inputA->setInput(exp_results[i]);
+    inputA->evaluate();
+    if(inputA->getOut != exp_results[i]){
+      return TEST_FAIL;
+    }
+  }
+  
+  delete inputA;
+  return TEST_PASS;
+}
+
+unsigned int TestOutput(){
+  Gate * bufGate = new OutputGate(2, 5);
+  InputGate * inputA = new InputGate();
+  bufGate->addFanin(inputA);
+
+  const std::vector<LogicValue> exp_results {LogicValue::ONE, LogicValue::ZERO, LogicValue::X};
+  
+  //test
+  for(int i = 0; i<exp_results.size(); i++){
+    inputA->setInput(exp_results[i]);
+    inputA->evaluate();
+    bufGate->evaluate();
+    if(bufGate->getOut != exp_results[i]){
+      return TEST_FAIL;
+    }
+  }
+  
+  delete bufGate;
+  delete inputA;
+  return TEST_PASS;
+}
+
+unsigned int TestDFF(){
+  Gate * bufGate = new DffGate(2, 5);
+  InputGate * inputA = new InputGate();
+  bufGate->addFanin(inputA);
+
+  const std::vector<LogicValue> exp_results {LogicValue::ONE, LogicValue::ZERO, LogicValue::X};
+  
+  //test
+  for(int i = 0; i<exp_results.size(); i++){
+    inputA->setInput(exp_results[i]);
+    inputA->evaluate();
+    bufGate->evaluate();
+    if(bufGate->getOut != exp_results[i]){
+      return TEST_FAIL;
+    }
+  }
+  
+  delete bufGate;
+  delete inputA;
+  return TEST_PASS;
+}
+
+int main(){
+}

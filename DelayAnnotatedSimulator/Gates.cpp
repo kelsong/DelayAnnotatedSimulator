@@ -352,7 +352,7 @@ void BufGate::faultEvaluate(){
         if(injection_site) {
             f_vals[i] = assoc_faults[i]->faultSA() ;
         } else {
-            f_vals[i] = fanin[i]->getFaultyValue(assoc_faults[i]);
+            f_vals[i] = fanin[0]->getFaultyValue(assoc_faults[i]);
         }
         
         if(f_vals[i] != output){

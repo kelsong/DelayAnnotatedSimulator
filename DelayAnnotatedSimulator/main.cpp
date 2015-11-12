@@ -49,12 +49,12 @@ int main(int argc, const char * argv[]) {
         simulator->simCycle(vec);
         //std::cerr << "VECTOR # " << vec_num++ << std::endl;
         //fault_out << vec_num++ << ", " << circuit->calculateFaultCov() << "\n";
-        if (args.isOutputState()) {
+        /*if (args.isOutputState()) {
             simulator->dumpState(args.getOutputSource());
         }
         if(args.isOutputPO()) {
             simulator->dumpPO(args.getOutputSource());
-        }
+	    }*/
     }
     std::fstream gic_out(args.getCircuitName() + std::string("_gic.csv"), std::fstream::out);
     simulator->dumpGIC(gic_out);

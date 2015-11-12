@@ -1,0 +1,18 @@
+CC=clang
+GCC=g++
+CLANG=clang
+CFLAGS=-Wall -std=c++11
+
+.PHONY : clang all
+
+clang:CC=clang
+
+all:
+
+main.o:
+
+Args.o:
+
+
+
+install: 

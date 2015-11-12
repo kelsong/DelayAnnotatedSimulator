@@ -29,6 +29,7 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
+
 //handles the input vector either from user input or from a file.
 // eventually this will do more complex file buffering. For now, it's simple.
 class InputVector {
