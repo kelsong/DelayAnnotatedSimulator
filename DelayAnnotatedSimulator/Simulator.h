@@ -41,6 +41,7 @@ protected:
     Circuit * circuit;
     unsigned int cycle_id;
     std::vector<double> GIC_log;
+    std::vector<double> Toggle_log;
 public:
     Simulator(Circuit * ckt) : circuit(ckt), cycle_id(0) {}
     virtual ~Simulator() {}

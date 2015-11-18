@@ -37,6 +37,7 @@ int main(int argc, const char * argv[]) {
     Args args;
     args.readArgs(argc, argv);
     Circuit * circuit = new Circuit(args.getCircuitName(), false, false);
+    circuit->setGICGroupingSize(args.getGroupingSize());
     LogicSimulator * simulator = new LogicSimulator(circuit);
     InputVector test_vector(args.getInputSource());
     //std::fstream fault_out(args.getCircuitName() + "_fault.csv", std::fstream::out);
@@ -57,6 +58,7 @@ int main(int argc, const char * argv[]) {
         }
     }
     std::fstream gic_out(args.getCircuitName() + std::string("_gic.csv"), std::fstream::out);
+    gic_out << "GIC, GateToggle\n";
     simulator->dumpGIC(gic_out);
     gic_out.close();
     //std::cout << "DONE" << std::endl;

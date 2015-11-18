@@ -28,13 +28,14 @@ void Args::readArgs(int argc, const char * argv[] ) {
     if(argc == 1) {
         std::cerr << "USAGE: " << std::endl;
         std::cerr << "(Req.) -ckt <ckt_name> : define circuit name" << std::endl
-                  << "       -vec    : flag for reading input vector from <ckt_name>.vec" <<std::endl
-                  << "                 defaults to stdin" << std::endl
-                  << "       -fsim   : flag for fault simulation"  << std::endl
-                  << "                 defaults to logic simulation" << std::endl
-                  << "       -dly    : reads gate delays from <ckt_name.dly>" << std::endl
-                  << "       -wpo    : output POs" << std::endl
-                  << "       -wstate : output flip flops" << std::endl;
+                  << "       -vec       : flag for reading input vector from <ckt_name>.vec" <<std::endl
+                  << "                   defaults to stdin" << std::endl
+                  << "       -fsim      : flag for fault simulation"  << std::endl
+                  << "                   defaults to logic simulation" << std::endl
+                  << "       -dly       : reads gate delays from <ckt_name.dly>" << std::endl
+                  << "       -wpo       : output POs" << std::endl
+                  << "       -wstate    : output flip flops" << std::endl
+		  << "       -grp <num> : GIC FF group size" << std::endl;
         exit(-1);
     }
     //set defaults
@@ -60,6 +61,9 @@ void Args::readArgs(int argc, const char * argv[] ) {
             outputPO = true;
         } else if(arg.compare("-wstate") == 0) {
             outputState = true;
+        } else if(arg.compare("-grp") == 0) {
+	    std::stringstream ss(argv[++i]);
+            ss >> grouping_size;
         } else {
             std::cerr << "USAGE: " << std::endl;
             std::cerr << "(Req.) -ckt <ckt_name>  define circuit name" << std::endl;

@@ -29,6 +29,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 class Args {
 private:
@@ -37,6 +38,7 @@ private:
     std::istream* input_source;
     std::ostream* output_source;
     unsigned int simulator_type;
+    unsigned int grouping_size;
     bool outputState;
     bool outputPO;
 public:
@@ -61,6 +63,9 @@ public:
     }
     inline unsigned int getSimulatorType() const {
         return simulator_type;
+    }
+    inline unsigned int getGroupingSize() const {
+	return grouping_size;
     }
     inline bool isOutputState() const {
         return outputState;

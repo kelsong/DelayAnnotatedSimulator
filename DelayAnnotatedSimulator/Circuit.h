@@ -41,7 +41,6 @@
 
 #define FF_GROUPING_SIZE 5
 //Circuit Class
-//For Project 0 create the circuit using false for the delay (there is no dly file for the circuit)
 
 class Circuit {
 private:
@@ -54,7 +53,8 @@ private:
     std::map<Gate::GateType, unsigned int> gate_delays;
     unsigned int num_levels;
     unsigned int max_delay;
-    
+    unsigned int grouping_size = 5;
+
     std::vector<std::vector<bool> > stateGICCoverage;
     
 
@@ -131,10 +131,10 @@ public:
     void printFaults();
     
     void setStateGIC(){
-        for(unsigned int i = 0; i<stateVars.size(); i += FF_GROUPING_SIZE){
+        for(unsigned int i = 0; i<stateVars.size(); i += grouping_size){
             unsigned int idx = 0x01;
             bool has_X = false;
-            for(unsigned int j = 0; j<FF_GROUPING_SIZE; i++){
+            for(unsigned int j = 0; j<grouping_size; i++){
                 if(stateVars[i+j]->getOut() == LogicValue::X){
                     has_X = true;
                     break;
@@ -147,11 +147,11 @@ public:
                 }
             }
             if(!has_X){
-                stateGICCoverage[i/FF_GROUPING_SIZE][idx] = true;
+                stateGICCoverage[i/grouping_size][idx] = true;
             }
         }
-        if(stateVars.size() % FF_GROUPING_SIZE != 0) {
-            unsigned int i = stateVars.size() - (stateVars.size() % FF_GROUPING_SIZE);
+        if(stateVars.size() % grouping_size != 0) {
+            unsigned int i = stateVars.size() - (stateVars.size() % grouping_size);
             bool has_X = false;
             unsigned int idx = 0x01;
             for(; i< stateVars.size(); i++){
@@ -166,9 +166,13 @@ public:
                 }
             }
             if(!has_X){
-                stateGICCoverage[i/FF_GROUPING_SIZE][idx] = true;
+                stateGICCoverage[i/grouping_size][idx] = true;
             }
         }
+    }
+
+    void setGICGroupingSize(unsigned int size) {
+	grouping_size = size;
     }
     
     double calculateGIC(){
@@ -198,6 +202,24 @@ public:
         }
         //calculate the state GIC coverage
         return (double) covered / ((double) num_pts);
+    }
+
+    double calculateToggle(){
+	unsigned int num_no_cov = 0;
+	unsigned int num_toggle = 0;
+	for(int i=0; i<allGates.size(); i++){
+	    if((allGates[i]->type() == Gate::INPUT) ||
+               (allGates[i]->type() != Gate::TIE_ONE) ||
+               (allGates[i]->type() != Gate::TIE_ONE) ||
+               (allGates[i]->type() != Gate::TIE_Z) ||
+               (allGates[i]->type() != Gate::TIE_X)) 
+	    {
+		num_no_cov++;
+	    } else {
+		num_toggle += allGates[i]->hasToggled(); 
+	    }
+	}
+	return ((double) num_toggle ) / ((double) allGates.size() - num_no_cov);
     }
 };
 

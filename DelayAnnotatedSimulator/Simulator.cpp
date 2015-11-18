@@ -54,7 +54,7 @@ void Simulator::dumpState(std::ostream& out_stream) {
 
 void Simulator::dumpGIC(std::ostream& out_stream){
     for(unsigned int i = 0; i < GIC_log.size(); i++){
-        out_stream << GIC_log[i] << std::endl;
+        out_stream << GIC_log[i] << "," << Toggle_log[i] << std::endl;
     }
 }
 /****************************************************************************
@@ -107,6 +107,7 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
         gate_to_eval = eventwheel->getNextScheduled();
     }
     GIC_log.push_back(circuit->calculateGIC());
+    Toggle_log.push_back(circuit->calculateToggle());
 }
 
 

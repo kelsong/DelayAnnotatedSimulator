@@ -78,13 +78,11 @@ protected:
     Fault * assoc_faults[NUM_FAULT_INJECT];
     bool valid[NUM_FAULT_INJECT];
     
-    
+    bool toggled_up = false;
+    bool toggled_down = false;
     //meta-information from faulty circuit
     static unsigned short fault_round;
-    static unsigned int num_injected;
-    
-    
-    
+    static unsigned int num_injected; 
     
 public:
     bool calc_GIC;
@@ -247,6 +245,9 @@ public:
         return GIC_coverage.size();
     }
     
+    inline bool hasToggled() {
+	return (toggled_up && toggled_down);
+    }
     //dynamic cast methods for Flip Flops and Inputs
     InputGate* castInput();
     OutputGate* castOutput();
