@@ -76,10 +76,10 @@ void AndGate::evaluate() {
     output = val;
     dirty = (output != previous);
     if((previous == LogicValue::ZERO) && (output == LogicValue::ONE)) {
-	toggled_up = true;
+        toggled_up = true;
     }
     if((previous == LogicValue::ONE) && (output == LogicValue::ZERO)) {
-	toggled_down = true;
+        toggled_down = true;
     }
     setGIC();
 }
@@ -122,10 +122,10 @@ void NandGate::evaluate() {
     output = ~val;
     dirty = (output != previous);
     if((previous == LogicValue::ZERO) && (output == LogicValue::ONE)) {
-	toggled_up = true;
+        toggled_up = true;
     }
     if((previous == LogicValue::ONE) && (output == LogicValue::ZERO)) {
-	toggled_down = true;
+        toggled_down = true;
     }
     setGIC();
 }
@@ -167,10 +167,10 @@ void OrGate::evaluate() {
     output = val;
     dirty = (output != previous);
     if((previous == LogicValue::ZERO) && (output == LogicValue::ONE)) {
-	toggled_up = true;
+        toggled_up = true;
     }
     if((previous == LogicValue::ONE) && (output == LogicValue::ZERO)) {
-	toggled_down = true;
+        toggled_down = true;
     }
     setGIC();
 }
@@ -212,10 +212,10 @@ void NorGate::evaluate() {
     output = ~val;
     dirty = (output != previous);
     if((previous == LogicValue::ZERO) && (output == LogicValue::ONE)) {
-	toggled_up = true;
+        toggled_up = true;
     }
     if((previous == LogicValue::ONE) && (output == LogicValue::ZERO)) {
-	toggled_down = true;
+        toggled_down = true;
     }
     setGIC();
 }
@@ -258,10 +258,10 @@ void XorGate::evaluate() {
     output = val;
     dirty = (output != previous);
     if((previous == LogicValue::ZERO) && (output == LogicValue::ONE)) {
-	toggled_up = true;
+        toggled_up = true;
     }
     if((previous == LogicValue::ONE) && (output == LogicValue::ZERO)) {
-	toggled_down = true;
+        toggled_down = true;
     }
     setGIC();
 }
@@ -303,10 +303,10 @@ void XnorGate::evaluate() {
     output = ~val;
     dirty = (output != previous);
     if((previous == LogicValue::ZERO) && (output == LogicValue::ONE)) {
-	toggled_up = true;
+        toggled_up = true;
     }
     if((previous == LogicValue::ONE) && (output == LogicValue::ZERO)) {
-	toggled_down = true;
+        toggled_down = true;
     }
     setGIC();
 }
@@ -343,10 +343,10 @@ void NotGate::evaluate() {
     output = ~(fanin[0]->getOut());
     dirty = (output != previous);
     if((previous == LogicValue::ZERO) && (output == LogicValue::ONE)) {
-	toggled_up = true;
+        toggled_up = true;
     }
     if((previous == LogicValue::ONE) && (output == LogicValue::ZERO)) {
-	toggled_down = true;
+        toggled_down = true;
     }
     setGIC();
 }
@@ -381,10 +381,10 @@ void BufGate::evaluate() {
     output = fanin[0]->getOut();
     dirty = (output != previous);
     if((previous == LogicValue::ZERO) && (output == LogicValue::ONE)) {
-	toggled_up = true;
+        toggled_up = true;
     }
     if((previous == LogicValue::ONE) && (output == LogicValue::ZERO)) {
-	toggled_down = true;
+        toggled_down = true;
     }
     setGIC();
 }
@@ -421,10 +421,10 @@ void OutputGate::evaluate() {
     
     dirty = (output != previous);
     if((previous == LogicValue::ZERO) && (output == LogicValue::ONE)) {
-	toggled_up = true;
+        toggled_up = true;
     }
     if((previous == LogicValue::ONE) && (output == LogicValue::ZERO)) {
-	toggled_down = true;
+        toggled_down = true;
     }
 }
 
@@ -530,10 +530,10 @@ void DffGate::evaluate() {
     output = fanin[0]->getOut();
     dirty = (output != previous);
     if((previous == LogicValue::ZERO) && (output == LogicValue::ONE)) {
-	toggled_up = true;
+        toggled_up = true;
     }
     if((previous == LogicValue::ONE) && (output == LogicValue::ZERO)) {
-	toggled_down = true;
+        toggled_down = true;
     }
 }
 

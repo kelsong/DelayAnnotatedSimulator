@@ -65,7 +65,7 @@ public:
         return simulator_type;
     }
     inline unsigned int getGroupingSize() const {
-	return grouping_size;
+        return grouping_size;
     }
     inline bool isOutputState() const {
         return outputState;

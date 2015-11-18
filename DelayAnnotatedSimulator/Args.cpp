@@ -62,7 +62,7 @@ void Args::readArgs(int argc, const char * argv[] ) {
         } else if(arg.compare("-wstate") == 0) {
             outputState = true;
         } else if(arg.compare("-grp") == 0) {
-	    std::stringstream ss(argv[++i]);
+            std::stringstream ss(argv[++i]);
             ss >> grouping_size;
         } else {
             std::cerr << "USAGE: " << std::endl;

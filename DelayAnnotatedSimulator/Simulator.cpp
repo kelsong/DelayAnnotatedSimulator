@@ -84,7 +84,7 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
 
     Gate * gate_to_eval = eventwheel->getNextScheduled();
     while (gate_to_eval != NULL) {
-        if(circuit->global_reset->getOut() == LogicValue::ZERO){
+        if(circuit->global_reset->getOut() == LogicValue::ONE){
             gate_to_eval->calc_GIC = false;
         } else {
             gate_to_eval->calc_GIC = true;
@@ -128,7 +128,7 @@ void LogicDelaySimulator::simCycle(const std::vector<char> & input) {
             exit(-1);
         }
     }
-
+    if(cycle_id % 500 == 0) std::cerr << cycle_id <<std::endl;
     //always schedule all state vars (there are some optimizations possible, but this is easiest for now)
     for(unsigned int i = 0; i<circuit->getNumStateVar(); i++) {
         //inject X_ids

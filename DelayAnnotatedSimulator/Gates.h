@@ -103,7 +103,11 @@ public:
     
     void createGIC(){
         unsigned int num_gic = 0x01;
-        for(int i = 0; i<fanin.size(); i++) {num_gic = num_gic << 1; }
+        for(int i = 0; i<fanin.size(); i++) {
+            if(fanin[i]->type() != TIE_ZERO && fanin[i]->type() != TIE_ONE) {
+                num_gic = num_gic << 1;
+            }
+        }
         GIC_coverage.resize(num_gic);
         for(int i = 0; i<GIC_coverage.size(); i++){
             GIC_coverage[i] = false;
@@ -217,6 +221,7 @@ public:
         if(!calc_GIC) return;
         unsigned int idx = 0;
         for(unsigned int i = 0; i < fanin.size(); i++){
+            if(fanin[i]->type() == TIE_ZERO || fanin[i]->type() == TIE_ONE) continue;
             if(fanin[i]->getOut() == LogicValue::X || fanin[i]->getOut() == LogicValue::Z){
                 return;
             } else {
@@ -246,7 +251,15 @@ public:
     }
     
     inline bool hasToggled() {
-	return (toggled_up && toggled_down);
+        return (toggled_up && toggled_down);
+    }
+    
+    inline bool toggledUp() {
+        return toggled_up;
+    }
+    
+    inline bool toggledDown() {
+        return toggled_down;
     }
     //dynamic cast methods for Flip Flops and Inputs
     InputGate* castInput();

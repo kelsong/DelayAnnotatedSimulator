@@ -34,12 +34,13 @@
 #include <sstream>
 #include <regex>
 #include <set>
+#include <cassert>
 
 #include "Gates.h"
 #include "Fault.h"
 #include "Type.h"
 
-#define FF_GROUPING_SIZE 5
+#define FF_GROUPING_SIZE_DEFAULT 5
 //Circuit Class
 
 class Circuit {
@@ -53,7 +54,7 @@ private:
     std::map<Gate::GateType, unsigned int> gate_delays;
     unsigned int num_levels;
     unsigned int max_delay;
-    unsigned int grouping_size = 5;
+    unsigned int grouping_size;
 
     std::vector<std::vector<bool> > stateGICCoverage;
     
@@ -64,7 +65,8 @@ private:
 
 public:
     Gate* global_reset;
-    Circuit(std::string filename, bool delay, bool fault) {
+    Circuit(std::string filename, bool delay, bool fault, unsigned int grouping_size = FF_GROUPING_SIZE_DEFAULT)
+    : grouping_size(grouping_size) {
         if(delay) readDelay(filename + ".dly"); //KEEP
         if(fault) readFaultList(filename + ".eqf");
         readLev(filename + ".lev", delay);
@@ -131,11 +133,11 @@ public:
     void printFaults();
     
     void setStateGIC(){
-        for(unsigned int i = 0; i<stateVars.size(); i += grouping_size){
-            unsigned int idx = 0x01;
+        for(unsigned int i = 0; i<(stateVars.size()/grouping_size); i++){
+            unsigned int idx = 0x00;
             bool has_X = false;
-            for(unsigned int j = 0; j<grouping_size; i++){
-                if(stateVars[i+j]->getOut() == LogicValue::X){
+            for(unsigned int j = 0; j<grouping_size ; j++){
+                if(stateVars[(i*grouping_size)+j]->getOut() == LogicValue::X){
                     has_X = true;
                     break;
                 }
@@ -147,14 +149,14 @@ public:
                 }
             }
             if(!has_X){
-                stateGICCoverage[i/grouping_size][idx] = true;
+                stateGICCoverage[i][idx] = true;
             }
         }
-        if(stateVars.size() % grouping_size != 0) {
+        if((stateVars.size() % grouping_size) != 0) {
             unsigned int i = stateVars.size() - (stateVars.size() % grouping_size);
             bool has_X = false;
-            unsigned int idx = 0x01;
-            for(; i< stateVars.size(); i++){
+            unsigned int idx = 0x00;
+            for(; i < stateVars.size(); i++){
                 if(stateVars[i]->getOut() == LogicValue::X){
                     has_X = true;
                     break;
@@ -166,13 +168,14 @@ public:
                 }
             }
             if(!has_X){
-                stateGICCoverage[i/grouping_size][idx] = true;
+                stateGICCoverage[stateVars.size()/grouping_size][idx] = true;
             }
         }
     }
 
     void setGICGroupingSize(unsigned int size) {
-	grouping_size = size;
+        assert(grouping_size != 0);
+        grouping_size = size;
     }
     
     double calculateGIC(){
@@ -194,32 +197,34 @@ public:
         
         for(unsigned int i = 0; i < stateGICCoverage.size(); i++){
             num_pts += stateGICCoverage[i].size();
-            for(unsigned int j = 0; j < stateGICCoverage.size(); j++){
+            for(unsigned int j = 0; j < stateGICCoverage[i].size(); j++){
                 if(stateGICCoverage[i][j]){
                     covered++;
                 }
             }
         }
+        //std::cout << "GIC: " << covered << "/" << num_pts << std::endl;
         //calculate the state GIC coverage
         return (double) covered / ((double) num_pts);
     }
 
     double calculateToggle(){
-	unsigned int num_no_cov = 0;
-	unsigned int num_toggle = 0;
-	for(int i=0; i<allGates.size(); i++){
-	    if((allGates[i]->type() == Gate::INPUT) ||
-               (allGates[i]->type() != Gate::TIE_ONE) ||
-               (allGates[i]->type() != Gate::TIE_ONE) ||
-               (allGates[i]->type() != Gate::TIE_Z) ||
-               (allGates[i]->type() != Gate::TIE_X)) 
-	    {
-		num_no_cov++;
-	    } else {
-		num_toggle += allGates[i]->hasToggled(); 
-	    }
-	}
-	return ((double) num_toggle ) / ((double) allGates.size() - num_no_cov);
+        unsigned int num_no_cov = 0;
+        unsigned int num_toggle = 0;
+        for(int i=0; i<allGates.size(); i++){
+            if((allGates[i]->type() == Gate::INPUT) ||
+                (allGates[i]->type() == Gate::TIE_ONE) ||
+                (allGates[i]->type() == Gate::TIE_ONE) ||
+                (allGates[i]->type() == Gate::TIE_Z) ||
+                (allGates[i]->type() == Gate::TIE_X))
+            {
+                num_no_cov++;
+            } else {
+                num_toggle += (unsigned int)allGates[i]->toggledUp() + (unsigned int)allGates[i]->toggledDown();
+            }
+        }
+        //std::cerr << "Toggle: " << num_toggle << "/" << (allGates.size() - num_no_cov)*2 << std::endl;
+        return ((double) num_toggle ) / (((double) (allGates.size() - num_no_cov))*2);
     }
 };
 

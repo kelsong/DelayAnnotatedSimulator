@@ -76,6 +76,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "or1200_RAND2000"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "b10rst"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -85,7 +89,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "c17"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-vec"
@@ -93,6 +97,14 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-wpo"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-grp"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "1"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

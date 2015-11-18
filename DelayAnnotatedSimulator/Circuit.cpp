@@ -183,23 +183,20 @@ void Circuit::readLev(std::string filename, bool delay) {
             allGates[dff_inputs[i]-1]->addFanout(stateVars[i]);
         }
         
-        if(stateVars.size() % FF_GROUPING_SIZE == 0){
-            stateGICCoverage.resize(stateVars.size() / FF_GROUPING_SIZE);
+        if(stateVars.size() % grouping_size== 0){
+            stateGICCoverage.resize(stateVars.size() / grouping_size);
         } else {
-            stateGICCoverage.resize((stateVars.size()/ FF_GROUPING_SIZE) + 1);
+            stateGICCoverage.resize((stateVars.size()/ grouping_size) + 1);
         }
         
-        unsigned int count = 0;
-        for(unsigned int i = 0; i<stateVars.size(); i++){
-            count++;
-            if(count == FF_GROUPING_SIZE){
-                std::vector<bool> temp(FF_GROUPING_SIZE, false);
-                stateGICCoverage[i/FF_GROUPING_SIZE] = temp;
-            }
+        for(unsigned int i = 0; i<(stateVars.size()/grouping_size); i++){
+            std::vector<bool> temp(0x01 << grouping_size, false);
+            stateGICCoverage[i] = temp;
+
         }
-        if(stateVars.size() % FF_GROUPING_SIZE != 0){
-            std::vector<bool> temp(stateVars.size() % FF_GROUPING_SIZE, false);
-            stateGICCoverage[stateVars.size()/FF_GROUPING_SIZE + 1] = temp;
+        if(stateVars.size() % grouping_size != 0){
+            std::vector<bool> temp((0x01 << stateVars.size() % grouping_size), false);
+            stateGICCoverage[(stateVars.size()/grouping_size)] = temp;
         }
         
         global_reset = inputs.back();
