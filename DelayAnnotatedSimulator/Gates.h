@@ -85,6 +85,8 @@ protected:
     static unsigned int num_injected; 
     
 public:
+    static bool toggle_relax;
+    
     bool calc_GIC;
     Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) {
         for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;}

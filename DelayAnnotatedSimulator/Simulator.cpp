@@ -84,7 +84,7 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
 
     Gate * gate_to_eval = eventwheel->getNextScheduled();
     while (gate_to_eval != NULL) {
-        if(circuit->global_reset->getOut() == LogicValue::ONE){
+        if(circuit->global_reset->getOut() == LogicValue::ONE || !circuit->gic()){
             gate_to_eval->calc_GIC = false;
         } else {
             gate_to_eval->calc_GIC = true;
@@ -101,13 +101,16 @@ void LogicSimulator::simCycle(const std::vector<char>& input) {
             }
         }
         
-        circuit->setStateGIC();
+        if( circuit->gic() )
+            circuit->setStateGIC();
         //clear dirty and move on
         gate_to_eval->resetDirty();
         gate_to_eval = eventwheel->getNextScheduled();
     }
-    GIC_log.push_back(circuit->calculateGIC());
-    Toggle_log.push_back(circuit->calculateToggle());
+    if( circuit->gic() )
+        GIC_log.push_back(circuit->calculateGIC());
+    if( circuit->isToggle() )
+        Toggle_log.push_back(circuit->calculateToggle());
 }
 
 

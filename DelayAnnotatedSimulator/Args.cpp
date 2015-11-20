@@ -25,20 +25,36 @@
 #include "Args.h"
 
 void Args::readArgs(int argc, const char * argv[] ) {
-    if(argc == 1) {
+    auto printhelp = [](){
         std::cerr << "USAGE: " << std::endl;
-        std::cerr << "(Req.) -ckt <ckt_name> : define circuit name" << std::endl
-                  << "       -vec       : flag for reading input vector from <ckt_name>.vec" <<std::endl
-                  << "                   defaults to stdin" << std::endl
-                  << "       -fsim      : flag for fault simulation"  << std::endl
-                  << "                   defaults to logic simulation" << std::endl
-                  << "       -dly       : reads gate delays from <ckt_name.dly>" << std::endl
-                  << "       -wpo       : output POs" << std::endl
-                  << "       -wstate    : output flip flops" << std::endl
-		  << "       -grp <num> : GIC FF group size" << std::endl;
+        std::cerr << "(Req.) -ckt <ckt_name> : define circuit name\n"
+        << "       -vec       : flag for reading input vector from <ckt_name>.vec\n"
+        << "                   defaults to stdin\n"
+        << "       -fsim      : flag for fault simulation\n"
+        << "                   defaults to logic simulation\n"
+        << "       -dly       : reads gate delays from <ckt_name.dly>\n"
+        << "       -wpo       : output POs\n"
+        << "       -wstate    : output flip flops\n"
+        << "       -cov <options>: a variety of gate level coverage metrics\n"
+        << "Available Coverage Metrics:\n"
+        << "    g: GEX/GIC coverage\n"
+        << "    t: net toggle coverage\n"
+        << "Coverage Specific Arguments: \n"
+        << "  GEX/GIC Coverage: "
+        << "    -exclude <net ids>: exclude nets from the GIC calculation UNIMP\n"
+        << "    -gic_off <list<input, value>>: turns GIC off if the input matches the value UNIMP\n"
+        << "    -grp <int>: Grouping size of flip flips (default 5)\n"
+        << "  Toggle Coverage:\n"
+        << "    -relaxed: only requires 0 and a 1 value (default excludes transistions from X)\n";
         exit(-1);
+    };
+    
+    if(argc == 1) {
+        printhelp();
     }
     //set defaults
+    outputState = false;
+    outputPO = false;
     simulator_type = 0; //logic simulator
     input_source = &std::cin;
     output_source = &std::cout;
@@ -64,6 +80,18 @@ void Args::readArgs(int argc, const char * argv[] ) {
         } else if(arg.compare("-grp") == 0) {
             std::stringstream ss(argv[++i]);
             ss >> grouping_size;
+        } else if(arg.compare("-cov") == 0) {
+            std::string options(argv[++i]);
+            if(options.size() == 0) printhelp();
+            for(int i = 0; i < options.size(); i++){
+                if( options[i] == 'g') {
+                    GIC = true;
+                } else if ( options[i] == 't'){
+                    toggle = true;
+                } else {
+                    printhelp();
+                }
+            }
         } else {
             std::cerr << "USAGE: " << std::endl;
             std::cerr << "(Req.) -ckt <ckt_name>  define circuit name" << std::endl;

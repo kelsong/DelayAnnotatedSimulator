@@ -39,6 +39,7 @@
 #include "Gates.h"
 #include "Fault.h"
 #include "Type.h"
+#include "Args.h"
 
 #define FF_GROUPING_SIZE_DEFAULT 5
 //Circuit Class
@@ -55,22 +56,30 @@ private:
     unsigned int num_levels;
     unsigned int max_delay;
     unsigned int grouping_size;
-
-    std::vector<std::vector<bool> > stateGICCoverage;
     
+    bool GIC = false;
+    std::vector<std::vector<bool> > stateGICCoverage;
 
+    bool toggle = false;
+    bool relaxed = false;
     //fault info
     std::vector<Fault> faultlist;
     unsigned int injected_fault_idx;
 
 public:
     Gate* global_reset;
-    Circuit(std::string filename, bool delay, bool fault, unsigned int grouping_size = FF_GROUPING_SIZE_DEFAULT)
-    : grouping_size(grouping_size) {
+    Circuit(std::string filename, bool delay, bool fault, Args& args)
+    {
+        GIC = args.gic();
+        toggle = args.isToggle();
+        Gate::toggle_relax = args.toggleRelaxed();
+        relaxed = args.toggleRelaxed();
+        grouping_size = args.getGroupingSize();
         if(delay) readDelay(filename + ".dly"); //KEEP
         if(fault) readFaultList(filename + ".eqf");
         readLev(filename + ".lev", delay);
         injected_fault_idx = 0;
+        
     };
 
     ~Circuit();
@@ -130,6 +139,9 @@ public:
         injected_fault_idx = 0;
 
     }
+    inline bool isToggle() { return toggle; }
+    inline bool gic() { return GIC; }
+    
     void printFaults();
     
     void setStateGIC(){

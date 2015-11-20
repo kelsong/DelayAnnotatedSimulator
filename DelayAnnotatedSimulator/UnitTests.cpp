@@ -330,16 +330,6 @@ unsigned int TestDFF() {
     return TEST_PASS;
 }
 
-unsigned int TestCircuit() {
-    Circuit * test = new Circuit("b01rst", true, false);
-    if(test->numFaults() != 135) {
-        std::cerr << "NUM FAULTS: " << test->numFaults() << std::endl;
-        test->printFaults();
-        return TEST_FAIL;
-    }
-    return TEST_PASS;
-}
-
 /*int main(){
   std::cerr << TestAnd() << std::endl;
   std::cerr << TestNand() << std::endl;

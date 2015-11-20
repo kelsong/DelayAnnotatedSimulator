@@ -28,8 +28,10 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 #include <fstream>
 #include <sstream>
+#include "set"
 
 class Args {
 private:
@@ -38,9 +40,17 @@ private:
     std::istream* input_source;
     std::ostream* output_source;
     unsigned int simulator_type;
-    unsigned int grouping_size;
     bool outputState;
     bool outputPO;
+    
+    bool GIC = false;
+    unsigned int grouping_size = 5; //default
+    std::set<unsigned int> ONE_GIC_triggers;
+    std::set<unsigned int> ZERO_GIC_triggers;
+    std::set<unsigned int> GIC_no_calc;
+    bool toggle = false;
+    bool relaxed = false;
+    
 public:
     //getter/setters
     inline void setCircuitName(std::string name) {
@@ -64,14 +74,24 @@ public:
     inline unsigned int getSimulatorType() const {
         return simulator_type;
     }
-    inline unsigned int getGroupingSize() const {
-        return grouping_size;
-    }
+    
     inline bool isOutputState() const {
         return outputState;
     }
     inline bool isOutputPO() const {
         return outputPO;
+    }
+    inline bool gic() const {
+        return GIC;
+    }
+    inline unsigned int getGroupingSize() const {
+        return grouping_size;
+    }
+    inline bool isToggle() {
+        return toggle;
+    }
+    inline bool toggleRelaxed(){
+        return relaxed;
     }
 
     void readArgs(int argc, const char* argv[]);
