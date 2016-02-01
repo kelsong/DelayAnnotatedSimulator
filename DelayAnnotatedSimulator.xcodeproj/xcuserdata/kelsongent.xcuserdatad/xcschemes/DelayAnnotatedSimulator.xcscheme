@@ -73,11 +73,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "b12rst"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "or1200_RAND2000"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "b10rst"
@@ -101,11 +101,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-grp"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "10"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>

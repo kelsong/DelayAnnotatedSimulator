@@ -19,6 +19,6 @@ void Fault::injectState(std::vector<Gate*> & injected){
     }
 }
 
-    void Fault::storeState(Gate * gate, LogicValue val){
+void Fault::storeState(Gate * gate, LogicValue val){
     stateStore.push(gate, val);
 }

@@ -25,7 +25,9 @@
 #ifndef DelayAnnotatedSimulator_Type_h
 #define DelayAnnotatedSimulator_Type_h
 
-#define NUM_FAULT_INJECT 16
+#define NUM_FAULT_INJECT 64
+#define ALL_ONES 0xFFFFFFFFFFFFFFFF
+#define ALL_ZERO 0
 
 #include <algorithm>
 #include <iostream>
@@ -109,6 +111,127 @@ inline LogicValue& LogicValue::operator|= (LogicValue rhs) {
     return *this;
 }
 inline LogicValue& LogicValue::operator^= (LogicValue rhs) {
+    *this = *this ^ rhs;
+    return *this;
+}
+
+class FaultValue {
+private:
+    unsigned long fval1; //packed 2 bit representation up to 64 injections
+    unsigned long fval2;
+public:
+    FaultValue() : fval1(ALL_ZERO), fval2(ALL_ZERO) {}
+    FaultValue(unsigned long fval1, unsigned long fval2) : fval1(fval1), fval2(fval2) {}
+    FaultValue(const FaultValue& copy){
+        fval2 = copy.fval2;
+        fval1 = copy.fval1;
+    }
+
+    FaultValue& operator= (FaultValue rhs){
+        this->fval1 = rhs.fval1;
+        return *this;
+    }
+    
+    inline void setAllLogicValue(LogicValue value) {
+        fval1 = (value == LogicValue::X || value == LogicValue::ZERO ) ? ALL_ZERO : ALL_ONES;
+        fval2 = (value == LogicValue::Z || value == LogicValue::ZERO ) ? ALL_ZERO : ALL_ONES;
+    }
+    
+    inline bool compareLogicVal(LogicValue value) { //true if
+        switch(value) {
+            case LogicValue::ZERO:
+                return (fval1 == ALL_ZERO && fval2 == ALL_ZERO);
+                break;
+            case LogicValue::X:
+                return (fval1 == ALL_ZERO && fval2 == ALL_ONES);
+                break;
+            case LogicValue::Z:
+                return (fval1 == ALL_ONES && fval2 == ALL_ZERO);
+                break;
+            case LogicValue::ONE:
+                return (fval1 == ALL_ONES && fval2 == ALL_ONES);
+                break;
+        }
+    }
+    
+    LogicValue getFaultyVal(unsigned int idx) {
+        if(idx >= NUM_FAULT_INJECT){ std::cerr << "ERROR: invalid fault set\n"; exit(700); }
+        
+        unsigned long mask = 0x1 << idx;
+        unsigned long val1 = fval1 & mask;
+        unsigned long val2 = fval2 & mask;
+        if(val1 == val2) {
+            return (val1 == 0) ? LogicValue::ZERO: LogicValue::ONE;
+        } else {
+            return (val1 == 0) ? LogicValue::X: LogicValue::Z;
+        }
+    }
+    
+    inline void setValue(LogicValue value, unsigned int idx) {
+        if(idx > NUM_FAULT_INJECT) { std::cerr << "ERROR: invalid fault set\n"; exit(700); }
+        unsigned long mask = 0x1;
+        switch (value) {
+            case LogicValue::ZERO:
+                mask = ~(mask << idx);
+                fval1 &= mask; //set individual bits to zero
+                fval2 &= mask;
+                break;
+            case LogicValue::X:
+                mask = mask << idx;
+                fval2 |= mask;
+                mask = ~mask;
+                fval1 &= mask;
+                break;
+            case LogicValue::Z:
+                mask = mask << idx;
+                fval1 |= mask;
+                mask = ~mask;
+                fval2 &= mask;
+                break;
+            case LogicValue::ONE:
+                mask = mask << idx;
+                fval1 |= mask;
+                fval2 |= mask;
+                break;
+        }
+    }
+    
+    inline FaultValue operator& (FaultValue rhs) {
+        return FaultValue((this->fval1 & rhs.fval1), (this->fval2 & rhs.fval2));
+    }
+    
+    inline FaultValue operator| (FaultValue rhs) {
+        return FaultValue((this->fval1 | rhs.fval1), (this->fval2 | rhs.fval2));
+    }
+    
+    inline FaultValue operator^ (FaultValue rhs) {
+        unsigned long val1 = (rhs.fval1 & this->fval1 & (~rhs.fval2) & (~this->fval2)) |
+                             ((~rhs.fval1) & (~this->fval1) & rhs.fval2 & this->fval2);
+        unsigned long val2 = ~((rhs.fval1 & this->fval1 & rhs.fval2 & this->fval2) |
+                               (~rhs.fval1 & ~this->fval1 & ~rhs.fval2 & ~this->fval2));
+        return FaultValue(val1, val2);
+    }
+    
+    inline FaultValue operator~ () {
+        unsigned long val1 = ~fval2;
+        unsigned long val2 = ~fval1;
+        return FaultValue(val1, val2);
+    }
+    
+    FaultValue& operator&= (FaultValue rhs);
+    FaultValue& operator|= (FaultValue rhs);
+    FaultValue& operator^= (FaultValue rhs);
+};
+
+inline FaultValue& FaultValue::operator&= (FaultValue rhs) {
+    *this = *this & rhs;
+    return *this;
+}
+inline FaultValue& FaultValue::operator|= (FaultValue rhs) {
+    *this = *this | rhs;
+    return *this;
+}
+inline FaultValue& FaultValue::operator^= (FaultValue rhs) {
     *this = *this ^ rhs;
     return *this;
 }

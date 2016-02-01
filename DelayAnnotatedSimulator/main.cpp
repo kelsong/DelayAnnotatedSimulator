@@ -36,11 +36,10 @@ int main(int argc, const char * argv[]) {
     // insert code here...
     Args args;
     args.readArgs(argc, argv);
-    Circuit * circuit = new Circuit(args.getCircuitName(), false, false, args);
-    LogicSimulator * simulator = new LogicSimulator(circuit);
+    Circuit * circuit = new Circuit(args.getCircuitName(), false, true, args);
+    FaultSimulator * simulator = new FaultSimulator(circuit);
     InputVector test_vector(args.getInputSource());
     //std::fstream fault_out(args.getCircuitName() + "_fault.csv", std::fstream::out);
-    unsigned int vec_num = 0;
     while(!test_vector.isDone()) {
         std::vector<char> vec = test_vector.getNext();
         if(test_vector.isDone())

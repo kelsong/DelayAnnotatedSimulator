@@ -36,6 +36,33 @@ void Circuit::readLev(std::string filename, bool delay) {
         ss >> num_gates;
         num_gates--;
         std::getline(circuit_desc, line); //throw away line
+        unsigned int total_wires;
+        //get the total number of fanouts
+        for(unsigned int i = 0; i < num_gates; i++) {
+            std::getline(circuit_desc, line);
+            std::stringstream gate_info(line);
+            
+            // Gate characteristics
+            unsigned int id;
+            unsigned int level;
+            unsigned int type;
+            unsigned int num_fanin;
+            unsigned int num_fanout;
+            
+            gate_info >> id;
+            gate_info >> type;
+            gate_info >> level;
+            gate_info >> num_fanin;
+            for(unsigned int j = 0; j < num_fanin; j++) {
+                unsigned int tmp;
+                gate_info >> tmp;
+            }
+            gate_info >> num_fanout;
+        }
+        
+        circuit_desc.close();
+        circuit_desc.open(filename.c_str(), std::fstream::in);
+        
         for(unsigned int i = 0; i < num_gates; i++) {
             std::getline(circuit_desc, line);
             std::stringstream gate_info(line);

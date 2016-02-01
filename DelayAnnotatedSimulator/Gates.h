@@ -32,73 +32,113 @@
 #include <map>
 #include "Fault.h"
 
+class Gate;
 class InputGate;
 class OutputGate;
 class DffGate;
 
-//Polymorphic "gate" type. Evaluate is a hot function.
-class Gate {
-public:
-    enum GateType { //good for now, can expand later
-        NONE = 0,
-        INPUT,
-        OUTPUT,
-        AND,
-        NAND,
-        OR,
-        NOR,
-        NOT,
-        XOR,
-        XNOR,
-        TIE_ZERO,
-        TIE_ONE,
-        TIE_X,
-        TIE_Z,
-        BUF,
-        MUX_2,
-        TRISTATE,
-        D_FF
-    };
+enum class GateType { //good for now, can expand later
+    NONE = 0,
+    INPUT,
+    OUTPUT,
+    AND,
+    NAND,
+    OR,
+    NOR,
+    NOT,
+    XOR,
+    XNOR,
+    TIE_ZERO,
+    TIE_ONE,
+    TIE_X,
+    TIE_Z,
+    BUF,
+    MUX_2,
+    TRISTATE,
+    D_FF
+};
 
+class GateStore {
+    friend Gate;
+private:
+    std::unique_ptr<LogicValue[]> goodVal;
+    std::unique_ptr<LogicValue[]> faultVal;
+    std::unique_ptr<unsigned int[]> delay;
+    std::unique_ptr<Gate*[]> fanins;
+    std::unique_ptr<Gate*[]> fanouts;
+    std::unique_ptr<uint32_t[]> GIC_coverage_flags; //up to 5 input gates supported.
+    std::unique_ptr<char[]> toggle_up;
+    std::unique_ptr<char[]> toggle_down;
+    
+    //active fault lists
+    
+public:
+    //no default constructor
+    GateStore(unsigned int num_gates, unsigned int num_fanouts) {
+        goodVal = std::move( std::unique_ptr<LogicValue[]>(new LogicValue[num_gates]) );
+        faultVal = std::move( std::unique_ptr<LogicValue[]>(new LogicValue[num_gates]) );
+        delay = std::move( std::unique_ptr<unsigned int[]>(new unsigned int[num_gates]) );
+        fanins = std::move( std::unique_ptr<Gate*[]>(new Gate*[num_fanouts]) );
+        fanouts = std::move( std::unique_ptr<Gate*[]>(new Gate*[num_fanouts]) );
+        GIC_coverage_flags = std::move( std::unique_ptr<uint32_t[]>(new uint32_t[num_gates]) );
+        toggle_up = std::move( std::unique_ptr<char[]>(new char[num_gates]) );
+        toggle_down = std::move( std::unique_ptr<char[]>(new char[num_gates]) );
+    }
+    
+    //can't be copied
+    GateStore(const GateStore&) = delete;
+    GateStore& operator=(const GateStore&) = delete;
+    
+    //can be moved
+    GateStore(GateStore&& rhs) {
+        goodVal = std::move(rhs.goodVal);
+        faultVal = std::move(rhs.faultVal);
+        fanins = std::move(rhs.fanins);
+        fanouts = std::move(rhs.fanouts);
+        GIC_coverage_flags = std::move(rhs.GIC_coverage_flags);
+        toggle_up = std::move(rhs.toggle_up);
+        toggle_down = std::move(rhs.toggle_down);
+    }
+    
+    GateStore& operator=(GateStore&& rhs) {
+        goodVal = std::move(rhs.goodVal);
+        faultVal = std::move(rhs.faultVal);
+        delay = std::move(rhs.delay);
+        fanins = std::move(rhs.fanins);
+        fanouts = std::move(rhs.fanouts);
+        GIC_coverage_flags = std::move(rhs.GIC_coverage_flags);
+        toggle_up = std::move(rhs.toggle_up);
+        toggle_down = std::move(rhs.toggle_down);
+        return *this;
+    }
+    
+    ~GateStore() {
+    }
+};
+
+//Polymorphic "gate" type. Evaluate is a hot function.
+//change this to be more cache friendly.
+class Gate {
 protected:
+    GateStore* gateStore;
     unsigned int gate_id;
-    enum GateType m_type;
-    LogicValue output;
-    std::vector<Gate *> fanin;
-    std::vector<Gate *> fanout;
-    bool dirty; //output changed during eval;
+    unsigned int fanin_idx;
+    unsigned int fanout_idx;
     unsigned int levelnum;
-    unsigned int delay;  //nanoseconds KEEP
-    bool scheduled;
-    
-    std::vector<bool> GIC_coverage;
-    //faulty gate information
-    bool propagates;
-    LogicValue f_vals[NUM_FAULT_INJECT];
-    Fault * assoc_faults[NUM_FAULT_INJECT];
-    bool valid[NUM_FAULT_INJECT];
-    
-    bool toggled_up = false;
-    bool toggled_down = false;
-    //meta-information from faulty circuit
-    static unsigned short fault_round;
-    static unsigned int num_injected; 
+    unsigned int delay;
+    uint8_t num_fanin;
+    uint8_t num_fanout;
     
 public:
     static bool toggle_relax;
-    
     bool calc_GIC;
-    Gate(unsigned int idx) : gate_id(idx), output(LogicValue::X) {
-        for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;}
-        
-    }
-    Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), m_type (type), output(LogicValue::X), levelnum(level), scheduled(false) {
-        for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;}
-    }
-    Gate(unsigned int idx, std::vector<Gate *> fin, std::vector<Gate *> fout, GateType type)
-        : gate_id(idx), m_type(type), output(LogicValue::X),  fanin(fin), fanout(fout) {
-            for(int i = 0; i < NUM_FAULT_INJECT; i++) {valid[i] = false;}
-        }
+    
+    Gate(unsigned int idx) : gate_id(idx) {}
+    
+    Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), levelnum(level) {}
+    
+    Gate(unsigned int idx, std::vector<Gate *> fin, std::vector<Gate *> fout, GateType type) {}
+    
     virtual ~Gate() { }
     
     virtual void evaluate(); //eval and schedule if transition
@@ -106,28 +146,22 @@ public:
     void createGIC(){
         unsigned int num_gic = 0x01;
         for(int i = 0; i<fanin.size(); i++) {
-            if(fanin[i]->type() != TIE_ZERO && fanin[i]->type() != TIE_ONE) {
-                num_gic = num_gic << 1;
-            }
         }
         GIC_coverage.resize(num_gic);
         for(int i = 0; i<GIC_coverage.size(); i++){
             GIC_coverage[i] = false;
         }
     }
+    
     bool isDirty() {
         return dirty;
     }
     void resetDirty() {
         dirty = false;
     }
-    GateType type() {
-        return m_type;
-    }
     virtual Gate* clone() {
         return new Gate(*this);
     }
-
 
     inline LogicValue getOut() {
         return output;
@@ -142,11 +176,11 @@ public:
     inline void addFanout(Gate * gate) {
         fanout.push_back(gate);
     }
-    inline void setFanin(std::vector<Gate *>& set_fanin) {
-        fanin = set_fanin;
+    inline void setFanin(std::vector<Gate *> set_fanin) {
+        fanin = std::move(set_fanin);
     }
     inline void setFanout(std::vector<Gate *>& set_fanout) {
-        fanout = set_fanout;
+        fanout = std::move(set_fanout);
     }
     inline size_t getNumFanin() {
         return fanin.size();

@@ -46,26 +46,24 @@
 
 class Circuit {
 private:
+    GateStore* gate_info;
     //define references for cleanup, set up and simulations
-    std::vector<Gate*> allGates;
-    std::vector<Gate*> inputs;
-    std::vector<Gate*> stateVars;
-    std::vector<Gate*> outputs;
-    std::vector<Gate*> logicGates;
+    std::vector<Gate> allGates;
+    std::vector<Gate> inputs;
+    std::vector<Gate> stateVars;
+    std::vector<Gate> outputs;
+    std::vector<Gate> logicGates;
     std::map<Gate::GateType, unsigned int> gate_delays;
     unsigned int num_levels;
     unsigned int max_delay;
     unsigned int grouping_size;
-    
     bool GIC = false;
     std::vector<std::vector<bool> > stateGICCoverage;
-
     bool toggle = false;
     bool relaxed = false;
     //fault info
     std::vector<Fault> faultlist;
     unsigned int injected_fault_idx;
-
 public:
     Gate* global_reset;
     Circuit(std::string filename, bool delay, bool fault, Args& args)
@@ -75,29 +73,28 @@ public:
         Gate::toggle_relax = args.toggleRelaxed();
         relaxed = args.toggleRelaxed();
         grouping_size = args.getGroupingSize();
-        if(delay) readDelay(filename + ".dly"); //KEEP
+        if(delay) readDelay(filename + ".dly");
         if(fault) readFaultList(filename + ".eqf");
         readLev(filename + ".lev", delay);
         injected_fault_idx = 0;
-        
     };
 
     ~Circuit();
 
-    void readLev(std::string filename, bool delay); //KEEP
+    void readLev(std::string filename, bool delay);
     void readFaultList(std::string filename);
-    void readDelay(std::string filename); //KEEP
+    void readDelay(std::string filename);
 
-    std::vector<Gate*> getInputs() {
+    const std::vector<Gate>& getInputs() {
         return inputs;
     }
     InputGate * getInput(unsigned int idx) {
-        return inputs[idx]->castInput();   //in lev format gate id starts at 1
+        return inputs[idx].castInput();   //in lev format gate id starts at 1
     }
-    std::vector<Gate*> getStateVars() {
+    const std::vector<Gate>& getStateVars() {
         return stateVars;
     }
-    std::vector<Gate*> getOutputs() {
+    const std::vector<Gate>& getOutputs() {
         return outputs;
     }
     inline unsigned int getNumLevels() {
@@ -116,13 +113,13 @@ public:
         return allGates.size();
     }
     inline Gate* getStateVar(unsigned int idx) {
-        return ((idx < stateVars.size()) ? stateVars[idx] : NULL);
+        return ((idx < stateVars.size()) ? &stateVars[idx] : NULL);
     }
     inline Gate* getOutput(unsigned int idx) {
-        return ((idx < outputs.size()) ? outputs[idx] : NULL);
+        return ((idx < outputs.size()) ? &outputs[idx] : NULL);
     }
     inline Gate* getGateById(unsigned int gate_id) {
-        return ((gate_id <= allGates.size() && gate_id > 0) ?  allGates[gate_id-1] : NULL);
+        return ((gate_id <= allGates.size() && gate_id > 0) ?  &allGates[gate_id-1] : NULL);
     }
     inline unsigned int getMaxDelay() {
         return max_delay;

@@ -41,7 +41,7 @@ protected:
     //for now no delay annotation, just logic simulator
     //list of scheduled events
     std::vector< std::queue<Gate *, std::deque<Gate*> > > scheduled_events;
-    std::set<Gate *> scheduled_set;
+    std::unordered_set<Gate *> scheduled_set;
     unsigned int current_event_queue;
 
 public:
