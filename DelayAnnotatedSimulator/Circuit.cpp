@@ -33,6 +33,8 @@ void Circuit::readLev(std::string filename, bool delay) {
         std::vector<unsigned int> dff_inputs;
         
         unsigned int num_gates;
+        unsigned int total_fanin;
+        unsigned int total_fanin;
         ss >> num_gates;
         num_gates--;
         std::getline(circuit_desc, line); //throw away line

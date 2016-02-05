@@ -64,13 +64,14 @@ private:
     //fault info
     std::vector<Fault> faultlist;
     unsigned int injected_fault_idx;
+    
 public:
     Gate* global_reset;
     Circuit(std::string filename, bool delay, bool fault, Args& args)
     {
         GIC = args.gic();
         toggle = args.isToggle();
-        Gate::toggle_relax = args.toggleRelaxed();
+        Gate::coverageFlags = (args.toggleRelaxed() << 1) + GIC;
         relaxed = args.toggleRelaxed();
         grouping_size = args.getGroupingSize();
         if(delay) readDelay(filename + ".dly");
@@ -84,58 +85,27 @@ public:
     void readLev(std::string filename, bool delay);
     void readFaultList(std::string filename);
     void readDelay(std::string filename);
-
-    const std::vector<Gate>& getInputs() {
-        return inputs;
-    }
-    InputGate * getInput(unsigned int idx) {
-        return inputs[idx].castInput();   //in lev format gate id starts at 1
-    }
-    const std::vector<Gate>& getStateVars() {
-        return stateVars;
-    }
-    const std::vector<Gate>& getOutputs() {
-        return outputs;
-    }
-    inline unsigned int getNumLevels() {
-        return num_levels;
-    }
-    inline size_t getNumInput() {
-        return inputs.size();
-    }
-    inline size_t getNumOutput() {
-        return outputs.size();
-    }
-    inline size_t getNumStateVar() {
-        return stateVars.size();
-    }
-    inline size_t getNumGates() {
-        return allGates.size();
-    }
-    inline Gate* getStateVar(unsigned int idx) {
-        return ((idx < stateVars.size()) ? &stateVars[idx] : NULL);
-    }
-    inline Gate* getOutput(unsigned int idx) {
-        return ((idx < outputs.size()) ? &outputs[idx] : NULL);
-    }
-    inline Gate* getGateById(unsigned int gate_id) {
-        return ((gate_id <= allGates.size() && gate_id > 0) ?  &allGates[gate_id-1] : NULL);
-    }
-    inline unsigned int getMaxDelay() {
-        return max_delay;
-    }
+    
+    const std::vector<Gate>& getInputs() { return inputs; }
+    InputGate * getInput(unsigned int idx) { return inputs[idx].castInput();}  //in lev format gate id starts at 1
+    const std::vector<Gate>& getStateVars() { return stateVars; }
+    const std::vector<Gate>& getOutputs() { return outputs; }
+    inline unsigned int getNumLevels() { return num_levels; }
+    inline size_t getNumInput() { return inputs.size(); }
+    inline size_t getNumOutput() { return outputs.size(); }
+    inline size_t getNumStateVar() { return stateVars.size(); }
+    inline size_t getNumGates() { return allGates.size(); }
+    inline Gate* getStateVar(unsigned int idx) { return ((idx < stateVars.size()) ? &stateVars[idx] : NULL); }
+    inline Gate* getOutput(unsigned int idx) { return ((idx < outputs.size()) ? &outputs[idx] : NULL); }
+    inline Gate* getGateById(unsigned int gate_id) { return ((gate_id <= allGates.size() && gate_id > 0) ?  &allGates[gate_id-1] : NULL); }
+    inline unsigned int getMaxDelay() { return max_delay; }
     
     //this can be used to aid in limiting memory footprint
     void injectFaults(std::vector<Gate*>&);
-    void invalidateFaultArrays();
     double calculateFaultCov() const;
-    inline size_t numFaults() {
-        return faultlist.size();
-    }
-    inline void resetInjection() {
-        injected_fault_idx = 0;
-
-    }
+    
+    inline size_t numFaults() { return faultlist.size(); }
+    inline void resetInjection() { injected_fault_idx = 0; }
     inline bool isToggle() { return toggle; }
     inline bool gic() { return GIC; }
     

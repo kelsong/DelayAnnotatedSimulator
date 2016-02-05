@@ -25,42 +25,20 @@ THE SOFTWARE.
 #include "Gates.h"
 #include <iostream>
 
-unsigned short Gate::fault_round = 0;
-unsigned int Gate::num_injected = 0;
-
-bool Gate::toggle_relax = false;
+uint8_t Gate::coverageFlags = 0;
+GateStore* Gate::gate_store = nullptr;
 
 /********************************************************/
 // GATE
 /********************************************************/
 
 void Gate::evaluate() {
-    output = LogicValue::X;
-}
-
-const std::vector<Gate*>& Gate::getFanin() {
-    return fanin;
-}
-
-const std::vector<Gate*>& Gate::getFanout() {
-    return fanout;
+    gate_store->goodVal[gate_id] = LogicValue::X;
 }
 
 //diverges and creates faulty copies for all fanouts.
 inline void Gate::diverge(Fault* flt) {
-    for(unsigned int i = 0; i<fanout.size(); i++){
-        if(fanout[i]->type() != Gate::D_FF){
-            fanout[i]->addFault(flt);
-        } else {
-            flt->storeState(fanout[i], f_vals[flt->getFID() % NUM_FAULT_INJECT]);
-        }
-    }
-}
 
-void Gate::clearFaultValid(){
-    for(int i = 0; i < NUM_FAULT_INJECT; i++){
-        valid[i] = false;
-    }
 }
 
 /********************************************************/

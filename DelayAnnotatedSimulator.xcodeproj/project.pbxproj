@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9B1EE5401AF3129200D4C053 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B1EE53F1AF3129200D4C053 /* main.cpp */; };
-		9B3DCC0E1BB8DF40007D947B /* Fault.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B3DCC0D1BB8DF40007D947B /* Fault.cpp */; settings = {ASSET_TAGS = (); }; };
+		9B3DCC0E1BB8DF40007D947B /* Fault.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B3DCC0D1BB8DF40007D947B /* Fault.cpp */; };
 		9B52F8621AFC967500D6230E /* Gates.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B52F8611AFC967500D6230E /* Gates.cpp */; };
 		9B52F8651AFD4FAB00D6230E /* Circuit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B52F8631AFD4FAB00D6230E /* Circuit.cpp */; };
 		9BA906331B4D6AD400B67D29 /* Args.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BA906321B4D6AD400B67D29 /* Args.cpp */; };
@@ -35,7 +35,7 @@
 		9B1EE53F1AF3129200D4C053 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		9B1EE5461AF312AA00D4C053 /* Type.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Type.h; sourceTree = "<group>"; };
 		9B1EE5471AF312BE00D4C053 /* EventWheel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EventWheel.h; sourceTree = "<group>"; };
-		9B1EE5481AF312D900D4C053 /* Gates.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Gates.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		9B1EE5481AF312D900D4C053 /* Gates.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Gates.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		9B3DCC0D1BB8DF40007D947B /* Fault.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Fault.cpp; sourceTree = "<group>"; };
 		9B52F8611AFC967500D6230E /* Gates.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gates.cpp; sourceTree = "<group>"; };
 		9B52F8631AFD4FAB00D6230E /* Circuit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Circuit.cpp; sourceTree = "<group>"; };
@@ -177,7 +177,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -220,7 +220,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;

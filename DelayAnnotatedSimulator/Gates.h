@@ -30,6 +30,7 @@
 #include "Type.h"
 #include <vector>
 #include <map>
+#include <iterator>
 #include "Fault.h"
 
 class Gate;
@@ -61,11 +62,12 @@ enum class GateType { //good for now, can expand later
 class GateStore {
     friend Gate;
 private:
+    unsigned int num_gates;
     std::unique_ptr<LogicValue[]> goodVal;
     std::unique_ptr<LogicValue[]> faultVal;
     std::unique_ptr<unsigned int[]> delay;
-    std::unique_ptr<Gate*[]> fanins;
-    std::unique_ptr<Gate*[]> fanouts;
+    std::unique_ptr<Gate*[]> fanins; //all that's needed here is the idx to lookup the good/fault val
+    std::unique_ptr<Gate*[]> fanouts; //want to schedule the next gate, so pointer reduces indirection, since all gates owned by circuit, this is memory safe
     std::unique_ptr<uint32_t[]> GIC_coverage_flags; //up to 5 input gates supported.
     std::unique_ptr<char[]> toggle_up;
     std::unique_ptr<char[]> toggle_down;
@@ -74,15 +76,16 @@ private:
     
 public:
     //no default constructor
+    //waste 1 item, but it's worth it.
     GateStore(unsigned int num_gates, unsigned int num_fanouts) {
-        goodVal = std::move( std::unique_ptr<LogicValue[]>(new LogicValue[num_gates]) );
-        faultVal = std::move( std::unique_ptr<LogicValue[]>(new LogicValue[num_gates]) );
-        delay = std::move( std::unique_ptr<unsigned int[]>(new unsigned int[num_gates]) );
+        goodVal = std::move( std::unique_ptr<LogicValue[]>(new LogicValue[num_gates+1]) );
+        faultVal = std::move( std::unique_ptr<LogicValue[]>(new LogicValue[num_gates+1]) );
+        delay = std::move( std::unique_ptr<unsigned int[]>(new unsigned int[num_gates+1]) );
         fanins = std::move( std::unique_ptr<Gate*[]>(new Gate*[num_fanouts]) );
         fanouts = std::move( std::unique_ptr<Gate*[]>(new Gate*[num_fanouts]) );
-        GIC_coverage_flags = std::move( std::unique_ptr<uint32_t[]>(new uint32_t[num_gates]) );
-        toggle_up = std::move( std::unique_ptr<char[]>(new char[num_gates]) );
-        toggle_down = std::move( std::unique_ptr<char[]>(new char[num_gates]) );
+        GIC_coverage_flags = std::move( std::unique_ptr<uint32_t[]>(new uint32_t[num_gates+1]) );
+        toggle_up = std::move( std::unique_ptr<char[]>( new char[(num_gates + 1)/8 + 1]) );
+        toggle_down = std::move( std::unique_ptr<char[]>( new char(num_gates + 1)/8 + 1) );
     }
     
     //can't be copied
@@ -120,141 +123,85 @@ public:
 //change this to be more cache friendly.
 class Gate {
 protected:
-    GateStore* gateStore;
-    unsigned int gate_id;
-    unsigned int fanin_idx;
-    unsigned int fanout_idx;
-    unsigned int levelnum;
-    unsigned int delay;
-    uint8_t num_fanin;
-    uint8_t num_fanout;
+    //smallest to largest
+    GateType type;
+    uint16_t num_fanin;
+    uint16_t num_fanout;
+    uint32_t gate_id;
+    uint32_t fanin_idx;
+    uint32_t fanout_idx;
+    uint32_t levelnum;
+    uint32_t delay;
+    GateStore* gate_store = nullptr;
     
 public:
-    static bool toggle_relax;
-    bool calc_GIC;
+    static uint8_t coverageFlags;
     
-    Gate(unsigned int idx) : gate_id(idx) {}
+    class const_fanin_iterator : public std::iterator<std::bidirectional_iterator_tag, unsigned int> {
+    private:
+        unsigned int idx;
+        Gate& creator;
+    public:
+        typedef Gate::const_fanin_iterator self_type;
+        
+        const_fanin_iterator(unsigned int idx, Gate& creator) : idx(idx), creator(creator) {}
+        self_type operator++() { idx++; return *this; }
+        self_type operator--() { idx--; return *this; }
+        const Gate*& operator*() { return (const Gate*) creator.gate_store->fanins[idx]; }
+        const Gate** operator->() { return (const Gate**) &(creator.gate_store->fanins[idx]); };
+        bool operator== (const self_type rhs) { return idx == rhs.idx; }
+        bool operator!= (const self_type rhs) { return idx != rhs.idx; }
+    };
+
+    class const_fanout_iterator : public std::iterator<std::bidirectional_iterator_tag, Gate*> {
+    private:
+        unsigned int idx;
+        Gate& creator;
+    public:
+        typedef Gate::const_fanout_iterator self_type;
+        
+        const_fanout_iterator(unsigned int idx, Gate& creator) : idx(idx), creator(creator) {}
+        self_type operator++() { idx++; return *this; }
+        self_type operator--() { idx--; return *this; }
+        const Gate* operator*() { return creator.gate_store->fanouts[idx]; }
+        const Gate** operator->() { return (const Gate**)&(creator.gate_store->fanouts[idx]); }
+        bool operator== (const self_type rhs) { return idx == rhs.idx; }
+        bool operator!= (const self_type rhs) { return idx != rhs.idx; }
+    };
     
-    Gate(unsigned int idx, GateType type, unsigned int level) : gate_id(idx), levelnum(level) {}
     
-    Gate(unsigned int idx, std::vector<Gate *> fin, std::vector<Gate *> fout, GateType type) {}
+    
+    Gate(unsigned int idx, GateStore* gs) : gate_id(idx), gate_store(gs) {}
+    Gate(unsigned int idx, GateStore* gs, GateType type, unsigned int level) : gate_id(idx), gate_store(gs) {
+        gate_store->level[gate_id];
+    }
     
     virtual ~Gate() { }
     
-    virtual void evaluate(); //eval and schedule if transition
+    virtual bool evaluate(); //eval and schedule if transition
     
-    void createGIC(){
-        unsigned int num_gic = 0x01;
-        for(int i = 0; i<fanin.size(); i++) {
-        }
-        GIC_coverage.resize(num_gic);
-        for(int i = 0; i<GIC_coverage.size(); i++){
-            GIC_coverage[i] = false;
-        }
-    }
-    
-    bool isDirty() {
-        return dirty;
-    }
-    void resetDirty() {
-        dirty = false;
-    }
-    virtual Gate* clone() {
-        return new Gate(*this);
-    }
+    void createGIC(){    }
 
-    inline LogicValue getOut() {
-        return output;
-    }
-    const std::vector<Gate *>& getFanout();
-    const std::vector<Gate *>& getFanin();
-
-    //fanin/out methods
-    inline void addFanin(Gate * gate) {
-        fanin.push_back(gate);
-    }
-    inline void addFanout(Gate * gate) {
-        fanout.push_back(gate);
-    }
-    inline void setFanin(std::vector<Gate *> set_fanin) {
-        fanin = std::move(set_fanin);
-    }
-    inline void setFanout(std::vector<Gate *>& set_fanout) {
-        fanout = std::move(set_fanout);
-    }
-    inline size_t getNumFanin() {
-        return fanin.size();
-    }
-    inline size_t getNumFanout() {
-        return fanout.size();
-    }
-    inline Gate* getFanin(unsigned int idx) {
-        return fanin[idx];
-    }
-    inline Gate* getFanout(unsigned int idx) {
-        return fanout[idx];
-    }
-    inline void clearFanin() {
-        fanin.clear();
-    }
-    inline void clearFanout() {
-        fanout.clear();
-    }
-
+    inline LogicValue getOut() { return gate_store->goodVal[gate_id]; }
+    inline uint16_t getNumFanin() { return num_fanout; }
+    inline uint16_t getNumFanout() { return num_fanout; }
+    inline Gate* getFanin(unsigned int net) {return  (net < num_fanin) ? gate_store->fanins[fanin_idx+net] : nullptr; }
+    inline Gate* getFanout(unsigned int net) {return (net < num_fanout) ? gate_store->fanouts[fanout_idx+net] : nullptr; }
     //Gate info methods
-    inline unsigned int getLevel() {
-        return levelnum;
-    }
-    inline void setLevel(unsigned int level) {
-        levelnum = level;
-    }
-    inline unsigned int getDelay() {
-        return delay;
-    }
-    inline void setDelay(unsigned int dly) {
-        delay = dly;
-    }
-    inline unsigned int getId() {
-        return gate_id;
-    }
-    inline void setScheduled() {
-        scheduled = true;
-    }
-    inline void unsetScheduled(){
-        scheduled = false;
-    }
-    inline bool isScheduled(){
-        return scheduled;
-    }
+    inline unsigned int getLevel() { return levelnum; }
+    inline void setLevel(unsigned int level) { levelnum = level; }
+    inline unsigned int getDelay() { return delay; }
+    inline void setDelay(unsigned int dly) { delay = dly; }
+    inline unsigned int getId() { return gate_id; }
 
     //faulty gate methods
     void diverge(Fault *);
-    void clearFaultValid();
-    virtual void faultEvaluate() {}
+    virtual bool faultEvaluate() {}
     
-    inline bool propagatesFault(){
-        return propagates;
-    }
-    inline void addFault(Fault * flt){
-        assoc_faults[flt->getFID() % NUM_FAULT_INJECT] = flt;
-        valid[flt->getFID() % NUM_FAULT_INJECT] = true;
-    }
-    inline LogicValue getFaultyValue(Fault * flt){
-        if(valid[flt->getFID() % NUM_FAULT_INJECT]){
-            return f_vals[flt->getFID() % NUM_FAULT_INJECT];
-        } else {
-            return output;
-        }
-    }
-    static void setFaultRound(unsigned short round) {
-        fault_round = round;
-    }
-    static void setNumInjected(unsigned int num){
-        num_injected = num;
-    }
-    
+    inline LogicValue getFaultyValue() {}
+
     inline void setGIC(){
-        if(!calc_GIC) return;
+        /*if(!calc_GIC) return;
         unsigned int idx = 0;
         for(unsigned int i = 0; i < fanin.size(); i++){
             if(fanin[i]->type() == TIE_ZERO || fanin[i]->type() == TIE_ONE) continue;
@@ -269,45 +216,32 @@ public:
                 }
             }
         }
-        GIC_coverage[idx] = true;
+        GIC_coverage[idx] = true;*/
     }
     
-    inline unsigned int getGICCov(){
-        unsigned int cnt = 0;
-        for(int i = 0; i<GIC_coverage.size(); i++){
-            if(GIC_coverage[i] == true){
-                cnt++;
-            }
-        }
-        return cnt;
-    }
+    inline unsigned int getGICCov(){}
     
-    inline unsigned int getNumGICPts(){
-        return GIC_coverage.size();
-    }
+    inline unsigned int getNumGICPts() {return (2 << getNumFanin());}
     
-    inline bool hasToggled() {
-        return (toggled_up && toggled_down);
-    }
+    inline bool toggledUp() { return false; }
     
-    inline bool toggledUp() {
-        return toggled_up;
-    }
-    
-    inline bool toggledDown() {
-        return toggled_down;
-    }
+    inline bool toggledDown() { return false; }
     //dynamic cast methods for Flip Flops and Inputs
     InputGate* castInput();
     OutputGate* castOutput();
     DffGate* castDff();
+    
+    //iterator methods
+    const_fanin_iterator fanin_begin() { return const_fanin_iterator(fanin_idx, *this);}
+    const_fanin_iterator fanin_end() { return const_fanin_iterator(fanin_idx + num_fanin, *this); }
+    const_fanout_iterator fanout_begin() { return const_fanout_iterator(fanout_idx, *this); }
+    const_fanout_iterator fanout_end() { return const_fanout_iterator(fanout_idx + num_fanout, *this); }
 };
+
 
 class AndGate : public Gate {
 public:
-    AndGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::AND, level) {}
-    AndGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::AND) {}
+    AndGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::AND, level) {}
     ~AndGate() {};
     void evaluate();
     void faultEvaluate();
@@ -318,9 +252,7 @@ public:
 
 class NandGate : public Gate {
 public:
-    NandGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::NAND, level) {}
-    NandGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::NAND) {}
+    NandGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::NAND, level) {}
     ~NandGate() {}
     void evaluate();
     void faultEvaluate();
@@ -331,9 +263,7 @@ public:
 
 class OrGate : public Gate {
 public:
-    OrGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::OR, level) {}
-    OrGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::OR) {}
+    OrGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::OR, level) {}
     ~OrGate() {}
     void evaluate();
     void faultEvaluate();
@@ -344,9 +274,7 @@ public:
 
 class NorGate : public Gate {
 public:
-    NorGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::NOR, level) {}
-    NorGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::NOR) {}
+    NorGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::NOR, level) {}
     ~NorGate() {}
     void evaluate();
     void faultEvaluate();
@@ -357,9 +285,7 @@ public:
 
 class XorGate : public Gate {
 public:
-    XorGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::XOR, level) {}
-    XorGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::XOR) {}
+    XorGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::XOR, level) {}
     ~XorGate() {}
     void evaluate();
     void faultEvaluate();
@@ -370,9 +296,7 @@ public:
 
 class XnorGate : public Gate {
 public:
-    XnorGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::XNOR, level) {}
-    XnorGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::XNOR) {}
+    XnorGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::XNOR, level) {}
     ~XnorGate () {}
     void evaluate();
     void faultEvaluate();
@@ -383,9 +307,7 @@ public:
 
 class NotGate : public Gate {
 public:
-    NotGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::NOT, level) {}
-    NotGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::NOT) {}
+    NotGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::NOT, level) {}
     ~NotGate() {}
     void evaluate();
     void faultEvaluate();
@@ -396,9 +318,7 @@ public:
 
 class InputGate : public Gate {
 public:
-    InputGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::INPUT, level) {}
-    InputGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::INPUT) {}
+    InputGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::INPUT, level) {}
     ~InputGate() {}
     void evaluate();
     void faultEvaluate();
@@ -411,9 +331,7 @@ public:
 
 class OutputGate : public Gate {
 public:
-    OutputGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::OUTPUT, level) {}
-    OutputGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::OUTPUT) {}
+    OutputGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::OUTPUT, level) {}
     ~OutputGate() {}
     void evaluate();
     void faultEvaluate();
@@ -425,9 +343,7 @@ public:
 
 class TieZeroGate : public Gate {
 public:
-    TieZeroGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::TIE_ZERO, level) {}
-    TieZeroGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::TIE_ZERO) {}
+    TieZeroGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::TIE_ZERO, level) {}
     ~TieZeroGate() {}
     void evaluate();
     void faultEvaluate() {}
@@ -438,9 +354,7 @@ public:
 
 class TieOneGate : public Gate {
 public:
-    TieOneGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::TIE_ONE, level) {}
-    TieOneGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::TIE_ONE) {}
+    TieOneGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::TIE_ONE, level) {}
     ~TieOneGate() {}
     void evaluate();
     void faultEvaluate() {}
@@ -451,9 +365,7 @@ public:
 
 class TieXGate : public Gate {
 public:
-    TieXGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::TIE_X, level) {}
-    TieXGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::TIE_X) {}
+    TieXGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::TIE_X, level) {}
     ~TieXGate() {}
     void evaluate();
     void faultEvaluate() {}
@@ -464,9 +376,7 @@ public:
 
 class TieZGate : public Gate {
 public:
-    TieZGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::TIE_Z, level) {}
-    TieZGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::TIE_Z) {}
+    TieZGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::TIE_Z, level) {}
     ~TieZGate() {}
     void evaluate();
     void faultEvaluate() {}
@@ -477,9 +387,7 @@ public:
 
 class BufGate : public Gate {
 public:
-    BufGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::BUF, level) {}
-    BufGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::BUF) {}
+    BufGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::BUF, level) {}
     ~BufGate() {}
     void evaluate();
     void faultEvaluate();
@@ -492,9 +400,7 @@ class DffGate : public Gate {
 private:
     bool doneGoodSim;
 public:
-    DffGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::D_FF, level) {doneGoodSim = false;}
-    DffGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::D_FF) {doneGoodSim = false;}
+    DffGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::D_FF, level) {doneGoodSim = false;}
     ~DffGate() {}
     void evaluate();
     void faultEvaluate();
@@ -507,9 +413,7 @@ public:
 
 class Mux2Gate : public Gate {
 public:
-    Mux2Gate(unsigned int gid, unsigned int level) : Gate(gid, Gate::MUX_2, level) {}
-    Mux2Gate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::MUX_2) {}
+    Mux2Gate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::MUX_2, level) {}
     ~Mux2Gate() {}
     void evaluate();
     void faultEvaluate() {}
@@ -520,9 +424,7 @@ public:
 
 class TristateGate : public Gate {
 public:
-    TristateGate(unsigned int gid, unsigned int level) : Gate(gid, Gate::TRISTATE, level) {}
-    TristateGate(unsigned int gid, std::vector<Gate *> fin, std::vector<Gate *> fout)
-        : Gate(gid, fin, fout, Gate::TRISTATE) {}
+    TristateGate(unsigned int gid, GateStore* gs, unsigned int level) : Gate(gid, gs, GateType::TRISTATE, level) {}
     ~TristateGate() {}
     void evaluate();
     void faultEvaluate() {}

@@ -72,12 +72,9 @@ class LogicDelaySimulator: public Simulator {
     GateDelayWheel * eventwheel;
     std::vector<unsigned int> output_time;
 public:
-    LogicDelaySimulator(Circuit * ckt): Simulator(ckt) {
-        eventwheel = new GateDelayWheel(ckt->getMaxDelay());
-    }
-    ~LogicDelaySimulator() {
-        delete eventwheel;
-    }
+    LogicDelaySimulator(Circuit * ckt): Simulator(ckt) { eventwheel = new GateDelayWheel(ckt->getMaxDelay()); }
+    ~LogicDelaySimulator() { delete eventwheel; }
+    
     void simCycle(const std::vector<char>&);
 };
 
