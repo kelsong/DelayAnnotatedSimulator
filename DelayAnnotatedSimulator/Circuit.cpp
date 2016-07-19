@@ -31,6 +31,7 @@ void Circuit::readLev(std::string filename, bool delay) {
         std::getline(circuit_desc, line);
         std::stringstream ss(line);
         std::vector<unsigned int> dff_inputs;
+        unsigned int max_level = 0;
         
         unsigned int num_gates;
         ss >> num_gates;
@@ -41,7 +42,6 @@ void Circuit::readLev(std::string filename, bool delay) {
             std::stringstream gate_info(line);
 
             // Gate characteristics
-            unsigned int max_level = 0;
             unsigned int id;
             unsigned int level;
             unsigned int type;
